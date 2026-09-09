@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#244B35">
+<title>Irrigation & Fertigation Planner V2</title>
+<style>
+:root{--g:#244B35;--bg:#eef3ef;--card:#fff;--line:#d4ddd6;--muted:#667068;--ok:#e5f2e7;--soon:#fff2c9;--due:#fde4d1;--late:#f7dada;--paused:#eceff0;--soft:#edf4ef;--blue:#e8f0f7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#202522;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.app{max-width:1240px;margin:auto;padding:14px}.hero{background:var(--g);color:#fff;padding:18px;border-radius:18px;margin-bottom:12px}.hero h1{margin:0 0 4px;font-size:28px}.hero p{margin:0;opacity:.9}
+.status{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pill{padding:7px 10px;border-radius:999px;font-size:13px;font-weight:800}.on{background:#e8f5ea;color:#225b31}.off{background:#fff0d8;color:#795000}.local{background:#eaf0eb;color:#35533d}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}.tabs button{border:0;border-radius:12px;padding:12px 8px;background:#dfe9e1;color:var(--g);font-weight:900;font-size:15px}.tabs button.active{background:var(--g);color:#fff}
+.page{display:none}.page.active{display:block}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}.card h2,.card h3{margin:0 0 12px;color:var(--g)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}label{display:block;margin:0 0 6px;color:var(--muted);font-weight:800}
+input,select,textarea,button{font:inherit}input,select,textarea{width:100%;border:1px solid #c9d3cb;border-radius:12px;padding:12px;background:#fff;font-size:16px}textarea{min-height:85px;resize:vertical}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.primary,.secondary,.danger,.smallbtn{border:0;border-radius:12px;padding:12px 15px;font-weight:900}.primary{background:var(--g);color:#fff}.secondary{background:#e3ece5;color:var(--g)}.danger{background:#f5dfdf;color:#7d2d2d}.smallbtn{padding:8px 10px;background:#e3ece5;color:var(--g)}
+.outlets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.outlet{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--line);border-radius:11px;background:#fafbfa}.outlet input{width:auto}.outlet small{display:block;color:var(--muted)}
+.summary{padding:12px;border-radius:12px;background:var(--soft);color:var(--g);font-weight:900}.note{padding:12px;border-radius:12px;background:#f5f6f5;border:1px dashed #aeb9b1}.blue{background:var(--blue)}
+.injectors{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.inj{border:1px solid var(--line);border-radius:14px;padding:12px}.inj h3{font-size:17px}.calc{margin-top:9px;padding:9px;border-radius:9px;background:var(--soft);color:var(--g);font-weight:900}
+.injFields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.injFields .wide{grid-column:1/-1}.hidden{display:none!important}.injMeta{font-size:13px;color:var(--muted);margin:-2px 0 8px}.agitatorLine{margin-top:10px;padding:9px;border-radius:9px;background:var(--soft)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{border:1px solid var(--line);border-radius:13px;padding:12px;text-align:center}.stat strong{display:block;font-size:24px;color:var(--g)}.stat span{font-size:12px;color:var(--muted);font-weight:800}
+.statusFilters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.statusFilters button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 11px;font-weight:800;color:var(--g)}.statusFilters button.active{background:var(--g);color:#fff}
+.compactWrap{overflow:auto}.compactTable{width:100%;border-collapse:collapse;min-width:780px}.compactTable th,.compactTable td{padding:7px 8px;border-bottom:1px solid var(--line);font-size:13px;text-align:left;white-space:nowrap}.compactTable th{color:var(--g);position:sticky;top:0;background:#fff}.compactRow.ok{background:var(--ok)}.compactRow.soon{background:var(--soon)}.compactRow.due{background:var(--due)}.compactRow.late{background:var(--late)}.compactRow.none{background:#f2f3f2}.badge{font-size:11px;font-weight:900;text-transform:uppercase}
+.history{overflow:auto}.history table,.planTable{width:100%;border-collapse:collapse;min-width:1180px}.history th,.history td,.planTable th,.planTable td{border-bottom:1px solid var(--line);padding:9px;text-align:left;font-size:13px;vertical-align:top}.history th,.planTable th{color:var(--g)}
+.setupFarm{border:1px solid var(--line);border-radius:12px;margin:8px 0;overflow:hidden}.setupFarm summary{padding:12px;background:#f4f7f4;color:var(--g);font-weight:900}.setupRows{padding:8px}.setupRow{display:grid;grid-template-columns:1.2fr .9fr .7fr;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #edf0ed}.setupRow:last-child{border-bottom:0}.muted{color:var(--muted);font-size:13px}
+.planHeader{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}.planCards{display:grid;gap:10px}.planCard{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.planTop{display:grid;grid-template-columns:120px 1.2fr .8fr .8fr;gap:10px;align-items:center}.planTime{font-size:20px;font-weight:900;color:var(--g)}.planActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.fertSummary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.fertBox{border:1px solid var(--line);border-radius:12px;padding:12px}.fertBox h3{font-size:16px}.fertLine{padding:6px 0;border-bottom:1px solid #edf0ed}.fertLine:last-child{border-bottom:0}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+.libraryAdd{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}.libraryList{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.fertChip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px}.fertChip button{border:0;background:transparent;color:#a22;font-weight:900;padding:0}
+.injectorSetupRow{display:grid;grid-template-columns:1.3fr .8fr .8fr .8fr;gap:10px;align-items:end;padding:10px 0;border-bottom:1px solid var(--line)}.injectorSetupRow:last-child{border-bottom:0}.checkLine{display:flex;align-items:center;gap:8px;min-height:44px}.checkLine input{width:auto}
+.editBanner{display:none;margin-bottom:12px;padding:12px;border-radius:12px;background:#fff2c9;border:1px solid #e3ca7a;color:#5e4a00;font-weight:800}.editBanner.show{display:block}
+.batchTag{display:inline-block;padding:4px 8px;border-radius:999px;background:#e8f0f7;color:#2f5069;font-size:12px;font-weight:800;margin:2px 4px 2px 0}
+.flushTag{display:inline-block;padding:4px 8px;border-radius:999px;background:#e7eff8;color:#2b5373;font-size:12px;font-weight:800}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.injectors,.fertSummary{grid-template-columns:1fr}.outlets{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.planTop{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.tabs{grid-template-columns:1fr 1fr}.outlets,.stats,.planTop,.injFields{grid-template-columns:1fr}.injFields .wide{grid-column:auto}.hero h1{font-size:23px}}
+</style>
+</head>
+<body>
+<div class="app">
+<section class="hero">
+  <h1>Irrigation & Fertigation Planner V2</h1>
+  <p>Plan irrigation, carry fertilizer vats across jobs, program AquaLink, then record completed irrigation.</p>
+  <div class="status"><span id="network" class="pill on">● Online</span><span class="pill local">Plans and records save locally first</span></div>
+</section>
+
+<nav class="tabs">
+  <button class="active" data-page="dashboard">Dashboard</button>
+  <button data-page="tonight">Tonight's Plan</button>
+  <button data-page="new">New Plan</button>
+  <button data-page="history">History</button>
+  <button data-page="setup">Setup</button>
+</nav>
+
+<section id="dashboard" class="page active">
+  <div class="card"><h2>Irrigation Rotation</h2><div id="stats" class="stats"></div></div>
+  <div class="card">
+    <h2>Outlet Status</h2>
+    <div class="muted" style="margin-bottom:10px">Only completed irrigations update the rotation. Planned jobs do not change last-irrigated dates.</div>
+    <div class="statusFilters" id="statusFilters">
+      <button data-filter="all" class="active">All</button><button data-filter="due">Due</button><button data-filter="overdue">Overdue</button><button data-filter="none">No History</button>
+    </div>
+    <div class="compactWrap"><table class="compactTable"><thead><tr><th>Farm</th><th>Outlet</th><th>Ha</th><th>Last Irrigated</th><th>Next Due</th><th>Days</th><th>Status</th></tr></thead><tbody id="statusBody"></tbody></table></div>
+  </div>
+</section>
+
+<section id="tonight" class="page">
+  <div class="card">
+    <div class="planHeader"><div><h2>Night Irrigation Plan</h2><div class="muted">Review the complete program before mixing vats and entering it into WISA / AquaLink.</div></div><div><label>Plan date</label><input id="planViewDate" type="date"></div></div>
+  </div>
+  <div class="card"><h2>Fertilizer / Vat Summary</h2><div id="fertSummary" class="fertSummary"></div></div>
+  <div class="card"><h2>Programming View</h2><div class="btns"><button id="copyProgram" class="secondary">Copy Programming Summary</button></div><div class="history"><table class="planTable"><thead><tr><th>Start</th><th>Finish</th><th>Farm / Outlets</th><th>Ha</th><th>Hours</th><th>Pump system</th><th>Injection 1</th><th>Injection 2</th><th>Injection 3</th><th>Injection 4</th></tr></thead><tbody id="programBody"></tbody></table></div></div>
+  <div class="card"><h2>Planned Jobs</h2><div id="planCards" class="planCards"></div></div>
+</section>
+
+<section id="new" class="page">
+  <div id="editBanner" class="editBanner">Editing an existing planned job. Save Changes will update the same job and will not affect rotation until Mark Complete.</div>
+  <div class="card">
+    <h2 id="formTitle">New Irrigation Plan</h2>
+    <div class="grid">
+      <div><label>Start date</label><input id="date" type="date"></div>
+      <div><label>Pump start time</label><input id="startTime" type="time"></div>
+      <div><label>Farm</label><select id="farm"></select></div>
+      <div><label>Irrigation duration (hours)</label><input id="duration" type="number" min="0" step="0.1" placeholder="Example: 4"></div>
+      <div class="full"><label>Outlets</label><div id="outlets" class="outlets"></div></div>
+      <div class="full"><div id="areaSummary" class="summary">Selected area: 0.00 ha</div></div>
+      <div><label>Shared pump system</label><input id="pumpSystem" readonly></div>
+      <div><label>Calculated finish</label><input id="finishDisplay" readonly placeholder="Enter start time and duration"></div>
+      <div class="full"><div class="note blue">This saves a <strong>planned</strong> job only. It will not update the outlet rotation until you mark the job Complete from Tonight's Plan.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fertigation — Injectors / Vats</h2>
+    <p class="muted">Each injector can be unused, run fertilizer, or be used as a separate flush action. A fertilizer vat can start a new batch or continue a batch from an earlier irrigation job.</p>
+    <div id="injectors" class="injectors"></div>
+  </div>
+
+  <div class="card">
+    <label>Notes</label><textarea id="notes" placeholder="Optional planning notes for AquaLink, fertilizer mixing or the irrigation run."></textarea>
+    <div class="btns"><button id="savePlan" class="primary">Save to Night Plan</button><button id="cancelEdit" class="secondary hidden">Cancel Edit</button><button id="clearForm" class="secondary">Clear</button></div>
+  </div>
+</section>
+
+<section id="history" class="page">
+  <div class="card">
+    <h2>Completed Irrigation History</h2>
+    <div class="btns"><button id="exportCsv" class="secondary">Export Spreadsheet CSV</button><button id="clearHistory" class="danger">Clear History</button></div>
+    <div class="history"><table><thead><tr><th>Date</th><th>Start</th><th>Finish</th><th>Farm</th><th>Outlets</th><th>Ha</th><th>Hours</th><th>Pump system</th><th>Injection 1</th><th>Injection 2</th><th>Injection 3</th><th>Injection 4</th><th>Notes</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+  </div>
+</section>
+
+<section id="setup" class="page">
+  <div class="card"><h2>Fertilizer Library</h2><p class="muted">This list feeds the fertilizer dropdowns in New Plan. Add or remove products whenever your program changes.</p><div class="libraryAdd"><div><label>Fertilizer name</label><input id="newFertilizer" placeholder="Example: Calcium Nitrate"></div><button id="addFertilizer" class="secondary">Add Fertilizer</button></div><div id="fertilizerList" class="libraryList"></div></div>
+  <div class="card"><h2>Injector / Vat Setup</h2><p class="muted">Each site has four editable injector positions. Names, flow rates, flow units and agitator availability are saved here.</p><div id="injectorSetup"></div></div>
+  <div class="card"><h2>Rotation Setup</h2><p class="muted">Set each outlet to Active Rotation, Temporarily Paused or Finished, and set its normal cycle in days.</p><div id="setupFarms"></div></div>
+  <div class="card"><h2>Pump Systems</h2><p><strong>Rays / Zanetti / Tavasci</strong> — one interconnected shared pumping system.</p><p><strong>Norris Back / Norris School / Norris Gully</strong> — one shared pumping system.</p><p class="muted">Detailed simultaneous-outlet rules can be added once the pump capacities are known.</p></div>
+</section>
+</div>
+
+<script>
+(function(){
+const FARMS={
+Strathdee:{"1":4.90,"2":4.80,"3":4.80,"4":4.80,"5":4.70,"6":4.70,"7":4.70,"8":4.70,"9T":2.80,"9B":4.61,"10B":4.65,"School 1":4.07,"School 2":3.73,"Gully 1":5.23},
+Rays:{"1":5.10,"2":5.10,"3":5.10,"4":5.10,"5":5.10,"6":5.10,"7":3.40,"8":3.40},
+Tavasci:{"1":4.50,"2":4.50,"3":4.50,"4":4.50,"5":4.50,"6":4.50,"7":4.50,"8":5.12,"9":1.70,"10":0.74},
+Zanetti:{"1":4.80,"2":4.80,"3":4.80,"4":4.80,"5":4.80,"6":6.15},
+Menso:{"1":4.14,"2":4.01,"3":3.82,"4":3.42,"5":2.95,"6":4.54,"7":4.14},
+"Norris Back":{"1":3.75,"2":4.50,"3":4.50,"4":4.50,"School 1":4.20,"School 2":4.20,"School 3":4.80,"Gully":2.55},
+Jacks:{"1":4.30,"2":3.20,"3":4.60,"4":4.60,"5":4.30,"6":3.90,"7":4.60,"8":4.60,"9":4.60}
+};
+const GROUP={
+Strathdee:"Strathdee Pump System",
+Rays:"Rays / Zanetti / Tavasci Shared System",
+Tavasci:"Rays / Zanetti / Tavasci Shared System",
+Zanetti:"Rays / Zanetti / Tavasci Shared System",
+Menso:"Menso Pump System",
+"Norris Back":"Norris Back / School / Gully Shared System",
+Jacks:"Jacks Pump System"
+};
+const KEY="irrigationFertigationPlannerV1";
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,"0");
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function fmt(d){if(!d)return"—";const [y,m,day]=d.split("-").map(Number);return new Date(y,m-1,day).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"})}
+function fmtTime(t){if(!t)return"—";const [h,m]=t.split(":").map(Number);return new Date(2000,0,1,h,m).toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit"})}
+function addHours(date,time,hours){const [y,m,d]=date.split("-").map(Number),[hh,mm]=time.split(":").map(Number);const x=new Date(y,m-1,d,hh,mm);x.setMinutes(x.getMinutes()+Math.round(hours*60));return{date:`${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`,time:`${pad(x.getHours())}:${pad(x.getMinutes())}`}}
+function defaultInjector(i){return{name:`Injector ${i+1}`,flow:0,flowUnit:"L/hr",agitator:false}}
+function initState(){
+  let s={plans:[],records:[],rotation:{},fertilizers:["Calcium Nitrate","Potassium Sulphate"],injectorConfig:{}};
+  try{const old=JSON.parse(localStorage.getItem(KEY));if(old&&typeof old==="object")s={...s,...old}}catch(e){}
+  if(!Array.isArray(s.plans))s.plans=[]; if(!Array.isArray(s.records))s.records=[]; if(!s.rotation)s.rotation={}; if(!Array.isArray(s.fertilizers))s.fertilizers=["Calcium Nitrate","Potassium Sulphate"]; if(!s.injectorConfig)s.injectorConfig={};
+  Object.keys(FARMS).forEach(f=>{
+    if(!Array.isArray(s.injectorConfig[f]))s.injectorConfig[f]=[];
+    for(let i=0;i<4;i++)s.injectorConfig[f][i]={...defaultInjector(i),...(s.injectorConfig[f][i]||{})};
+    s.injectorConfig[f]=s.injectorConfig[f].slice(0,4);
+    Object.keys(FARMS[f]).forEach(o=>{const k=f+"|"+o;if(!s.rotation[k])s.rotation[k]={status:"active",cycle:3,last:null}})
+  });
+  s.plans.forEach(p=>{
+    if(!Array.isArray(p.injectors))p.injectors=[];
+    for(let i=0;i<4;i++){
+      const x=p.injectors[i]||{};
+      p.injectors[i]={
+        type:x.type || ((x.name||x.rate)?"fertilizer":"unused"),
+        injectorName:x.injectorName||`Injector ${i+1}`,flow:Number(x.flow)||0,flowUnit:x.flowUnit||"L/hr",
+        agitatorAvailable:!!x.agitatorAvailable,agitatorOn:!!x.agitatorOn,
+        name:x.name||"",rate:Number(x.rate)||0,unit:x.unit||"kg/ha",qty:Number(x.qty)||0,
+        batchMode:x.batchMode||"none",batchName:x.batchName||"",flushNote:x.flushNote||""
+      };
+    }
+    p.injectors=p.injectors.slice(0,4)
+  });
+  return s
+}
+let state=initState(),editingPlanId=null,statusFilter="all";
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+save();
+
+function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));if(id==="dashboard")dashboard();if(id==="tonight")renderPlan();if(id==="history")history();if(id==="setup")setup()}
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+
+function farmInit(){const sel=$("farm");sel.innerHTML=Object.keys(FARMS).map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join("");sel.addEventListener("change",()=>{renderOutlets();$("pumpSystem").value=GROUP[sel.value]||"";renderInjectors();recalc()});renderOutlets();$("pumpSystem").value=GROUP[sel.value]||"";renderInjectors()}
+function renderOutlets(){const f=$("farm").value,b=$("outlets");b.innerHTML="";Object.entries(FARMS[f]).forEach(([o,ha])=>{const l=document.createElement("label");l.className="outlet";l.innerHTML=`<input type="checkbox" value="${esc(o)}"><span><strong>${esc(o)}</strong><small>${ha.toFixed(2)} ha</small></span>`;l.querySelector("input").addEventListener("change",recalc);b.appendChild(l)})}
+function selected(){return [...$("outlets").querySelectorAll("input:checked")].map(x=>x.value)}
+function area(){const f=$("farm").value;return selected().reduce((s,o)=>s+FARMS[f][o],0)}
+function fertilizerOptions(selected=""){const opts=['<option value="">Choose fertilizer</option>'];state.fertilizers.slice().sort((a,b)=>a.localeCompare(b)).forEach(n=>opts.push(`<option value="${esc(n)}"${n===selected?' selected':''}>${esc(n)}</option>`));return opts.join("")}
+
+function renderInjectors(existing=[]){
+  const f=$("farm").value,b=$("injectors");if(!f||!b)return;b.innerHTML="";const cfg=state.injectorConfig[f]||[];
+  for(let i=0;i<4;i++){
+    const c=cfg[i]||defaultInjector(i),x=existing[i]||{},d=document.createElement("div");d.className="inj";d.dataset.index=i;
+    d.innerHTML=`<h3>${esc(c.name)}</h3>
+      <div class="injMeta">${c.flow>0?`Flow rate: ${c.flow} ${esc(c.flowUnit)}`:"Flow rate not entered"}${c.agitator?" · Agitator available":""}</div>
+      <div class="injFields">
+        <div class="wide"><label>Action</label><select class="itype"><option value="unused">Unused</option><option value="fertilizer">Fertilizer</option><option value="flush">Flush Cycle</option></select></div>
+        <div class="fertFields wide">
+          <label>Fertilizer</label><select class="iname">${fertilizerOptions(x.name||"")}</select>
+        </div>
+        <div class="fertFields"><label>Rate per hectare</label><input class="irate" type="number" min="0" step="0.01" value="${Number(x.rate)||0}"></div>
+        <div class="fertFields"><label>Unit</label><select class="iunit"><option>kg/ha</option><option>L/ha</option></select></div>
+        <div class="fertFields"><label>Vat / batch</label><input class="ibatch" value="${esc(x.batchName||"")}" placeholder="Example: Jacks Vat 1"></div>
+        <div class="fertFields"><label>Batch action</label><select class="ibatchmode"><option value="none">No batch tracking</option><option value="new">Start new batch</option><option value="continue">Continue existing batch</option></select></div>
+        <div class="flushFields wide hidden"><label>Flush note / instruction</label><input class="iflush" value="${esc(x.flushNote||"")}" placeholder="Example: Flush vat after Jacks 3 & 4"></div>
+      </div>
+      ${c.agitator?'<label class="agitatorLine"><span class="checkLine"><input class="iagitator" type="checkbox"> Agitator ON for this action</span></label>':''}
+      <div class="calc fertCalc">Total fertilizer required: <span class="itotal">0 kg</span></div>`;
+    const type=d.querySelector(".itype"),unit=d.querySelector(".iunit"),batchMode=d.querySelector(".ibatchmode"),ag=d.querySelector(".iagitator");
+    type.value=x.type||((x.name||x.rate)?"fertilizer":"unused");unit.value=x.unit||"kg/ha";batchMode.value=x.batchMode||"none";if(ag)ag.checked=!!x.agitatorOn;
+    const sync=()=>{
+      const t=type.value;
+      d.querySelectorAll(".fertFields").forEach(el=>el.classList.toggle("hidden",t!=="fertilizer"));
+      d.querySelectorAll(".flushFields").forEach(el=>el.classList.toggle("hidden",t!=="flush"));
+      d.querySelector(".fertCalc").classList.toggle("hidden",t!=="fertilizer");
+      recalc()
+    };
+    type.addEventListener("change",sync);d.querySelector(".irate").addEventListener("input",recalc);unit.addEventListener("change",recalc);sync();b.appendChild(d)
+  }
+}
+function recalc(){const a=area();$("areaSummary").textContent=`Selected area: ${a.toFixed(2)} ha`;[...document.querySelectorAll(".inj")].forEach(d=>{const rate=Number(d.querySelector(".irate")?.value)||0,u=d.querySelector(".iunit")?.value||"kg/ha",q=a*rate;const total=d.querySelector(".itotal");if(total)total.textContent=`${Number(q.toFixed(2)).toLocaleString("en-AU")} ${u==="kg/ha"?"kg":"L"}`});finishText()}
+function finishText(){const date=$("date").value,time=$("startTime").value,h=Number($("duration").value);if(!date||!time||!Number.isFinite(h)||h<=0){$("finishDisplay").value="";return}const f=addHours(date,time,h);$("finishDisplay").value=`${fmtTime(f.time)}${f.date!==date?" next day":""}`}
+function injData(){const a=area(),f=$("farm").value,cfg=state.injectorConfig[f]||[];return [...document.querySelectorAll(".inj")].map((d,i)=>{const c=cfg[i]||defaultInjector(i),type=d.querySelector(".itype").value,rate=Number(d.querySelector(".irate").value)||0,unit=d.querySelector(".iunit").value;return{type,injectorName:c.name||`Injector ${i+1}`,flow:Number(c.flow)||0,flowUnit:c.flowUnit||"L/hr",agitatorAvailable:!!c.agitator,agitatorOn:!!d.querySelector(".iagitator")?.checked,name:type==="fertilizer"?d.querySelector(".iname").value.trim():"",rate:type==="fertilizer"?rate:0,unit,qty:type==="fertilizer"?Number((a*rate).toFixed(4)):0,batchMode:type==="fertilizer"?d.querySelector(".ibatchmode").value:"none",batchName:type==="fertilizer"?d.querySelector(".ibatch").value.trim():"",flushNote:type==="flush"?d.querySelector(".iflush").value.trim():""}})}
+function injText(x){if(!x||x.type==="unused")return"—";const label=x.injectorName?`${x.injectorName} — `:"",flow=x.flow?` · Flow ${x.flow} ${x.flowUnit}`:"",ag=x.agitatorOn?" · Agitator ON":"";if(x.type==="flush")return `${label}Flush Cycle${x.flushNote?": "+x.flushNote:""}${flow}${ag}`;const u=x.unit==="kg/ha"?"kg":"L",batch=x.batchName?` · Batch ${x.batchName}${x.batchMode==="continue"?" (continue)":x.batchMode==="new"?" (new)":""}`:"";return `${label}${x.name||"Fertilizer"}: ${x.rate} ${x.unit} = ${Number(x.qty).toLocaleString("en-AU",{maximumFractionDigits:2})} ${u}${batch}${flow}${ag}`}
+
+function setEditMode(on){$("editBanner").classList.toggle("show",on);$("cancelEdit").classList.toggle("hidden",!on);$("formTitle").textContent=on?"Edit Irrigation Plan":"New Irrigation Plan";$("savePlan").textContent=on?"Save Changes":"Save to Night Plan"}
+function clearForm(resetDate=false){editingPlanId=null;setEditMode(false);$("outlets").querySelectorAll("input").forEach(x=>x.checked=false);$("duration").value="";$("startTime").value="";$("notes").value="";renderInjectors();if(resetDate)$("date").value=$("planViewDate").value||today();recalc()}
+function validatePlan(){const f=$("farm").value,outs=selected(),a=area(),date=$("date").value,time=$("startTime").value,hours=Number($("duration").value);if(!date){alert("Choose a start date.");return null}if(!time){alert("Enter the pump start time.");return null}if(!outs.length){alert("Select at least one outlet.");return null}if(!Number.isFinite(hours)||hours<=0){alert("Enter the irrigation duration in hours.");return null}const fin=addHours(date,time,hours);return{date,startTime:time,finishDate:fin.date,finishTime:fin.time,farm:f,outlets:outs,area:a,hours,pump:GROUP[f]||"",injectors:injData(),notes:$("notes").value.trim()}}
+function savePlan(){const data=validatePlan();if(!data)return;if(editingPlanId){const idx=state.plans.findIndex(x=>x.id===editingPlanId);if(idx<0){alert("That planned job could not be found.");clearForm(false);return}state.plans[idx]={...state.plans[idx],...data,updated:new Date().toISOString()}}else state.plans.push({id:uid(),...data,created:new Date().toISOString()});state.plans.sort((a,b)=>(a.date+a.startTime).localeCompare(b.date+b.startTime));save();$("planViewDate").value=data.date;const wasEdit=!!editingPlanId;clearForm(true);renderPlan();showPage("tonight");alert(wasEdit?"Planned job updated.":"Added to the night plan.")}
+function editPlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;editingPlanId=id;setEditMode(true);$("date").value=p.date;$("startTime").value=p.startTime;$("duration").value=p.hours;$("farm").value=p.farm;renderOutlets();$("pumpSystem").value=GROUP[p.farm]||"";$("outlets").querySelectorAll("input").forEach(x=>x.checked=p.outlets.includes(x.value));renderInjectors(p.injectors||[]);$("notes").value=p.notes||"";recalc();showPage("new");window.scrollTo({top:0,behavior:"smooth"})}
+function duplicatePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;editingPlanId=null;setEditMode(false);$("date").value=p.date;$("startTime").value="";$("duration").value=p.hours;$("farm").value=p.farm;renderOutlets();$("pumpSystem").value=GROUP[p.farm]||"";$("outlets").querySelectorAll("input").forEach(x=>x.checked=p.outlets.includes(x.value));renderInjectors(p.injectors||[]);$("notes").value=p.notes||"";recalc();showPage("new");alert("Copy loaded into New Plan. Enter the new start time, make any changes, then save it as a new job.")}
+function plansForDate(date){return state.plans.filter(p=>p.date===date).sort((a,b)=>a.startTime.localeCompare(b.startTime))}
+function renderPlan(){const date=$("planViewDate").value||today();$("planViewDate").value=date;const ps=plansForDate(date);renderFertSummary(ps);renderProgram(ps);const b=$("planCards");b.innerHTML="";if(!ps.length){b.innerHTML='<div class="empty">No irrigation jobs planned for this date.</div>';return}ps.forEach(p=>{const active=p.injectors.filter(x=>x&&x.type!=="unused"),batches=[...new Set(active.filter(x=>x.type==="fertilizer"&&x.batchName).map(x=>x.batchName))];const d=document.createElement("div");d.className="planCard";d.innerHTML=`<div class="planTop"><div><div class="planTime">${fmtTime(p.startTime)}</div><div class="muted">to ${fmtTime(p.finishTime)}${p.finishDate!==p.date?" next day":""}</div></div><div><strong>${esc(p.farm)} — ${p.outlets.map(esc).join(", ")}</strong><div class="muted">${p.area.toFixed(2)} ha · ${p.hours} hr</div></div><div><strong>${esc(p.pump)}</strong></div><div><strong>Fertigation</strong><div class="muted">${active.length?active.length+" action"+(active.length===1?"":"s"):"None"}</div></div></div>${batches.length?`<div style="margin-top:8px">${batches.map(x=>`<span class="batchTag">${esc(x)}</span>`).join("")}</div>`:""}<div class="muted" style="margin-top:8px">${p.injectors.map(injText).join(" · ")}</div>${p.notes?`<div class="muted" style="margin-top:6px">Notes: ${esc(p.notes)}</div>`:""}<div class="planActions"><button class="smallbtn complete">Mark Complete</button><button class="smallbtn edit">Edit</button><button class="smallbtn duplicate">Duplicate</button><button class="smallbtn delete">Remove from Plan</button></div>`;d.querySelector(".complete").addEventListener("click",()=>completePlan(p.id));d.querySelector(".edit").addEventListener("click",()=>editPlan(p.id));d.querySelector(".duplicate").addEventListener("click",()=>duplicatePlan(p.id));d.querySelector(".delete").addEventListener("click",()=>deletePlan(p.id));b.appendChild(d)})}
+function renderProgram(ps){const b=$("programBody");b.innerHTML="";if(!ps.length){b.innerHTML='<tr><td colspan="10">No planned jobs.</td></tr>';return}ps.forEach(p=>{const tr=document.createElement("tr");tr.innerHTML=`<td><strong>${fmtTime(p.startTime)}</strong></td><td>${fmtTime(p.finishTime)}${p.finishDate!==p.date?" +1 day":""}</td><td>${esc(p.farm)} — ${p.outlets.map(esc).join(", ")}</td><td>${p.area.toFixed(2)}</td><td>${p.hours}</td><td>${esc(p.pump)}</td><td>${esc(injText(p.injectors[0]))}</td><td>${esc(injText(p.injectors[1]))}</td><td>${esc(injText(p.injectors[2]))}</td><td>${esc(injText(p.injectors[3]))}</td>`;b.appendChild(tr)})}
+function renderFertSummary(ps){const b=$("fertSummary");b.innerHTML="";for(let i=0;i<4;i++){const box=document.createElement("div");box.className="fertBox";box.innerHTML=`<h3>Injector position ${i+1}</h3>`;const totals={},flushes=[];ps.forEach(p=>{const x=p.injectors?.[i];if(!x||x.type==="unused")return;if(x.type==="flush"){flushes.push({farm:p.farm,outlets:p.outlets.join(", "),injector:x.injectorName,note:x.flushNote});return}if(!x.name||!x.rate)return;const outUnit=x.unit==="kg/ha"?"kg":"L",iname=x.injectorName||`Injector ${i+1}`,key=p.farm+"|"+iname+"|"+x.name.trim().toLowerCase()+"|"+outUnit+"|"+(x.batchName||"");if(!totals[key])totals[key]={farm:p.farm,injector:iname,name:x.name.trim(),unit:outUnit,qty:0,agitator:false,batch:x.batchName||"",continued:false};totals[key].qty+=Number(x.qty)||0;if(x.agitatorOn)totals[key].agitator=true;if(x.batchMode==="continue")totals[key].continued=true});const vals=Object.values(totals);if(!vals.length&&!flushes.length)box.innerHTML+='<div class="muted">No action planned.</div>';vals.forEach(x=>box.innerHTML+=`<div class="fertLine"><strong>${esc(x.name)}</strong><br>${esc(x.farm)} · ${esc(x.injector)}<br>${Number(x.qty.toFixed(2)).toLocaleString("en-AU")} ${x.unit} total${x.batch?`<br><span class="batchTag">${esc(x.batch)}${x.continued?" · continues":""}</span>`:""}${x.agitator?"<br>Agitator ON":""}</div>`);flushes.forEach(x=>box.innerHTML+=`<div class="fertLine"><span class="flushTag">Flush Cycle</span><br>${esc(x.farm)} · ${esc(x.injector)}${x.note?`<br>${esc(x.note)}`:""}</div>`);b.appendChild(box)}}
+function completePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;if(!confirm(`Mark ${p.farm} ${p.outlets.join(", ")} complete? This will update the last-irrigated dates.`))return;state.records.unshift({...p,completed:new Date().toISOString()});p.outlets.forEach(o=>{const k=p.farm+"|"+o;if(!state.rotation[k])state.rotation[k]={status:"active",cycle:3,last:null};state.rotation[k].last=p.date});state.plans=state.plans.filter(x=>x.id!==id);save();renderPlan();dashboard();history()}
+function deletePlan(id){if(!confirm("Remove this job from the night plan?"))return;state.plans=state.plans.filter(x=>x.id!==id);save();renderPlan()}
+function programText(){const date=$("planViewDate").value,ps=plansForDate(date);if(!ps.length)return"";const lines=[`IRRIGATION PLAN — ${fmt(date)}`,""];ps.forEach((p,i)=>{lines.push(`${i+1}. ${fmtTime(p.startTime)} → ${fmtTime(p.finishTime)}${p.finishDate!==p.date?" (+1 day)":""}`);lines.push(`${p.farm}: ${p.outlets.join(", ")} | ${p.area.toFixed(2)} ha | ${p.hours} hr`);lines.push(`Pump system: ${p.pump}`);p.injectors.forEach((x,j)=>{if(x&&x.type!=="unused")lines.push(`Injection ${j+1}: ${injText(x)}`)});if(p.notes)lines.push(`Notes: ${p.notes}`);lines.push("")});return lines.join("\n")}
+async function copyProgram(){const text=programText();if(!text){alert("There are no planned jobs to copy.");return}try{await navigator.clipboard.writeText(text);alert("Programming summary copied.")}catch(e){prompt("Copy this programming summary:",text)}}
+
+function daysBetween(a,b){const A=new Date(a+"T00:00:00"),B=new Date(b+"T00:00:00");return Math.round((B-A)/86400000)}
+function addDays(date,n){const d=new Date(date+"T00:00:00");d.setDate(d.getDate()+n);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function statFor(f,o){const r=state.rotation[f+"|"+o]||{status:"active",cycle:3,last:null};if(r.status!=="active")return{rank:9,kind:"none",label:r.status,detail:"",due:null,days:"—"};if(!r.last)return{rank:4,kind:"none",label:"No history",detail:"No irrigation recorded",due:null,days:"—"};const due=addDays(r.last,r.cycle),n=daysBetween(today(),due);if(n<0)return{rank:0,kind:"late",label:"Overdue",detail:Math.abs(n)+" day"+(Math.abs(n)===1?"":"s")+" overdue",due,days:n};if(n===0)return{rank:1,kind:"due",label:"Due today",detail:"Due today",due,days:0};if(n===1)return{rank:2,kind:"soon",label:"Due tomorrow",detail:"Due tomorrow",due,days:1};return{rank:3,kind:"ok",label:"Not due",detail:n+" days until due",due,days:n}}
+function dashboard(){const rows=[];let c={late:0,due:0,soon:0,active:0};Object.entries(FARMS).forEach(([f,os])=>Object.keys(os).forEach(o=>{const r=state.rotation[f+"|"+o]||{status:"active",cycle:3,last:null},s=statFor(f,o);if(r.status==="active"){c.active++;if(s.rank===0)c.late++;if(s.rank===1)c.due++;if(s.rank===2)c.soon++}rows.push({f,o,r,s})}));$("stats").innerHTML=`<div class="stat"><strong>${c.late}</strong><span>Overdue</span></div><div class="stat"><strong>${c.due}</strong><span>Due today</span></div><div class="stat"><strong>${c.soon}</strong><span>Due tomorrow</span></div><div class="stat"><strong>${c.active}</strong><span>Active outlets</span></div>`;rows.sort((a,b)=>a.s.rank-b.s.rank||a.f.localeCompare(b.f)||a.o.localeCompare(b.o));const b=$("statusBody");b.innerHTML="";rows.forEach(({f,o,r,s})=>{if(r.status!=="active")return;const include=statusFilter==="all"||(statusFilter==="due"&&(s.rank===0||s.rank===1||s.rank===2))||(statusFilter==="overdue"&&s.rank===0)||(statusFilter==="none"&&s.rank===4);if(!include)return;const tr=document.createElement("tr");tr.className="compactRow "+s.kind;tr.innerHTML=`<td><strong>${esc(f)}</strong></td><td>${esc(o)}</td><td>${FARMS[f][o].toFixed(2)}</td><td>${fmt(r.last)}</td><td>${s.due?fmt(s.due):"—"}</td><td>${s.days}</td><td><span class="badge">${esc(s.label)}</span></td>`;b.appendChild(tr)});if(!b.children.length)b.innerHTML='<tr><td colspan="7" class="muted">No outlets match this filter.</td></tr>'}
+$("statusFilters").addEventListener("click",e=>{if(!e.target.matches("button[data-filter]"))return;statusFilter=e.target.dataset.filter;$("statusFilters").querySelectorAll("button").forEach(b=>b.classList.toggle("active",b===e.target));dashboard()});
+
+function renderFertilizerSetup(){const b=$("fertilizerList");if(!b)return;b.innerHTML="";if(!state.fertilizers.length){b.innerHTML='<span class="muted">No fertilizers saved yet.</span>';return}state.fertilizers.slice().sort((a,b)=>a.localeCompare(b)).forEach(name=>{const chip=document.createElement("span");chip.className="fertChip";const t=document.createElement("span");t.textContent=name;const del=document.createElement("button");del.type="button";del.textContent="×";del.title="Remove fertilizer";del.addEventListener("click",()=>{if(!confirm(`Remove ${name} from the fertilizer dropdown? Existing plans and history will not be changed.`))return;state.fertilizers=state.fertilizers.filter(x=>x!==name);save();renderFertilizerSetup();renderInjectors()});chip.append(t,del);b.appendChild(chip)})}
+function addFertilizer(){const input=$("newFertilizer"),name=input.value.trim();if(!name)return;if(state.fertilizers.some(x=>x.toLowerCase()===name.toLowerCase())){alert("That fertilizer is already in the list.");return}state.fertilizers.push(name);input.value="";save();renderFertilizerSetup();renderInjectors()}
+function renderInjectorSetup(){const b=$("injectorSetup");if(!b)return;b.innerHTML="";Object.keys(FARMS).forEach(f=>{const det=document.createElement("details");det.className="setupFarm";det.innerHTML=`<summary>${esc(f)}</summary><div class="injectorSetupRows"></div>`;const rows=det.querySelector(".injectorSetupRows");for(let i=0;i<4;i++){const c=state.injectorConfig[f][i],row=document.createElement("div");row.className="injectorSetupRow";row.innerHTML=`<div><label>Injector name</label><input class="cfgName" value="${esc(c.name)}" placeholder="Injector ${i+1}"></div><div><label>Flow rate</label><input class="cfgFlow" type="number" min="0" step="0.01" value="${c.flow||0}"></div><div><label>Flow unit</label><select class="cfgUnit"><option value="L/hr">L/hr</option><option value="L/min">L/min</option></select></div><label class="checkLine"><input class="cfgAg" type="checkbox"> Agitator available</label>`;const nm=row.querySelector(".cfgName"),fl=row.querySelector(".cfgFlow"),un=row.querySelector(".cfgUnit"),ag=row.querySelector(".cfgAg");un.value=c.flowUnit;ag.checked=c.agitator;const update=()=>{c.name=nm.value.trim()||`Injector ${i+1}`;c.flow=Math.max(0,Number(fl.value)||0);c.flowUnit=un.value;c.agitator=ag.checked;save();if($("farm").value===f&&!editingPlanId)renderInjectors()};nm.addEventListener("change",update);fl.addEventListener("change",update);un.addEventListener("change",update);ag.addEventListener("change",update);rows.appendChild(row)}b.appendChild(det)})}
+function setup(){renderFertilizerSetup();renderInjectorSetup();const b=$("setupFarms");b.innerHTML="";Object.entries(FARMS).forEach(([f,os])=>{const det=document.createElement("details");det.className="setupFarm";det.innerHTML=`<summary>${esc(f)}</summary><div class="setupRows"></div>`;const rows=det.querySelector(".setupRows");Object.entries(os).forEach(([o,ha])=>{const k=f+"|"+o;if(!state.rotation[k])state.rotation[k]={status:"active",cycle:3,last:null};const r=state.rotation[k],row=document.createElement("div");row.className="setupRow";row.innerHTML=`<div><strong>${esc(o)}</strong><div class="muted">${ha.toFixed(2)} ha · Last: ${fmt(r.last)}</div></div><select><option value="active">Active Rotation</option><option value="paused">Temporarily Paused</option><option value="finished">Finished</option></select><input type="number" min="1" max="30" step="1" value="${r.cycle}">`;const sl=row.querySelector("select"),inp=row.querySelector("input");sl.value=r.status;sl.addEventListener("change",()=>{r.status=sl.value;save();dashboard()});inp.addEventListener("change",()=>{r.cycle=Math.max(1,Math.min(30,parseInt(inp.value)||3));inp.value=r.cycle;save();dashboard()});rows.appendChild(row)});b.appendChild(det)})}
+function history(){const b=$("historyBody");b.innerHTML="";if(!state.records.length){b.innerHTML='<tr><td colspan="13">No completed irrigation records saved yet.</td></tr>';return}state.records.forEach(r=>{const tr=document.createElement("tr"),fin=r.finishTime?`${fmtTime(r.finishTime)}${r.finishDate&&r.finishDate!==r.date?" +1 day":""}`:"—";tr.innerHTML=`<td>${fmt(r.date)}</td><td>${fmtTime(r.startTime)}</td><td>${fin}</td><td>${esc(r.farm)}</td><td>${r.outlets.map(esc).join(", ")}</td><td>${Number(r.area).toFixed(2)}</td><td>${r.hours||"—"}</td><td>${esc(r.pump)}</td><td>${esc(injText(r.injectors?.[0]))}</td><td>${esc(injText(r.injectors?.[1]))}</td><td>${esc(injText(r.injectors?.[2]))}</td><td>${esc(injText(r.injectors?.[3]))}</td><td>${esc(r.notes||"—")}</td>`;b.appendChild(tr)})}
+function csv(v){return '"'+String(v??"").replaceAll('"','""')+'"'}
+function exportCsv(){const h=["Date","Start Time","Finish Date","Finish Time","Farm","Outlets","Hectares","Irrigation Hours","Pump System","Injection 1","Injection 2","Injection 3","Injection 4","Notes"],rows=state.records.map(r=>[r.date,r.startTime||"",r.finishDate||"",r.finishTime||"",r.farm,r.outlets.join(" | "),r.area,r.hours,r.pump,injText(r.injectors?.[0]),injText(r.injectors?.[1]),injText(r.injectors?.[2]),injText(r.injectors?.[3]),r.notes]),text=[h,...rows].map(x=>x.map(csv).join(",")).join("\n"),blob=new Blob([text],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="irrigation-history-v2.csv";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function clearHistory(){if(confirm("Clear all completed irrigation history? Last-irrigated dates will also be reset. Planned jobs will remain.")){state.records=[];Object.values(state.rotation).forEach(r=>r.last=null);save();history();dashboard();setup()}}
+function network(){const online=navigator.onLine;$("network").className="pill "+(online?"on":"off");$("network").textContent=online?"● Online":"● Offline — planner still works"}
+window.addEventListener("online",network);window.addEventListener("offline",network);
+
+$("savePlan").addEventListener("click",savePlan);
+$("clearForm").addEventListener("click",()=>clearForm(false));
+$("cancelEdit").addEventListener("click",()=>{clearForm(false);showPage("tonight")});
+$("exportCsv").addEventListener("click",exportCsv);
+$("clearHistory").addEventListener("click",clearHistory);
+$("planViewDate").addEventListener("change",renderPlan);
+$("copyProgram").addEventListener("click",copyProgram);
+$("duration").addEventListener("input",finishText);
+$("startTime").addEventListener("input",finishText);
+$("date").addEventListener("change",finishText);
+$("addFertilizer").addEventListener("click",addFertilizer);
+$("newFertilizer").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addFertilizer()}});
+$("date").value=today();$("planViewDate").value=today();farmInit();dashboard();history();setup();renderPlan();network();
+})();
+</script>
+</body>
+</html>
