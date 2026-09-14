@@ -41,7 +41,15 @@ function hasProductInjection(items){return (items||[]).some(x=>x&&x.type==="prod
 function memoryStamp(p){return Date.parse(p.updated||p.created||p.completed||`${p.date||"1970-01-01"}T${p.startTime||"00:00"}`)||0}
 function seedFertigationMemory(s){Object.keys(FARMS).forEach(f=>{if(Array.isArray(s.fertigationMemory[f])&&s.fertigationMemory[f].length)return;const candidates=[...s.records,...s.plans].filter(p=>p&&p.farm===f&&!p.irrigationOnly&&hasProductInjection(p.injectors)).sort((a,b)=>memoryStamp(b)-memoryStamp(a));if(candidates.length)s.fertigationMemory[f]=copyInjectionSetup(candidates[0].injectors)})}
 function emptyInjectorsForFarm(f){const cfg=state.injectorConfig[f]||[];return [0,1,2,3].map(i=>{const c=cfg[i]||defaultInjector(i);return{type:"unused",physicalIndex:i,sequenceOrder:i,injectorName:c.name||`Injector ${i+1}`,flow:Number(c.flow)||0,flowUnit:"L/min",name:"",rate:0,unit:"kg/ha",qty:0,injectionMethod:"",batchMode:"none",batchName:"",batchStartAmount:0,solutionVolume:0,preflow:0,preflowManual:false,runtime:0,calculatedRuntime:0,runtimeManual:false,flushRuntime:0,flushNote:""}})}
-function batchIsKnown(farm,x){if(!x||x.type!=="product"||!x.name||!x.batchName)return false;const key=batchKey(farm,x.name,x.batchName);if(state.batchInventory[key]&&Number.isFinite(Number(state.batchInventory[key].remaining)))return true;return state.plans.some(p=>p.farm===farm&&(p.injectors||[]).some(y=>y&&y.type==="product"&&y.batchName&&batchKey(farm,y.name,y.batchName)===key&&(y.batchMode==="new"||y.batchMode==="continue")))}
+function batchIsKnown(farm,x){
+ if(!x||x.type!=="product"||!x.name||!x.batchName)return false;
+ const key=batchKey(farm,x.name,x.batchName);
+ if(state.batchInventory[key]&&Number.isFinite(Number(state.batchInventory[key].remaining)))return true;
+ const savedKnown=(state.plans||[]).some(p=>p.farm===farm&&(p.injectors||[]).some(y=>y&&y.type==="product"&&y.batchName&&batchKey(farm,y.name,y.batchName)===key&&(y.batchMode==="new"||y.batchMode==="continue")));
+ if(savedKnown)return true;
+ const drafts=(state.activeProgram&&Array.isArray(state.activeProgram.draftShifts))?state.activeProgram.draftShifts:[];
+ return drafts.some(p=>p&&p.farm===farm&&(p.injectors||[]).some(y=>y&&y.type==="product"&&y.batchName&&batchKey(farm,y.name,y.batchName)===key&&(y.batchMode==="new"||y.batchMode==="continue")));
+}
 function rememberedInjectors(f){const items=copyInjectionSetup(state.fertigationMemory[f]||[]);items.forEach(x=>{if(batchIsKnown(f,x)){x.batchMode="continue";x.batchStartAmount=0}});return items}
 let state=initState(),editingPlanId=null,statusFilter="all",timeManuallyAdjusted=false,irrigationOnly=false,draftInjectionBeforeIrrigationOnly=null;
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}save();

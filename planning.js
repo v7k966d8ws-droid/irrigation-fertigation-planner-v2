@@ -116,7 +116,16 @@ function saveNightProgram(){
  const date=a.nightDate;state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;sortPlans();save();$("planViewDate").value=date;resetNewForm();renderProgramBanner();renderPlan();showPage("tonight");alert(`${a.name} saved to Tonight's Plan with ${jobs.length} jobs.`)
 }
 function prepareNextShiftForm(){
- const a=activeProgram();if(!a)return;const jobs=draftShifts(),last=jobs[jobs.length-1];resetNewForm();$("farm").value=a.farm;renderOutlets();$("pumpSystem").value=GROUP[a.farm]||"";$("nightDate").value=a.nightDate;$("programName").value=a.name;
+ const a=activeProgram();if(!a)return;const jobs=draftShifts(),last=jobs[jobs.length-1];
+
+ // If the previous draft job used fertigation, carry that injector setup forward as memory.
+ // rememberedInjectors() will turn a batch already present in draftShifts into Continue.
+ if(last&&last.phaseMode==="fertigation"&&hasProductInjection(last.injectors)){
+   state.fertigationMemory[a.farm]=copyInjectionSetup(last.injectors);
+   save();
+ }
+
+ resetNewForm();$("farm").value=a.farm;renderOutlets();$("pumpSystem").value=GROUP[a.farm]||"";$("nightDate").value=a.nightDate;$("programName").value=a.name;
  $("shiftMode").value="water";$("shiftPumps").value="";$("useIndividualValveRuntimes").checked=false;renderIndividualValveRuntimes();
  if(last)setStart(last.finishDate,last.finishTime,"Suggested after previous job finishes");else setStart(a.nightDate,"18:00","Default first job start — 6:00 PM");syncShiftMode();renderProgramBanner()
 }
@@ -195,6 +204,14 @@ function applyInlineVatToShift(){
  const prior=draftShifts().some(p=>(p.injectors||[]).some(x=>x&&x.type==="product"&&x.name===product&&x.batchName===batch));
  card.querySelector(".ibatchmode").value=prior?"continue":"new";card.querySelector(".ibatchstart").value=prior?0:d.volume;
  card.querySelector(".itype").dispatchEvent(new Event("change",{bubbles:true}));recalc();
+
+ // Make the calculator-applied injector setup the remembered setup immediately.
+ // This prevents an older remembered Calcium Nitrate batch (for example "1500 / 950 L")
+ // from returning if the form is refreshed/reset while building the night program.
+ const remembered=injData().map(x=>({...x}));
+ state.fertigationMemory[d.farm]=remembered;
+ save();
+
  alert(`Applied this vat share to the current job.\n\n${d.current.join(", ")}\n${d.currentArea.toFixed(2)} ha\n${d.currentKg.toFixed(1)} kg target\n${d.currentSolution.toFixed(1)} L prepared solution`)
 }
 function vatMixedProducts(){return state.fertilizers.filter(n=>{const m=productMetaFor(n);return m.method==="mixed"&&m.unit==="kg/ha"}).sort((a,b)=>a.localeCompare(b))}
