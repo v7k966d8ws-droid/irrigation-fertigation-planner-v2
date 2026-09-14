@@ -1,12 +1,20 @@
 function network(){const online=navigator.onLine;$("network").className="pill "+(online?"on":"off");$("network").textContent=online?"● Online":"● Offline — planner still works"}window.addEventListener("online",network);window.addEventListener("offline",network);
-$("savePlan").addEventListener("click",savePlan);$("irrigationOnlyBtn").addEventListener("click",toggleIrrigationOnly);$("clearForm").addEventListener("click",resetNewForm);$("cancelEdit").addEventListener("click",()=>{resetNewForm();showPage("tonight")});$("exportCsv").addEventListener("click",exportCsv);$("clearHistory").addEventListener("click",clearHistory);document.querySelectorAll('input[name="programPhaseMode"]').forEach(el=>el.addEventListener("change",syncPhaseMode));
+
 $("startProgram").addEventListener("click",startIrrigationProgram);
-$("finishProgram").addEventListener("click",finishIrrigationProgram);
-$("programName").addEventListener("input",()=>{const a=activeProgram();if(a){a.name=$("programName").value.trim()||a.name;save();renderProgramBanner();renderProgramList()}});
-$("vatFarm").addEventListener("change",renderVatBuilder);
+$("saveNightProgram").addEventListener("click",saveNightProgram);
+$("cancelProgram").addEventListener("click",cancelIrrigationProgram);
+$("programName").addEventListener("input",()=>{const a=activeProgram();if(a){a.name=$("programName").value.trim()||a.name;save();renderProgramBanner()}});
+$("shiftMode").addEventListener("change",syncShiftMode);
+$("usePumpRule").addEventListener("click",useSavedPumpRule);
+$("useIndividualValveRuntimes").addEventListener("change",()=>renderIndividualValveRuntimes());
+$("outlets").addEventListener("change",()=>renderIndividualValveRuntimes());
+$("duration").addEventListener("input",()=>renderIndividualValveRuntimes(getIndividualValveRuntimes()));
+$("fertFinishBefore").addEventListener("change",()=>{$("fertFinishCustomWrap").classList.toggle("hidden",$("fertFinishBefore").value!=="custom")});
+$("calculateFertTiming").addEventListener("click",autoFertigationPreflow);
+$("savePlan").addEventListener("click",savePlan);$("irrigationOnlyBtn").addEventListener("click",toggleIrrigationOnly);$("clearForm").addEventListener("click",resetNewForm);$("cancelEdit").addEventListener("click",()=>{resetNewForm();showPage("tonight")});$("exportCsv").addEventListener("click",exportCsv);$("clearHistory").addEventListener("click",clearHistory);$("vatFarm").addEventListener("change",renderVatBuilder);
 $("vatProduct").addEventListener("change",renderVatSummary);
 $("vatInjector").addEventListener("change",renderVatSummary);
 ["vatBatchName","vatRate","vatVolume","vatPreflow"].forEach(id=>$(id).addEventListener("input",renderVatSummary));
 $("applyVatBatch").addEventListener("click",applyVatBatchToPlans);
 $("planViewDate").addEventListener("change",()=>{renderPlan();if(!editingPlanId){$("nightDate").value=$("planViewDate").value;timeManuallyAdjusted=false;applySuggestedStart()}});$("copyProgram").addEventListener("click",copyProgram);$("duration").addEventListener("input",finishText);$("date").addEventListener("change",finishText);$("nightDate").addEventListener("change",()=>{if(!editingPlanId){timeManuallyAdjusted=false;applySuggestedStart()}});document.querySelectorAll(".timeButtons button[data-min]").forEach(b=>b.addEventListener("click",()=>shiftStart(Number(b.dataset.min))));$("useSuggested").addEventListener("click",()=>{timeManuallyAdjusted=false;applySuggestedStart()});$("addProduct").addEventListener("click",addProduct);$("newProductMethod").addEventListener("change",()=>{if($("newProductMethod").value==="direct")$("newProductUnit").value="L/ha"});$("newProduct").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addProduct()}});$("addPumpRule").addEventListener("click",addPumpRule);
-$("planViewDate").value=today();$("nightDate").value=today();$("date").value=today();farmInit();applySuggestedStart();syncPhaseMode();renderProgramBanner();dashboard();history();setup();renderPlan();network();
+$("planViewDate").value=today();$("nightDate").value=today();$("date").value=today();farmInit();applySuggestedStart();syncShiftMode();renderProgramBanner();dashboard();history();setup();renderPlan();network();

@@ -1,105 +1,232 @@
-function savePlan(){
- const data=validatePlan();if(!data)return;
- const wasEdit=!!editingPlanId,a=activeProgram(),phaseMode=a?currentPhaseMode():(data.irrigationOnly?"water":"fertigation");
- data.phaseMode=phaseMode;
- if(a&&phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm)}
- if(a&&phaseMode==="fertigation"){data.irrigationOnly=false;data.requiredPumps=["Single fertigation-capable site pump"]}
- if(a&&!wasEdit){
-   if(data.farm!==a.farm){alert(`This program is for ${a.farm}. Choose ${a.farm} for this set, or finish the current program first.`);return}
-   if(data.nightDate!==a.nightDate){alert(`This program is for the night of ${a.nightDate}. Use that night plan date, or finish the current program first.`);return}
-   data.programId=a.id;data.programName=a.name;data.programSequence=nextProgramSequence()
- }
- if(editingPlanId){
-   const idx=state.plans.findIndex(x=>x.id===editingPlanId);
-   if(idx<0){alert("That planned job could not be found.");resetNewForm();return}
-   state.plans[idx]={...state.plans[idx],...data,updated:new Date().toISOString()}
- }else state.plans.push({id:uid(),...data,created:new Date().toISOString()});
- if(data.phaseMode==="fertigation"&&hasProductInjection(data.injectors)){
-   const mem=copyInjectionSetup(data.injectors);
-   mem.forEach(x=>{if(x&&x.type==="product"&&x.batchName&&(x.batchMode==="new"||x.batchMode==="continue")){x.batchMode="continue";x.batchStartAmount=0}});
-   state.fertigationMemory[data.farm]=mem
- }
- sortPlans();save();$("planViewDate").value=data.nightDate;
- const setNo=data.programSequence||0;
- resetNewForm();renderPlan();renderProgramBanner();
- if(a&&!wasEdit){showPage("new");alert(`Set ${setNo} saved to ${a.name}.\n\nThe next start time has been suggested after this set finishes. Choose the next outlet or outlet combination, then choose Water Only or Fertigation.`)}
- else{showPage("tonight");alert(wasEdit?"Planned job updated.":data.irrigationOnly?"Irrigation-only job added. Your last fertigation setup is still remembered.":"Added to the night plan. Fertigation setup remembered for this farm.")}
-}
-function loadPlanToForm(p,isEdit){editingPlanId=isEdit?p.id:null;setPhaseMode(p.phaseMode||((p.irrigationOnly===true)?"water":"fertigation"));setEditMode(isEdit);$("nightDate").value=p.nightDate||p.date;$("date").value=p.date;$("startTime").value=p.startTime;$("timeDisplay").textContent=fmtTime(p.startTime);$("timeHint").textContent=isEdit?"Existing planned start":"Copied job — suggested next start can be restored";$("duration").value=p.hours;$("farm").value=p.farm;renderOutlets();$("pumpSystem").value=GROUP[p.farm]||"";$("outlets").querySelectorAll("input").forEach(x=>x.checked=p.outlets.includes(x.value));irrigationOnly=p.irrigationOnly===true;draftInjectionBeforeIrrigationOnly=irrigationOnly?rememberedInjectors(p.farm):null;renderInjectors(irrigationOnly?rememberedInjectors(p.farm):(p.injectors||[]));updateInjectionMode();$("notes").value=p.notes||"";timeManuallyAdjusted=true;recalc();showPage("new");window.scrollTo({top:0,behavior:"smooth"})}
-function editPlan(id){const p=state.plans.find(x=>x.id===id);if(p)loadPlanToForm(p,true)}
-function duplicatePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;loadPlanToForm(p,false);timeManuallyAdjusted=false;applySuggestedStart();alert("Copy loaded. The start time has been suggested after the latest job on this pump system. Adjust it if needed, then save as a new job.")}
+
+let editingDraftShiftIndex=-1;
+
 function plansForDate(date){return state.plans.filter(p=>(p.nightDate||p.date)===date).sort((a,b)=>dtValue(a.date,a.startTime)-dtValue(b.date,b.startTime))}
 function orderedInjectors(items){return (items||[]).filter(x=>x&&x.type!=="unused").slice().sort((a,b)=>(Number(a.sequenceOrder)||0)-(Number(b.sequenceOrder)||0))}
 
-
 function activeProgram(){return state.activeProgram&&state.activeProgram.id?state.activeProgram:null}
-function activeProgramPlans(){const a=activeProgram();return a?state.plans.filter(p=>p.programId===a.id).sort((x,y)=>(Number(x.programSequence)||0)-(Number(y.programSequence)||0)):[]}
-function nextProgramSequence(){const arr=activeProgramPlans();return arr.length?Math.max(...arr.map(p=>Number(p.programSequence)||0))+1:1}
-function startIrrigationProgram(){
- const existing=activeProgram();
- if(existing&&!confirm(`A program is already active: ${existing.name}. Finish it and start a new one?`))return;
- const farm=$("farm").value,nightDate=$("nightDate").value||today(),name=$("programName").value.trim()||`${farm} Night Program`;
- state.activeProgram={id:uid(),name,farm,nightDate,created:new Date().toISOString()};setPhaseMode("water");
- $("planViewDate").value=nightDate;
- save();renderProgramBanner();renderPlan();
- alert(`${name} started.\n\nEnter Set 1 below and save it normally.`);
-}
-function finishIrrigationProgram(){
+function draftShifts(){const a=activeProgram();return a&&Array.isArray(a.draftShifts)?a.draftShifts:[]}
+function nextShiftNumber(){
  const a=activeProgram();
- if(!a){alert("There is no active irrigation program.");return}
- const sets=activeProgramPlans();
- if(!confirm(`Finish ${a.name}?\n\n${sets.length} set${sets.length===1?"":"s"} are saved in Tonight's Plan.`))return;
- state.activeProgram=null;save();renderProgramBanner();renderPlan();showPage("tonight")
+ if(!a)return Number($("programStartShift")?.value)||50;
+ const shifts=draftShifts();
+ return shifts.length?Math.max(...shifts.map(s=>Number(s.shiftNumber)||0))+1:(Number(a.startShiftNumber)||50)
 }
-function renderProgramBanner(){
- const a=activeProgram(),banner=$("programBanner"),txt=$("programStatusText"),pill=$("programStepPill"),name=$("programName");
- if(!banner||!txt||!pill||!name)return;
- if(!a){
-   syncPhaseMode();
-   banner.classList.remove("active");
-   pill.textContent="No active program";
-   txt.textContent="Start one farm program, then save each AquaLink irrigation set in sequence.";
-   if(!name.value)name.value=($("farm").value||"Farm")+" Night Program";
+function currentPhaseMode(){return $("shiftMode")?.value||"water"}
+function selectedShiftPumps(){return ($("shiftPumps")?.value||"").split(",").map(s=>s.trim()).filter(Boolean)}
+function fertFinishMinutes(){
+ const v=$("fertFinishBefore")?.value||"60";
+ return v==="custom"?Math.max(0,Math.round(Number($("fertFinishCustom")?.value)||0)):Math.max(0,Math.round(Number(v)||60))
+}
+function getIndividualValveRuntimes(){
+ if(!$("useIndividualValveRuntimes")?.checked)return{};
+ const out={};
+ document.querySelectorAll("#individualValveRuntimes input[data-outlet]").forEach(i=>{out[i.dataset.outlet]=Math.max(0,Number(i.value)||0)});
+ return out
+}
+function renderIndividualValveRuntimes(existing=null){
+ const box=$("individualValveRuntimes"),on=$("useIndividualValveRuntimes")?.checked;
+ if(!box)return;
+ box.classList.toggle("hidden",!on);
+ if(!on){box.innerHTML="";return}
+ const hours=Math.max(0,Number($("duration")?.value)||0),outs=selected(),old=existing||{};
+ box.innerHTML=outs.length?outs.map(o=>`<div class="valveRuntime"><label>${esc(o)} runtime (hours)</label><input data-outlet="${esc(o)}" type="number" min="0" step="0.05" value="${old[o]!==undefined?Number(old[o]):hours}"></div>`).join(""):'<div class="muted">Select outlets first.</div>'
+}
+function syncShiftMode(){
+ const mode=currentPhaseMode(),water=mode==="water",card=$("fertigationTimingCard");
+ if(card)card.classList.toggle("waterMode",water);
+ if(water){
+   if(!irrigationOnly){draftInjectionBeforeIrrigationOnly=injData();irrigationOnly=true;updateInjectionMode()}
+ }else{
+   if(irrigationOnly){irrigationOnly=false;const restore=draftInjectionBeforeIrrigationOnly&&draftInjectionBeforeIrrigationOnly.length?draftInjectionBeforeIrrigationOnly:rememberedInjectors($("farm").value);draftInjectionBeforeIrrigationOnly=null;renderInjectors(restore);updateInjectionMode();recalc()}
+ }
+ if($("irrigationOnlyBtn"))$("irrigationOnlyBtn").disabled=!!activeProgram();
+ if($("savePlan"))$("savePlan").textContent=activeProgram()?(editingDraftShiftIndex>=0?"Update Shift":"Add Shift to Program"):(editingPlanId?"Save Changes":"Save to Night Plan");
+ if($("fertTimingResult")&&water)$("fertTimingResult").textContent="Water-only shift — no fertilizer timing is required.";
+}
+function useSavedPumpRule(){
+ const pumps=requiredPumps();
+ if(!pumps.length){alert("There is no exact saved pump rule for the currently selected outlet group.");return}
+ $("shiftPumps").value=pumps.join(", ")
+}
+function autoFertigationPreflow(){
+ if(currentPhaseMode()!=="fertigation"){alert("Choose Fertigation for this shift first.");return}
+ const hours=Number($("duration").value)||0;
+ if(!(hours>0)){alert("Enter the irrigation duration first.");return}
+ const active=[...document.querySelectorAll(".inj")].filter(d=>d.querySelector(".itype").value!=="unused");
+ if(!active.length){alert("Add at least one injection or flush action first.");return}
+ const totalRuntime=active.reduce((s,d)=>s+Math.max(0,Math.round(Number(d.querySelector(".iruntimeinput").value)||0)),0);
+ const finishBefore=fertFinishMinutes(),available=Math.round(hours*60)-finishBefore,firstPreflow=available-totalRuntime;
+ const result=$("fertTimingResult");
+ if(firstPreflow<0){
+   result.textContent=`The injection sequence needs ${totalRuntime} min but only ${Math.max(0,available)} min is available before the ${finishBefore}-minute fresh-water finish period.`;
+   alert("The injection sequence will not fit inside this irrigation shift with the selected finish target.");
    return
  }
- banner.classList.add("active");
- syncPhaseMode();
- name.value=a.name;
- const sets=activeProgramPlans(),last=sets[sets.length-1];
- pill.textContent=`Next: Set ${nextProgramSequence()}`;
- txt.innerHTML=`<strong>${esc(a.name)}</strong> · ${esc(a.farm)} · night of ${esc(a.nightDate)} · ${sets.length} saved set${sets.length===1?"":"s"}${last?` · previous set finishes ${fmtTime(last.finishTime)}`:""}`;
+ const first=active[0];
+ first.querySelector(".ipreflow").value=Math.max(0,Math.round(firstPreflow));
+ first.dataset.preflowManual="1";
+ active.slice(1).forEach(d=>d.dataset.preflowManual="0");
+ recalc();
+ const finalFinish=Math.round(firstPreflow+totalRuntime);
+ result.innerHTML=`First Preflow: <strong>${Math.round(firstPreflow)} min</strong>. Injection sequence: <strong>${totalRuntime} min</strong>. Fertilizer finishes at about <strong>${finalFinish} min</strong> into the ${Math.round(hours*60)}-minute shift, leaving <strong>${finishBefore} min</strong> fresh water at the end.`
 }
-function currentPhaseMode(){return document.querySelector('input[name="programPhaseMode"]:checked')?.value||"water"}
-function setPhaseMode(mode){const el=document.querySelector(`input[name="programPhaseMode"][value="${mode==="fertigation"?"fertigation":"water"}"]`);if(el)el.checked=true;syncPhaseMode()}
-function syncPhaseMode(){
- const mode=currentPhaseMode(),help=$("phaseRuleHelp"),btn=$("irrigationOnlyBtn"),a=activeProgram();
- if(help)help.innerHTML=mode==="water"?"<strong>Water Only:</strong> multiple pumps/outlets may run together. No fertilizer is saved for this set.":"<strong>Fertigation:</strong> use the single fertigation-capable pump. Only select the outlet group that pump can irrigate together.";
- if(a){
-   if(mode==="water"&&!irrigationOnly){draftInjectionBeforeIrrigationOnly=injData();irrigationOnly=true;updateInjectionMode()}
-   if(mode==="fertigation"&&irrigationOnly){irrigationOnly=false;const restore=draftInjectionBeforeIrrigationOnly&&draftInjectionBeforeIrrigationOnly.length?draftInjectionBeforeIrrigationOnly:rememberedInjectors($("farm").value);draftInjectionBeforeIrrigationOnly=null;renderInjectors(restore);updateInjectionMode();recalc()}
-   if(btn)btn.disabled=true
- }else if(btn)btn.disabled=false
+function renderDraftShiftList(){
+ const host=$("draftShiftList");if(!host)return;
+ const a=activeProgram(),shifts=draftShifts();
+ if(!a){host.innerHTML="";return}
+ if(!shifts.length){host.innerHTML='<div class="empty">No shifts added yet. Build Shift '+nextShiftNumber()+' below.</div>';return}
+ host.innerHTML=shifts.map((s,i)=>{
+   const pumps=(s.shiftPumps||s.requiredPumps||[]).map(esc).join(", ")||"No pumps entered";
+   const valve=s.useIndividualValveRuntimes?" · Individual valve runtimes":"";
+   return `<div class="draftShiftCard"><div class="draftShiftTop"><div class="draftShiftNumber">Shift ${Number(s.shiftNumber)||"?"}</div><div><strong>${esc(s.farm)} — ${(s.outlets||[]).map(esc).join(", ")}</strong><div class="muted">${pumps}</div></div><div><strong>${fmtTime(s.startTime)}</strong><div class="muted">${s.setRuntime||setRuntime(s.hours)}</div></div><div>${s.phaseMode==="fertigation"?'<span class="phaseBadge fert">Fertigation</span>':'<span class="phaseBadge water">Water Only</span>'}<div class="muted">${s.phaseMode==="fertigation"?`${Number(s.fertigationFinishBefore)||60} min fresh-water finish`:""}${valve}</div></div></div><div class="draftShiftActions"><button type="button" class="smallbtn" data-edit-draft="${i}">Edit Shift</button><button type="button" class="smallbtn" data-remove-draft="${i}">Remove</button></div></div>`
+ }).join("");
+ host.querySelectorAll("[data-edit-draft]").forEach(b=>b.addEventListener("click",()=>editDraftShift(Number(b.dataset.editDraft))));
+ host.querySelectorAll("[data-remove-draft]").forEach(b=>b.addEventListener("click",()=>removeDraftShift(Number(b.dataset.removeDraft))))
 }
-function totalProgramWaterByOutlet(programId){const totals={};state.plans.filter(p=>p.programId===programId).forEach(p=>(p.outlets||[]).forEach(o=>{const k=p.farm+"|"+o;totals[k]=(totals[k]||0)+(Number(p.hours)||0)}));return totals}
-function programInjectionSummary(p){
- if(p.irrigationOnly)return "Irrigation only";
- const xs=orderedInjectors(p.injectors);
- if(!xs.length)return "No injection actions";
- return xs.map(x=>x.type==="flush"?`${esc(x.injectorName||"Injector")} — Flush ${Math.round(Number(x.runtime)||0)} min`:`<strong>${esc(x.injectorName||"Injector")}</strong> — ${esc(x.name||"Product")} · Runtime ${Math.round(Number(x.runtime)||0)} min · Preflow ${Math.round(Number(x.preflow)||0)} min`).join(" · ")
+
+function totalSavedProgramWaterByOutlet(programId){
+ const totals={};
+ state.plans.filter(p=>p.programId===programId).forEach(p=>(p.outlets||[]).forEach(o=>{
+   const hrs=p.useIndividualValveRuntimes&&p.individualValveRuntimes&&p.individualValveRuntimes[o]!==undefined?Number(p.individualValveRuntimes[o])||0:Number(p.hours)||0;
+   const k=p.farm+"|"+o;totals[k]=(totals[k]||0)+hrs
+ }));
+ return totals
 }
 function renderProgramList(){
  const host=$("programList");if(!host)return;
  const date=$("planViewDate").value||today(),ps=plansForDate(date),ids=[...new Set(ps.filter(p=>p.programId).map(p=>p.programId))];
  host.innerHTML="";
- if(!ids.length){host.innerHTML='<div class="empty">No sequential irrigation programs saved for this night.</div>';return}
+ if(!ids.length){host.innerHTML='<div class="empty">No saved AquaLink night programs for this date.</div>';return}
  ids.forEach(id=>{
-   const sets=ps.filter(p=>p.programId===id).sort((a,b)=>(Number(a.programSequence)||0)-(Number(b.programSequence)||0));
-   const first=sets[0],last=sets[sets.length-1],card=document.createElement("div");card.className="programCard";
-   const totals=totalProgramWaterByOutlet(id),totalText=Object.entries(totals).map(([k,h])=>`${esc(k.split("|")[1])}: ${Number(h).toLocaleString("en-AU",{maximumFractionDigits:2})} hr`).join(" · ");
-   card.innerHTML=`<div class="programCardHead"><div><strong>${esc(first.programName||first.farm+" Program")}</strong><div class="muted">${esc(first.farm)} · ${sets.length} set${sets.length===1?"":"s"} · ${fmtTime(first.startTime)} → ${fmtTime(last.finishTime)}${last.finishDate!==first.date?" next day":""}</div>${totalText?`<div class="totalWaterBox"><strong>Total programmed irrigation by outlet:</strong> ${totalText}</div>`:""}</div><span class="programPill">AquaLink sequence</span></div><div style="margin-top:8px">${sets.map(p=>`<div class="programSetRow"><div class="programSetNo">Set ${Number(p.programSequence)||"?"}</div><div><strong>${esc(p.farm)} — ${p.outlets.map(esc).join(", ")}</strong><div class="muted">${Number(p.area||0).toFixed(2)} ha</div><div class="programSetInj">${programInjectionSummary(p)}</div></div><div><strong>${fmtTime(p.startTime)}</strong><div class="muted">${Number(p.hours||0).toLocaleString("en-AU",{maximumFractionDigits:2})} hr</div></div><div>${(p.phaseMode||((p.irrigationOnly===true)?"water":"fertigation"))==="water"?'<span class="phaseBadge water">Water Only</span>':'<span class="phaseBadge fert">Fertigation</span>'}</div></div>`).join("")}</div>`;
+   const shifts=ps.filter(p=>p.programId===id).sort((a,b)=>(Number(a.shiftNumber)||Number(a.programSequence)||0)-(Number(b.shiftNumber)||Number(b.programSequence)||0));
+   const first=shifts[0],last=shifts[shifts.length-1],card=document.createElement("div");card.className="programCard";
+   const totals=totalSavedProgramWaterByOutlet(id),totalText=Object.entries(totals).map(([k,h])=>`${esc(k.split("|")[1])}: ${Number(h).toLocaleString("en-AU",{maximumFractionDigits:2})} hr`).join(" · ");
+   card.innerHTML=`<div class="programCardHead"><div><strong>${esc(first.programName||first.farm+" Night Program")}</strong><div class="muted">${esc(first.farm)} · ${shifts.length} shift${shifts.length===1?"":"s"} · ${fmtTime(first.startTime)} → ${fmtTime(last.finishTime)}${last.finishDate!==first.date?" next day":""}</div>${totalText?`<div class="totalWaterBox"><strong>Total programmed irrigation by outlet:</strong> ${totalText}</div>`:""}</div><span class="programPill">Saved Night Plan</span></div><div style="margin-top:8px">${shifts.map(p=>`<div class="programSetRow"><div class="programSetNo">Shift ${Number(p.shiftNumber)||Number(p.programSequence)||"?"}</div><div><strong>${esc(p.farm)} — ${(p.outlets||[]).map(esc).join(", ")}</strong><div class="muted">${(p.shiftPumps||p.requiredPumps||[]).map(esc).join(", ")||"No pumps entered"} · ${Number(p.area||0).toFixed(2)} ha</div></div><div><strong>${fmtTime(p.startTime)}</strong><div class="muted">${p.setRuntime||setRuntime(p.hours)}</div></div><div>${p.phaseMode==="fertigation"?'<span class="phaseBadge fert">Fertigation</span>':'<span class="phaseBadge water">Water Only</span>'}</div></div>`).join("")}</div>`;
    host.appendChild(card)
  })
 }
+function renderProgramBanner(){
+ const a=activeProgram(),banner=$("programBanner"),txt=$("programStatusText"),pill=$("programStepPill"),name=$("programName");
+ if(!banner||!txt||!pill||!name)return;
+ if(!a){
+   banner.classList.remove("active");pill.textContent="No active program";
+   txt.textContent="Build the AquaLink shifts first, then save the whole program to Tonight's Plan.";
+   $("farm").disabled=false;$("programStartShift").disabled=false;
+   renderDraftShiftList();syncShiftMode();return
+ }
+ banner.classList.add("active");name.value=a.name;$("farm").disabled=true;$("programStartShift").value=a.startShiftNumber||50;$("programStartShift").disabled=true;
+ const shifts=draftShifts();
+ pill.textContent=`Next: Shift ${nextShiftNumber()}`;
+ txt.innerHTML=`<strong>${esc(a.name)}</strong> · ${esc(a.farm)} · night of ${esc(a.nightDate)} · ${shifts.length} draft shift${shifts.length===1?"":"s"} · <strong>not saved to Tonight's Plan yet</strong>`;
+ renderDraftShiftList();syncShiftMode()
+}
+function startIrrigationProgram(){
+ const existing=activeProgram();
+ if(existing&&!confirm(`A program is already being built: ${existing.name}. Discard its unsaved draft shifts and start again?`))return;
+ const farm=$("farm").value,nightDate=$("nightDate").value||today(),name=$("programName").value.trim()||`${farm} Night Program`,startShift=Math.max(1,Math.round(Number($("programStartShift").value)||50));
+ state.activeProgram={id:uid(),name,farm,nightDate,startShiftNumber:startShift,draftShifts:[],created:new Date().toISOString()};
+ editingDraftShiftIndex=-1;save();prepareNextShiftForm();renderProgramBanner();
+ alert(`${name} started.\n\nBuild Shift ${startShift}, then tap Add Shift to Program. Nothing is added to Tonight's Plan until you tap Save Night Plan.`)
+}
+function cancelIrrigationProgram(){
+ const a=activeProgram();if(!a)return;
+ if(draftShifts().length&&!confirm(`Discard ${draftShifts().length} unsaved draft shift${draftShifts().length===1?"":"s"} from ${a.name}?`))return;
+ state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;$("programStartShift").disabled=false;save();resetNewForm();renderProgramBanner()
+}
+function saveNightProgram(){
+ const a=activeProgram();if(!a){alert("Start an AquaLink Night Program first.");return}
+ const shifts=draftShifts();if(!shifts.length){alert("Add at least one shift before saving the night plan.");return}
+ if(!confirm(`Save ${a.name} to Tonight's Plan?\n\n${shifts.length} AquaLink shift${shifts.length===1?"":"s"} will be saved together.`))return;
+ shifts.forEach((s,i)=>{
+   const p={...s,id:uid(),programId:a.id,programName:a.name,programSequence:i+1,created:new Date().toISOString()};
+   state.plans.push(p)
+ });
+ const fert=[...shifts].reverse().find(s=>s.phaseMode==="fertigation"&&hasProductInjection(s.injectors));
+ if(fert){
+   const mem=copyInjectionSetup(fert.injectors);
+   mem.forEach(x=>{if(x&&x.type==="product"&&x.batchName&&(x.batchMode==="new"||x.batchMode==="continue")){x.batchMode="continue";x.batchStartAmount=0}});
+   state.fertigationMemory[a.farm]=mem
+ }
+ const date=a.nightDate;state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;$("programStartShift").disabled=false;
+ sortPlans();save();$("planViewDate").value=date;resetNewForm();renderProgramBanner();renderPlan();showPage("tonight");
+ alert(`${a.name} saved to Tonight's Plan with ${shifts.length} shifts.`)
+}
+function prepareNextShiftForm(){
+ const a=activeProgram();if(!a)return;
+ const shifts=draftShifts(),last=shifts[shifts.length-1];
+ resetNewForm();
+ $("farm").value=a.farm;renderOutlets();$("pumpSystem").value=GROUP[a.farm]||"";$("nightDate").value=a.nightDate;$("programName").value=a.name;
+ $("shiftNumber").value=nextShiftNumber();
+ $("shiftMode").value="water";$("shiftPumps").value="";$("useIndividualValveRuntimes").checked=false;renderIndividualValveRuntimes();
+ if(last)setStart(last.finishDate,last.finishTime,`Starts after Shift ${last.shiftNumber}`);
+ else setStart(a.nightDate,"18:00","Default first shift start — 6:00 PM");
+ syncShiftMode();renderProgramBanner()
+}
+function resetShiftExtras(){
+ if($("shiftNumber"))$("shiftNumber").value=activeProgram()?nextShiftNumber():"";
+ if($("shiftPumps"))$("shiftPumps").value="";
+ if($("useIndividualValveRuntimes"))$("useIndividualValveRuntimes").checked=false;
+ renderIndividualValveRuntimes();
+ if($("fertFinishBefore"))$("fertFinishBefore").value="60";
+ if($("fertFinishCustomWrap"))$("fertFinishCustomWrap").classList.add("hidden");
+ if($("fertTimingResult"))$("fertTimingResult").textContent="";
+ editingDraftShiftIndex=-1;syncShiftMode()
+}
+function addOrUpdateDraftShift(){
+ const a=activeProgram();if(!a)return false;
+ const data=validatePlan();if(!data)return true;
+ if(data.farm!==a.farm){alert(`This program is for ${a.farm}.`);return true}
+ if(data.nightDate!==a.nightDate){alert(`This program is for the night of ${a.nightDate}.`);return true}
+ data.shiftNumber=Math.max(1,Math.round(Number($("shiftNumber").value)||nextShiftNumber()));
+ data.phaseMode=currentPhaseMode();
+ data.shiftPumps=selectedShiftPumps();
+ data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;
+ data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;
+ data.individualValveRuntimes=getIndividualValveRuntimes();
+ data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
+ if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm)}
+ else data.irrigationOnly=false;
+ if(!data.shiftPumps.length){
+   const ok=confirm(`No pumps have been entered for Shift ${data.shiftNumber}.\n\nAdd the shift anyway?`);
+   if(!ok)return true
+ }
+ const shifts=draftShifts();
+ const duplicate=shifts.findIndex((s,i)=>Number(s.shiftNumber)===Number(data.shiftNumber)&&i!==editingDraftShiftIndex);
+ if(duplicate>=0){alert(`Shift ${data.shiftNumber} is already in this program. Choose a different shift number.`);return true}
+ if(editingDraftShiftIndex>=0)shifts[editingDraftShiftIndex]={...shifts[editingDraftShiftIndex],...data,updated:new Date().toISOString()};
+ else shifts.push({id:"draft-"+uid(),...data,created:new Date().toISOString()});
+ shifts.sort((x,y)=>(Number(x.shiftNumber)||0)-(Number(y.shiftNumber)||0));
+ a.draftShifts=shifts;save();editingDraftShiftIndex=-1;prepareNextShiftForm();
+ return true
+}
+function savePlan(){
+ if(activeProgram()){addOrUpdateDraftShift();return}
+ const data=validatePlan();if(!data)return;
+ if(editingPlanId){
+   const idx=state.plans.findIndex(x=>x.id===editingPlanId);
+   if(idx<0){alert("That planned job could not be found.");resetNewForm();return}
+   data.shiftNumber=Math.max(1,Math.round(Number($("shiftNumber").value)||Number(state.plans[idx].shiftNumber)||1));
+   data.phaseMode=currentPhaseMode();data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;
+   data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;data.individualValveRuntimes=getIndividualValveRuntimes();data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
+   state.plans[idx]={...state.plans[idx],...data,updated:new Date().toISOString()};sortPlans();save();resetNewForm();renderPlan();showPage("tonight");alert("Shift updated.");return
+ }
+ data.shiftNumber=Math.max(1,Math.round(Number($("shiftNumber").value)||1));data.phaseMode=currentPhaseMode();data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;data.individualValveRuntimes=getIndividualValveRuntimes();data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
+ state.plans.push({id:uid(),...data,created:new Date().toISOString()});sortPlans();save();resetNewForm();renderPlan();showPage("tonight")
+}
+function editDraftShift(i){const p=draftShifts()[i];if(!p)return;editingDraftShiftIndex=i;loadPlanToForm(p,false);$("shiftNumber").value=p.shiftNumber||nextShiftNumber();renderProgramBanner();syncShiftMode();window.scrollTo({top:$("formTitle").getBoundingClientRect().top+window.scrollY-20,behavior:"smooth"})}
+function removeDraftShift(i){const a=activeProgram(),p=draftShifts()[i];if(!a||!p)return;if(!confirm(`Remove Shift ${p.shiftNumber} from this draft program?`))return;a.draftShifts.splice(i,1);save();editingDraftShiftIndex=-1;prepareNextShiftForm()}
+function loadPlanToForm(p,isEdit){
+ editingPlanId=isEdit?p.id:null;setEditMode(isEdit);$("nightDate").value=p.nightDate||p.date;$("date").value=p.date;$("startTime").value=p.startTime;$("timeDisplay").textContent=fmtTime(p.startTime);$("timeHint").textContent=isEdit?"Existing planned start":"Draft shift";$("duration").value=p.hours;$("farm").value=p.farm;renderOutlets();$("pumpSystem").value=GROUP[p.farm]||"";$("outlets").querySelectorAll("input").forEach(x=>x.checked=(p.outlets||[]).includes(x.value));
+ irrigationOnly=p.irrigationOnly===true;draftInjectionBeforeIrrigationOnly=irrigationOnly?rememberedInjectors(p.farm):null;renderInjectors(irrigationOnly?rememberedInjectors(p.farm):(p.injectors||[]));updateInjectionMode();$("notes").value=p.notes||"";
+ $("shiftNumber").value=p.shiftNumber||"";$("shiftMode").value=p.phaseMode||((p.irrigationOnly===true)?"water":"fertigation");$("shiftPumps").value=(p.shiftPumps||p.requiredPumps||[]).join(", ");
+ $("useIndividualValveRuntimes").checked=p.useIndividualValveRuntimes===true;renderIndividualValveRuntimes(p.individualValveRuntimes||{});
+ const fb=Number(p.fertigationFinishBefore)||60;if([30,45,60].includes(fb))$("fertFinishBefore").value=String(fb);else{$("fertFinishBefore").value="custom";$("fertFinishCustom").value=fb;$("fertFinishCustomWrap").classList.remove("hidden")}
+ timeManuallyAdjusted=true;syncShiftMode();recalc();showPage("new")
+}
+function editPlan(id){const p=state.plans.find(x=>x.id===id);if(p)loadPlanToForm(p,true)}
+function duplicatePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;loadPlanToForm(p,false);editingPlanId=null;timeManuallyAdjusted=false;applySuggestedStart();alert("Copy loaded. Adjust the shift details, then save it as a new shift.")}
+
 function vatMixedProducts(){return state.fertilizers.filter(n=>{const m=productMetaFor(n);return m.method==="mixed"&&m.unit==="kg/ha"}).sort((a,b)=>a.localeCompare(b))}
 function vatSelectedPlanIds(){return [...document.querySelectorAll("#vatJobs input:checked")].map(x=>x.value)}
 function vatSelectedPlans(){const ids=new Set(vatSelectedPlanIds());return plansForDate($("planViewDate").value||today()).filter(p=>ids.has(p.id)).sort((a,b)=>dtValue(a.date,a.startTime)-dtValue(b.date,b.startTime))}

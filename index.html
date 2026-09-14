@@ -45,33 +45,67 @@
 <div class="programBanner" id="programBanner">
   <div class="programTop">
     <div>
-      <div class="programTitle">Sequential Irrigation Program <span class="testBadge">TEST</span></div>
-      <div class="programMeta" id="programStatusText">Start one farm program, then save each AquaLink irrigation set in sequence.</div>
+      <div class="programTitle">AquaLink Night Program <span class="testBadge">TEST</span></div>
+      <div class="programMeta" id="programStatusText">Build the AquaLink shifts first, then save the whole program to Tonight's Plan.</div>
     </div>
     <span class="programPill" id="programStepPill">No active program</span>
   </div>
+
   <div class="grid" style="margin-top:10px">
     <div>
       <label>Program name</label>
       <input id="programName" placeholder="Example: Jacks Night Program">
     </div>
     <div>
-      <label>Program controls</label>
-      <div class="btns" style="margin-top:0">
-        <button type="button" id="startProgram">Start New Program</button>
-        <button type="button" class="secondary" id="finishProgram">Finish Program</button>
-      </div>
+      <label>First AquaLink shift number</label>
+      <input id="programStartShift" type="number" min="1" step="1" value="50">
     </div>
   </div>
-  <div class="phaseChooser">
-    <label class="phaseChoice"><input type="radio" name="programPhaseMode" value="water" checked><strong>Water Only Set</strong><div class="phaseHelp">Multiple pumps and multiple outlets may run together.</div></label>
-    <label class="phaseChoice"><input type="radio" name="programPhaseMode" value="fertigation"><strong>Fertigation Set</strong><div class="phaseHelp">Uses the single fertigation-capable pump at the farm site, so outlet groups run sequentially.</div></label>
+
+  <div class="btns">
+    <button type="button" id="startProgram">Start New Program</button>
+    <button type="button" id="saveNightProgram" class="primary">Save Night Plan</button>
+    <button type="button" id="cancelProgram" class="secondary">Cancel Program</button>
   </div>
-  <div class="totalWaterBox" id="phaseRuleHelp"><strong>Water Only:</strong> injection programming is excluded from this set.</div>
+
+  <div id="draftShiftList" class="draftShiftList"></div>
 </div>
-<div id="editBanner" class="editBanner">Editing an existing planned job. Save Changes updates the same job and does not affect rotation until Mark Complete.</div><div class="card"><h2 id="formTitle">New Irrigation Plan</h2><div class="grid"><div><label>Night plan date</label><input id="nightDate" type="date"></div><div><label>Actual start date</label><input id="date" type="date"></div><div><label>Farm</label><select id="farm"></select></div><div><label>Irrigation duration (hours)</label><input id="duration" type="number" min="0" step="0.1" placeholder="Example: 4"></div><div class="full"><label>Pump start time</label><div class="timePicker"><input id="startTime" type="hidden"><div id="timeDisplay" class="timeDisplay">6:00 PM</div><div id="timeHint" class="timeHint">Suggested start</div><div class="timeButtons"><button type="button" data-min="-60">−1 hr</button><button type="button" data-min="-15">−15 min</button><button type="button" id="useSuggested" class="suggest">Use suggested</button><button type="button" data-min="15">+15 min</button><button type="button" data-min="60">+1 hr</button></div></div></div><div class="full"><label>Outlets</label><div id="outlets" class="outlets"></div></div><div class="full"><div id="areaSummary" class="summary">Selected area: 0.00 ha</div></div><div><label>Shared pump system</label><input id="pumpSystem" readonly></div><div><label>Required pumps from saved rule</label><input id="requiredPumps" readonly></div><div><label>Calculated finish</label><input id="finishDisplay" readonly></div><div><label>AquaLink set runtime</label><input id="setRuntimeDisplay" readonly></div><div class="full"><div class="note blue">Planned jobs do not update Last Irrigated. Only Mark Complete changes the rotation.</div></div></div></div>
+<div id="editBanner" class="editBanner">Editing an existing planned job. Save Changes updates the same job and does not affect rotation until Mark Complete.</div><div class="card"><h2 id="formTitle">New Irrigation Plan</h2><div class="grid"><div><label>Night plan date</label><input id="nightDate" type="date"></div><div><label>Actual start date</label><input id="date" type="date"></div><div><label>Farm</label><select id="farm"></select></div><div><label>Irrigation duration (hours)</label><input id="duration" type="number" min="0" step="0.1" placeholder="Example: 4"></div>
+<div><label>AquaLink shift number</label><input id="shiftNumber" type="number" min="1" step="1" placeholder="Example: 50"></div>
+<div><label>Shift mode</label><select id="shiftMode"><option value="water">Water Only</option><option value="fertigation">Fertigation</option></select></div>
+<div class="full"><label>Pumps selected for this AquaLink shift</label><div class="inlineField"><input id="shiftPumps" placeholder="Example: Jacks Field Pump, Jacks Shed Pump"><button type="button" class="secondary smallbtn" id="usePumpRule">Use saved pump rule</button></div><div class="fieldHelp">Enter the pumps exactly as you intend to select them in AquaLink. Water-only shifts may use multiple pumps.</div></div>
+<div class="full"><label>Pump start time</label><div class="timePicker"><input id="startTime" type="hidden"><div id="timeDisplay" class="timeDisplay">6:00 PM</div><div id="timeHint" class="timeHint">Suggested start</div><div class="timeButtons"><button type="button" data-min="-60">−1 hr</button><button type="button" data-min="-15">−15 min</button><button type="button" id="useSuggested" class="suggest">Use suggested</button><button type="button" data-min="15">+15 min</button><button type="button" data-min="60">+1 hr</button></div></div></div><div class="full"><label>Outlets</label><div id="outlets" class="outlets"></div></div>
+<div class="full shiftOptionBox">
+  <label class="checkLine"><input id="useIndividualValveRuntimes" type="checkbox"> Use Individual Valve Runtimes</label>
+  <div class="fieldHelp">Normally each selected outlet uses the full shift runtime. Turn this on when AquaLink uses individual valve runtimes.</div>
+  <div id="individualValveRuntimes" class="individualValveRuntimes hidden"></div>
+</div>
+<div class="full"><div id="areaSummary" class="summary">Selected area: 0.00 ha</div></div><div><label>Shared pump system</label><input id="pumpSystem" readonly></div><div><label>Required pumps from saved rule</label><input id="requiredPumps" readonly></div><div><label>Calculated finish</label><input id="finishDisplay" readonly></div><div><label>AquaLink set runtime</label><input id="setRuntimeDisplay" readonly></div><div class="full"><div class="note blue">Planned jobs do not update Last Irrigated. Only Mark Complete changes the rotation.</div></div></div></div>
+<div class="card" id="fertigationTimingCard">
+  <h2>Fertigation Timing</h2>
+  <p class="muted">For a fertigation shift, set how much fresh-water irrigation you want after the final fertilizer injection finishes.</p>
+  <div class="grid">
+    <div>
+      <label>Finish fertilizer before irrigation ends</label>
+      <select id="fertFinishBefore">
+        <option value="45">45 minutes</option>
+        <option value="60" selected>60 minutes</option>
+        <option value="30">30 minutes</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+    <div id="fertFinishCustomWrap" class="hidden">
+      <label>Custom minutes</label>
+      <input id="fertFinishCustom" type="number" min="0" step="1" value="60">
+    </div>
+    <div class="full">
+      <button type="button" id="calculateFertTiming" class="secondary">Calculate Preflow to Hit Finish Target</button>
+      <div id="fertTimingResult" class="fieldHelp"></div>
+    </div>
+  </div>
+</div>
 <div class="card"><h2>Injection Programming</h2><p class="muted">Injector names and flow rates come from Setup. The last saved fertigation setup for this farm is remembered automatically. Existing batches default to Continue. Earlier jobs already on Tonight’s Plan reserve product from the predicted balance. Product Runtime is recalculated for the selected hectares. Each following Preflow is linked from the previous line.</p><div class="irrigationModeBar"><div><div id="injectionModeText" class="modeText">Fertigation</div><div id="injectionMemoryText" class="muted">Last saved fertigation setup will be remembered for this farm.</div></div><button id="irrigationOnlyBtn" type="button" class="irrigationOnlyBtn">Irrigation Only</button></div><div id="irrigationOnlyNote" class="irrigationOnlyNote hidden">Irrigation only for this job — no fertilizer or injector programming will be saved. Your last saved fertigation setup remains remembered for the next irrigation.</div><div id="injectors" class="injectors"></div></div>
-<div class="card"><label>Notes</label><textarea id="notes" placeholder="Optional planning notes for AquaLink, product mixing or the irrigation run."></textarea><div class="btns"><button id="savePlan" class="primary">Save to Night Plan</button><button id="cancelEdit" class="secondary hidden">Cancel Edit</button><button id="clearForm" class="secondary">Clear</button></div></div></section>
+<div class="card"><label>Notes</label><textarea id="notes" placeholder="Optional planning notes for AquaLink, product mixing or the irrigation run."></textarea><div class="btns"><button id="savePlan" class="primary">Add Shift to Program</button><button id="cancelEdit" class="secondary hidden">Cancel Edit</button><button id="clearForm" class="secondary">Clear Shift</button></div></div></section>
 
 <section id="history" class="page"><div class="card"><h2>Completed Irrigation History</h2><div class="btns"><button id="exportCsv" class="secondary">Export Spreadsheet CSV</button><button id="clearHistory" class="danger">Clear History</button></div><div class="history"><table><thead><tr><th>Date</th><th>Start</th><th>Finish</th><th>Farm</th><th>Outlets</th><th>Ha</th><th>Set Runtime</th><th>Pump System</th><th>Required Pumps</th><th>Type</th><th>Injection 1</th><th>Injection 2</th><th>Injection 3</th><th>Injection 4</th><th>Notes</th></tr></thead><tbody id="historyBody"></tbody></table></div></div></section>
 
