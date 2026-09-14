@@ -103,11 +103,26 @@
   <h2>Injection Programming</h2>
   <div class="irrigationOnlyNote"><strong>Water Only job:</strong> no fertilizer, vat, injector runtime or preflow information will be saved for this job.</div>
 </div>
+<div class="card hidden" id="vatRequirementCard">
+  <h2>Fertigation Setup</h2>
+  <div class="grid">
+    <div>
+      <label>Is a prepared vat mix required?</label>
+      <select id="vatRequired">
+        <option value="no">No — direct injection / shuttle only</option>
+        <option value="yes">Yes — prepare a mixed vat first</option>
+      </select>
+      <div class="fieldHelp">Choose Yes for Calcium Nitrate, Potassium Sulphate or another product that is mixed into a prepared vat.</div>
+    </div>
+    <div id="preparedVatStatus" class="summary">No prepared vat selected.</div>
+  </div>
+</div>
+
 <div class="card" id="injectionProgrammingCard"><h2>Injection Programming</h2>
-<div class="inlineVatMix"><div class="inlineVatHead"><h3>Vat Mix Calculator</h3><div class="muted">Select every outlet that will receive fertilizer from this prepared vat, even if those outlets are split across several irrigation/fertigation jobs.</div></div>
+<div id="vatPreparePanel" class="inlineVatMix hidden"><div class="inlineVatHead"><h3>Prepare Vat Mix</h3><div class="muted">First choose the product and every outlet that this vat is being prepared for. The app will then automatically allocate the prepared solution to each fertigation job by hectares.</div></div>
 <div class="grid"><div><label>Mixed product</label><select id="mixProduct"></select></div><div><label>Target rate (kg/ha)</label><input id="mixRate" type="number" min="0" step="0.1" value="40"></div><div><label>Prepared vat volume (L)</label><input id="mixVolume" type="number" min="1" step="1" value="1500"></div><div><label>Vat / batch name</label><input id="mixBatchName" placeholder="Example: Jacks Calcium Nitrate Vat"></div><div><label>Injection point</label><select id="mixInjector"></select></div></div>
 <div style="margin-top:10px"><label>Outlets to fertilize from this vat</label><div id="mixOutlets" class="mixOutlets"></div></div><div id="mixSummary" class="vatCalc"></div>
-<div class="btns"><button type="button" id="applyMixToShift" class="secondary">Apply Current Job Share to Injection Programming</button></div></div><p class="muted">Injector names and flow rates come from Setup. The last saved fertigation setup for this farm is remembered automatically. Existing batches default to Continue. Earlier jobs already on Tonight’s Plan reserve product from the predicted balance. Product Runtime is recalculated for the selected hectares. Each following Preflow is linked from the previous line.</p><div class="irrigationModeBar"><div><div id="injectionModeText" class="modeText">Fertigation</div><div id="injectionMemoryText" class="muted">Last saved fertigation setup will be remembered for this farm.</div></div><button id="irrigationOnlyBtn" type="button" class="irrigationOnlyBtn">Irrigation Only</button></div><div id="irrigationOnlyNote" class="irrigationOnlyNote hidden">Irrigation only for this job — no fertilizer or injector programming will be saved. Your last saved fertigation setup remains remembered for the next irrigation.</div><div id="injectors" class="injectors"></div></div>
+<div class="btns"><button type="button" id="applyMixToShift" class="primary">Prepare This Vat</button></div></div><p class="muted">Once the vat is prepared, select the outlets for each fertigation job normally. V2 automatically assigns that job’s share of the prepared vat by hectares. The full prepared vat is expected to be empty at the end of the selected outlets; float-switch rinse water is not calculated here.</p><div class="irrigationModeBar"><div><div id="injectionModeText" class="modeText">Fertigation</div><div id="injectionMemoryText" class="muted">Last saved fertigation setup will be remembered for this farm.</div></div><button id="irrigationOnlyBtn" type="button" class="irrigationOnlyBtn">Irrigation Only</button></div><div id="irrigationOnlyNote" class="irrigationOnlyNote hidden">Irrigation only for this job — no fertilizer or injector programming will be saved. Your last saved fertigation setup remains remembered for the next irrigation.</div><div id="injectors" class="injectors"></div></div>
 <div class="card"><label>Notes</label><textarea id="notes" placeholder="Optional notes — for example an AquaLink shift reference, product mixing note or irrigation detail."></textarea><div class="btns"><button id="savePlan" class="primary">Add Job to Program</button><button id="cancelEdit" class="secondary hidden">Cancel Edit</button><button id="clearForm" class="secondary">Clear Job</button></div></div></section>
 
 <section id="history" class="page"><div class="card"><h2>Completed Irrigation History</h2><div class="btns"><button id="exportCsv" class="secondary">Export Spreadsheet CSV</button><button id="clearHistory" class="danger">Clear History</button></div><div class="history"><table><thead><tr><th>Date</th><th>Start</th><th>Finish</th><th>Farm</th><th>Outlets</th><th>Ha</th><th>Set Runtime</th><th>Pump System</th><th>Required Pumps</th><th>Type</th><th>Injection 1</th><th>Injection 2</th><th>Injection 3</th><th>Injection 4</th><th>Notes</th></tr></thead><tbody id="historyBody"></tbody></table></div></div></section>
