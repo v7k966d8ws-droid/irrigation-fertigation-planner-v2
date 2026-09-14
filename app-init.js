@@ -7,8 +7,8 @@ $("programName").addEventListener("input",()=>{const a=activeProgram();if(a){a.n
 $("shiftMode").addEventListener("change",syncShiftMode);
 $("pumpSetupFarm").addEventListener("change",renderPumpSetup);
 $("addPump").addEventListener("click",addPump);
-$("mixProduct").addEventListener("change",()=>{$("mixBatchName").value=`${$("farm").value} ${$("mixProduct").value||"Fertilizer"} Vat`;renderInlineVatSummary()});
-["mixRate","mixVolume","mixBatchName"].forEach(id=>$(id).addEventListener("input",renderInlineVatSummary));
+$("mixProduct").addEventListener("change",()=>{$("mixBatchName").value=`${$("farm").value} ${$("mixProduct").value||"Fertilizer"} Vat`;$("mixBatchName").dataset.autoName="1";renderInlineVatSummary()});
+["mixRate","mixVolume"].forEach(id=>$(id).addEventListener("input",renderInlineVatSummary));$("mixBatchName").addEventListener("input",()=>{$("mixBatchName").dataset.autoName="0";renderInlineVatSummary()});
 $("mixInjector").addEventListener("change",renderInlineVatSummary);
 $("applyMixToShift").addEventListener("click",applyInlineVatToShift);
 $("farm").addEventListener("change",()=>setTimeout(()=>{syncShiftMode();renderInlineVatMix();updateDefaultProgramName()},0));
