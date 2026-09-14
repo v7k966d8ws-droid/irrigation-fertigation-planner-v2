@@ -5,6 +5,7 @@ $("saveNightProgram").addEventListener("click",saveNightProgram);
 $("cancelProgram").addEventListener("click",cancelIrrigationProgram);
 $("programName").addEventListener("input",()=>{const a=activeProgram();if(a){a.name=$("programName").value.trim()||a.name;save();renderProgramBanner()}});
 $("shiftMode").addEventListener("change",syncShiftMode);
+$("farm").addEventListener("change",()=>setTimeout(syncShiftMode,0));
 $("usePumpRule").addEventListener("click",useSavedPumpRule);
 $("useIndividualValveRuntimes").addEventListener("change",()=>renderIndividualValveRuntimes());
 $("outlets").addEventListener("change",()=>renderIndividualValveRuntimes());

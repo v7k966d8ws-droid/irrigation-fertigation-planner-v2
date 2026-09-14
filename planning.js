@@ -33,16 +33,34 @@ function renderIndividualValveRuntimes(existing=null){
  box.innerHTML=outs.length?outs.map(o=>`<div class="valveRuntime"><label>${esc(o)} runtime (hours)</label><input data-outlet="${esc(o)}" type="number" min="0" step="0.05" value="${old[o]!==undefined?Number(old[o]):hours}"></div>`).join(""):'<div class="muted">Select outlets first.</div>'
 }
 function syncShiftMode(){
- const mode=currentPhaseMode(),water=mode==="water",card=$("fertigationTimingCard");
- if(card)card.classList.toggle("waterMode",water);
+ const mode=currentPhaseMode(),water=mode==="water",timingCard=$("fertigationTimingCard"),injCard=$("injectionProgrammingCard"),waterNote=$("waterOnlyInjectionNote");
+ if(timingCard)timingCard.classList.toggle("hidden",water);
+ if(injCard)injCard.classList.toggle("hidden",water);
+ if(waterNote)waterNote.classList.toggle("hidden",!water);
+
  if(water){
-   if(!irrigationOnly){draftInjectionBeforeIrrigationOnly=injData();irrigationOnly=true;updateInjectionMode()}
+   // Preserve the remembered fertigation setup privately, but remove it from this shift.
+   if(!irrigationOnly)draftInjectionBeforeIrrigationOnly=injData();
+   irrigationOnly=true;
+   renderInjectors(emptyInjectorsForFarm($("farm").value));
+   updateInjectionMode();
  }else{
-   if(irrigationOnly){irrigationOnly=false;const restore=draftInjectionBeforeIrrigationOnly&&draftInjectionBeforeIrrigationOnly.length?draftInjectionBeforeIrrigationOnly:rememberedInjectors($("farm").value);draftInjectionBeforeIrrigationOnly=null;renderInjectors(restore);updateInjectionMode();recalc()}
+   irrigationOnly=false;
+   const restore=draftInjectionBeforeIrrigationOnly&&draftInjectionBeforeIrrigationOnly.length
+     ? draftInjectionBeforeIrrigationOnly
+     : rememberedInjectors($("farm").value);
+   draftInjectionBeforeIrrigationOnly=null;
+   renderInjectors(restore);
+   updateInjectionMode();
+   recalc()
  }
- if($("irrigationOnlyBtn"))$("irrigationOnlyBtn").disabled=!!activeProgram();
+
+ if($("irrigationOnlyBtn")){
+   $("irrigationOnlyBtn").disabled=true;
+   $("irrigationOnlyBtn").textContent=water?"Water Only Shift":"Fertigation Shift";
+ }
  if($("savePlan"))$("savePlan").textContent=activeProgram()?(editingDraftShiftIndex>=0?"Update Shift":"Add Shift to Program"):(editingPlanId?"Save Changes":"Save to Night Plan");
- if($("fertTimingResult")&&water)$("fertTimingResult").textContent="Water-only shift — no fertilizer timing is required.";
+ if($("fertTimingResult")&&water)$("fertTimingResult").textContent="";
 }
 function useSavedPumpRule(){
  const pumps=requiredPumps();
@@ -185,8 +203,11 @@ function addOrUpdateDraftShift(){
  data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;
  data.individualValveRuntimes=getIndividualValveRuntimes();
  data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
- if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm)}
- else data.irrigationOnly=false;
+ if(data.phaseMode==="water"){
+   data.irrigationOnly=true;
+   data.injectors=emptyInjectorsForFarm(data.farm);
+   data.fertigationFinishBefore=0;
+ }else data.irrigationOnly=false;
  if(!data.shiftPumps.length){
    const ok=confirm(`No pumps have been entered for Shift ${data.shiftNumber}.\n\nAdd the shift anyway?`);
    if(!ok)return true
@@ -207,11 +228,12 @@ function savePlan(){
    const idx=state.plans.findIndex(x=>x.id===editingPlanId);
    if(idx<0){alert("That planned job could not be found.");resetNewForm();return}
    data.shiftNumber=Math.max(1,Math.round(Number($("shiftNumber").value)||Number(state.plans[idx].shiftNumber)||1));
-   data.phaseMode=currentPhaseMode();data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;
+   data.phaseMode=currentPhaseMode();
+   if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm);data.fertigationFinishBefore=0}else data.irrigationOnly=false;data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;
    data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;data.individualValveRuntimes=getIndividualValveRuntimes();data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
    state.plans[idx]={...state.plans[idx],...data,updated:new Date().toISOString()};sortPlans();save();resetNewForm();renderPlan();showPage("tonight");alert("Shift updated.");return
  }
- data.shiftNumber=Math.max(1,Math.round(Number($("shiftNumber").value)||1));data.phaseMode=currentPhaseMode();data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;data.individualValveRuntimes=getIndividualValveRuntimes();data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
+ data.shiftNumber=Math.max(1,Math.round(Number($("shiftNumber").value)||1));data.phaseMode=currentPhaseMode();if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm);data.fertigationFinishBefore=0}else data.irrigationOnly=false;data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;data.individualValveRuntimes=getIndividualValveRuntimes();data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
  state.plans.push({id:uid(),...data,created:new Date().toISOString()});sortPlans();save();resetNewForm();renderPlan();showPage("tonight")
 }
 function editDraftShift(i){const p=draftShifts()[i];if(!p)return;editingDraftShiftIndex=i;loadPlanToForm(p,false);$("shiftNumber").value=p.shiftNumber||nextShiftNumber();renderProgramBanner();syncShiftMode();window.scrollTo({top:$("formTitle").getBoundingClientRect().top+window.scrollY-20,behavior:"smooth"})}

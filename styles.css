@@ -99,3 +99,6 @@
   .individualValveRuntimes{grid-template-columns:1fr 1fr}
   .inlineField{align-items:stretch;flex-direction:column}
 }
+
+.waterOnlyInjectionCard{background:#f4f8f4}
+.waterOnlyInjectionCard .irrigationOnlyNote{display:block;margin:0}
