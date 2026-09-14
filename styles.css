@@ -102,3 +102,10 @@
 
 .waterOnlyInjectionCard{background:#f4f8f4}
 .waterOnlyInjectionCard .irrigationOnlyNote{display:block;margin:0}
+
+.inlineVatMix{border:1px solid #bfd3c4;background:#f7fbf7;border-radius:13px;padding:12px;margin:10px 0 14px}
+.inlineVatHead h3{margin:0 0 3px;color:var(--g)}
+.mixOutlets{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:6px}
+.pumpSetupRow{display:grid;grid-template-columns:1.5fr .7fr 1fr auto;gap:10px;align-items:end;border-top:1px solid var(--line);padding:10px 0}
+.shuttleCapacityWrap{min-width:120px}
+@media(max-width:800px){.mixOutlets{grid-template-columns:repeat(3,minmax(0,1fr))}.pumpSetupRow{grid-template-columns:1fr 1fr}.pumpSetupRow button{grid-column:2}}

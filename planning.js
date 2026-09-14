@@ -4,6 +4,10 @@ let editingDraftShiftIndex=-1;
 function plansForDate(date){return state.plans.filter(p=>(p.nightDate||p.date)===date).sort((a,b)=>dtValue(a.date,a.startTime)-dtValue(b.date,b.startTime))}
 function orderedInjectors(items){return (items||[]).filter(x=>x&&x.type!=="unused").slice().sort((a,b)=>(Number(a.sequenceOrder)||0)-(Number(b.sequenceOrder)||0))}
 
+function defaultProgramName(farm,date){return `${farm||"Farm"} — ${fmt(date||today())}`}
+function updateDefaultProgramName(force=false){const el=$("programName");if(!el||activeProgram())return;if(force||el.dataset.autoName!=="0"){el.value=defaultProgramName($("farm")?.value,$("nightDate")?.value);el.dataset.autoName="1"}}
+function refreshShiftPumpHint(){const farm=$("farm")?.value||"",all=configuredPumps(farm,true),fert=fertigationPumps(farm),hint=$("shiftPumpHint");if(hint)hint.innerHTML=`Available: <strong>${all.length?all.map(p=>esc(p.name)).join(", "):"none configured"}</strong>${fert.length?` · Fertigation pump: <strong>${fert.map(p=>esc(p.name)).join(", ")}</strong>`:" · No fertigation-capable pump marked yet."}`}
+function autoSelectFertigationPump(){if(currentPhaseMode()!=="fertigation")return;const fert=fertigationPumps($("farm").value);if(fert.length)$("shiftPumps").value=fert.map(p=>p.name).join(", ")}
 function activeProgram(){return state.activeProgram&&state.activeProgram.id?state.activeProgram:null}
 function draftShifts(){const a=activeProgram();return a&&Array.isArray(a.draftShifts)?a.draftShifts:[]}
 function nextShiftNumber(){
@@ -59,7 +63,7 @@ function syncShiftMode(){
    $("irrigationOnlyBtn").disabled=true;
    $("irrigationOnlyBtn").textContent=water?"Water Only Shift":"Fertigation Shift";
  }
- if($("savePlan"))$("savePlan").textContent=activeProgram()?(editingDraftShiftIndex>=0?"Update Shift":"Add Shift to Program"):(editingPlanId?"Save Changes":"Start Program & Add Shift");
+ refreshShiftPumpHint();if(!water)autoSelectFertigationPump();if($("savePlan"))$("savePlan").textContent=activeProgram()?(editingDraftShiftIndex>=0?"Update Shift":"Add Shift to Program"):(editingPlanId?"Save Changes":"Start Program & Add Shift");
  if($("fertTimingResult")&&water)$("fertTimingResult").textContent="";
 }
 function useSavedPumpRule(){
@@ -144,7 +148,7 @@ function renderProgramBanner(){
 function startIrrigationProgram(){
  const existing=activeProgram();
  if(existing&&!confirm(`A program is already being built: ${existing.name}. Discard its unsaved draft shifts and start again?`))return;
- const farm=$("farm").value,nightDate=$("nightDate").value||today(),name=$("programName").value.trim()||`${farm} Night Program`,startShift=Math.max(1,Math.round(Number($("programStartShift").value)||50));
+ const farm=$("farm").value,nightDate=$("nightDate").value||today(),name=$("programName").value.trim()||defaultProgramName(farm,nightDate),startShift=Math.max(1,Math.round(Number($("programStartShift").value)||50));
  state.activeProgram={id:uid(),name,farm,nightDate,startShiftNumber:startShift,draftShifts:[],created:new Date().toISOString()};
  editingDraftShiftIndex=-1;save();prepareNextShiftForm();renderProgramBanner();
  alert(`${name} started.\n\nBuild Shift ${startShift}, then tap Add Shift to Program. Nothing is added to Tonight's Plan until you tap Save Night Plan.`)
@@ -227,7 +231,7 @@ function savePlan(){
  if(activeProgram()){addOrUpdateDraftShift();return}
  if(!editingPlanId){
    const data=validatePlan();if(!data)return;
-   const farm=data.farm,nightDate=data.nightDate||$("nightDate").value||today(),name=$("programName").value.trim()||`${farm} Night Program`,startShift=Math.max(1,Math.round(Number($("programStartShift").value)||Number($("shiftNumber").value)||50));
+   const farm=data.farm,nightDate=data.nightDate||$("nightDate").value||today(),name=$("programName").value.trim()||defaultProgramName(farm,nightDate),startShift=Math.max(1,Math.round(Number($("programStartShift").value)||Number($("shiftNumber").value)||50));
    state.activeProgram={id:uid(),name,farm,nightDate,startShiftNumber:startShift,draftShifts:[],created:new Date().toISOString()};
    editingDraftShiftIndex=-1;save();renderProgramBanner();
    addOrUpdateDraftShift();
@@ -259,6 +263,12 @@ function loadPlanToForm(p,isEdit){
 function editPlan(id){const p=state.plans.find(x=>x.id===id);if(p)loadPlanToForm(p,true)}
 function duplicatePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;loadPlanToForm(p,false);editingPlanId=null;timeManuallyAdjusted=false;applySuggestedStart();alert("Copy loaded. Adjust the shift details, then save it as a new shift.")}
 
+function inlineMixedProducts(){return state.fertilizers.filter(n=>{const m=productMetaFor(n);return m.method==="mixed"&&m.unit==="kg/ha"}).sort((a,b)=>a.localeCompare(b))}
+function renderInlineVatMix(){const product=$("mixProduct"),injector=$("mixInjector"),box=$("mixOutlets");if(!product||!injector||!box)return;const oldProduct=product.value,products=inlineMixedProducts();product.innerHTML=products.length?products.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(""):'<option value="">No mixed kg/ha products</option>';if(products.includes(oldProduct))product.value=oldProduct;else if(products.includes("Calcium Nitrate"))product.value="Calcium Nitrate";const farm=$("farm").value,cfg=state.injectorConfig[farm]||[],oldInj=injector.value;injector.innerHTML=cfg.map((x,i)=>`<option value="${i}">${esc(x.name||`Injector ${i+1}`)} — ${Number(x.flow)||0} L/min</option>`).join("");if(oldInj!==""&&Number(oldInj)<cfg.length)injector.value=oldInj;const checked=new Set([...box.querySelectorAll("input:checked")].map(x=>x.value));box.innerHTML="";outletEntries(farm).forEach(([o,ha])=>{const r=state.rotation[farm+"|"+o]||{status:"active"};if(r.status!=="active")return;const l=document.createElement("label");l.className="vatJob";l.innerHTML=`<input type="checkbox" value="${esc(o)}"><span><strong>${esc(o)}</strong><small>${ha.toFixed(2)} ha</small></span>`;const cb=l.querySelector("input");cb.checked=checked.has(o);cb.addEventListener("change",renderInlineVatSummary);box.appendChild(l)});if(!$("mixBatchName").value.trim())$("mixBatchName").value=`${farm} ${product.value||"Fertilizer"} Vat`;renderInlineVatSummary()}
+function inlineVatSelectedOutlets(){return [...document.querySelectorAll("#mixOutlets input:checked")].map(x=>x.value)}
+function inlineVatData(){const farm=$("farm").value,outs=inlineVatSelectedOutlets(),rate=Math.max(0,Number($("mixRate").value)||0),volume=Math.max(0,Number($("mixVolume").value)||0),totalArea=outs.reduce((s,o)=>s+(Number(FARMS[farm]?.[o])||0),0),totalKg=totalArea*rate,concentration=volume>0?totalKg/volume:0,current=selected().filter(o=>outs.includes(o)),currentArea=current.reduce((s,o)=>s+(Number(FARMS[farm]?.[o])||0),0),currentKg=currentArea*rate,currentSolution=totalArea>0?volume*(currentArea/totalArea):0;return{farm,outs,rate,volume,totalArea,totalKg,concentration,current,currentArea,currentKg,currentSolution}}
+function renderInlineVatSummary(){const b=$("mixSummary");if(!b)return;const d=inlineVatData();if(!d.outs.length){b.innerHTML='<div class="muted">Select the outlets that will receive fertilizer from this vat.</div>';return}const alloc=d.outs.map(o=>{const ha=Number(FARMS[d.farm]?.[o])||0;return `${esc(o)}: ${(ha*d.rate).toFixed(1)} kg · ${(d.totalArea>0?d.volume*ha/d.totalArea:0).toFixed(1)} L`}).join("<br>");b.innerHTML=`<div class="vatCalcTop"><div class="vatMetric"><span>Selected area</span><strong>${d.totalArea.toFixed(2)} ha</strong></div><div class="vatMetric"><span>Product to dissolve</span><strong>${d.totalKg.toFixed(1)} kg</strong></div><div class="vatMetric"><span>Prepared vat</span><strong>${d.volume.toFixed(0)} L</strong></div><div class="vatMetric"><span>Concentration</span><strong>${d.concentration.toFixed(4)} kg/L</strong></div></div><div class="vatAllocation" style="margin-top:8px">${alloc}</div>${d.current.length?`<div class="note blue" style="margin-top:8px"><strong>Current shift share:</strong> ${d.current.map(esc).join(", ")} · ${d.currentArea.toFixed(2)} ha · ${d.currentKg.toFixed(1)} kg target · ${d.currentSolution.toFixed(1)} L prepared solution.</div>`:""}`}
+function applyInlineVatToShift(){const d=inlineVatData(),product=$("mixProduct").value,batch=$("mixBatchName").value.trim(),idx=Number($("mixInjector").value);if(!product||!d.outs.length||!(d.rate>0)||!(d.volume>0)){alert("Choose the mixed product, fertilizer outlets, target rate and vat volume first.");return}if(!d.current.length){alert("None of the currently selected shift outlets are included in this vat mix.");return}if(!batch){alert("Enter a vat / batch name.");return}const card=document.querySelector(`.inj[data-index="${idx}"]`);if(!card){alert("That injection point could not be found.");return}card.querySelector(".itype").value="product";card.querySelector(".iname").value=product;card.querySelector(".irate").value=d.rate;card.querySelector(".iunit").value="kg/ha";card.querySelector(".ibatch").value=batch;card.querySelector(".isolution").value=Number(d.currentSolution.toFixed(1));const prior=draftShifts().some(p=>(p.injectors||[]).some(x=>x&&x.type==="product"&&x.name===product&&x.batchName===batch));card.querySelector(".ibatchmode").value=prior?"continue":"new";card.querySelector(".ibatchstart").value=prior?0:d.volume;card.querySelector(".itype").dispatchEvent(new Event("change",{bubbles:true}));recalc();alert(`Applied this vat share to the current shift.\n\n${d.current.join(", ")}\n${d.currentArea.toFixed(2)} ha\n${d.currentKg.toFixed(1)} kg target\n${d.currentSolution.toFixed(1)} L prepared solution`)}
 function vatMixedProducts(){return state.fertilizers.filter(n=>{const m=productMetaFor(n);return m.method==="mixed"&&m.unit==="kg/ha"}).sort((a,b)=>a.localeCompare(b))}
 function vatSelectedPlanIds(){return [...document.querySelectorAll("#vatJobs input:checked")].map(x=>x.value)}
 function vatSelectedPlans(){const ids=new Set(vatSelectedPlanIds());return plansForDate($("planViewDate").value||today()).filter(p=>ids.has(p.id)).sort((a,b)=>dtValue(a.date,a.startTime)-dtValue(b.date,b.startTime))}
