@@ -59,7 +59,7 @@ function syncShiftMode(){
    $("irrigationOnlyBtn").disabled=true;
    $("irrigationOnlyBtn").textContent=water?"Water Only Shift":"Fertigation Shift";
  }
- if($("savePlan"))$("savePlan").textContent=activeProgram()?(editingDraftShiftIndex>=0?"Update Shift":"Add Shift to Program"):(editingPlanId?"Save Changes":"Save to Night Plan");
+ if($("savePlan"))$("savePlan").textContent=activeProgram()?(editingDraftShiftIndex>=0?"Update Shift":"Add Shift to Program"):(editingPlanId?"Save Changes":"Start Program & Add Shift");
  if($("fertTimingResult")&&water)$("fertTimingResult").textContent="";
 }
 function useSavedPumpRule(){
@@ -131,9 +131,11 @@ function renderProgramBanner(){
    banner.classList.remove("active");pill.textContent="No active program";
    txt.textContent="Build the AquaLink shifts first, then save the whole program to Tonight's Plan.";
    $("farm").disabled=false;$("programStartShift").disabled=false;
+   if($("saveNightProgram")){$("saveNightProgram").disabled=true;$("saveNightProgram").textContent="Save Whole Night Program"}
    renderDraftShiftList();syncShiftMode();return
  }
  banner.classList.add("active");name.value=a.name;$("farm").disabled=true;$("programStartShift").value=a.startShiftNumber||50;$("programStartShift").disabled=true;
+ if($("saveNightProgram")){$("saveNightProgram").disabled=draftShifts().length===0;$("saveNightProgram").textContent="Finish & Save Whole Program"}
  const shifts=draftShifts();
  pill.textContent=`Next: Shift ${nextShiftNumber()}`;
  txt.innerHTML=`<strong>${esc(a.name)}</strong> · ${esc(a.farm)} · night of ${esc(a.nightDate)} · ${shifts.length} draft shift${shifts.length===1?"":"s"} · <strong>not saved to Tonight's Plan yet</strong>`;
@@ -223,6 +225,14 @@ function addOrUpdateDraftShift(){
 }
 function savePlan(){
  if(activeProgram()){addOrUpdateDraftShift();return}
+ if(!editingPlanId){
+   const data=validatePlan();if(!data)return;
+   const farm=data.farm,nightDate=data.nightDate||$("nightDate").value||today(),name=$("programName").value.trim()||`${farm} Night Program`,startShift=Math.max(1,Math.round(Number($("programStartShift").value)||Number($("shiftNumber").value)||50));
+   state.activeProgram={id:uid(),name,farm,nightDate,startShiftNumber:startShift,draftShifts:[],created:new Date().toISOString()};
+   editingDraftShiftIndex=-1;save();renderProgramBanner();
+   addOrUpdateDraftShift();
+   return
+ }
  const data=validatePlan();if(!data)return;
  if(editingPlanId){
    const idx=state.plans.findIndex(x=>x.id===editingPlanId);
