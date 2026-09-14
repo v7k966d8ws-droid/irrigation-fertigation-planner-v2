@@ -173,7 +173,30 @@ function renderInlineVatMix(){
 function inlineVatSelectedOutlets(){return [...document.querySelectorAll("#mixOutlets input:checked")].map(x=>x.value)}
 function inlineVatData(){const farm=$("farm").value,outs=inlineVatSelectedOutlets(),rate=Math.max(0,Number($("mixRate").value)||0),volume=Math.max(0,Number($("mixVolume").value)||0),totalArea=outs.reduce((s,o)=>s+(Number(FARMS[farm]?.[o])||0),0),totalKg=totalArea*rate,concentration=volume>0?totalKg/volume:0,current=selected().filter(o=>outs.includes(o)),currentArea=current.reduce((s,o)=>s+(Number(FARMS[farm]?.[o])||0),0),currentKg=currentArea*rate,currentSolution=totalArea>0?volume*(currentArea/totalArea):0;return{farm,outs,rate,volume,totalArea,totalKg,concentration,current,currentArea,currentKg,currentSolution}}
 function renderInlineVatSummary(){const b=$("mixSummary");if(!b)return;const d=inlineVatData();if(!d.outs.length){b.innerHTML='<div class="muted">Select the outlets that will receive fertilizer from this vat.</div>';return}const alloc=d.outs.map(o=>{const ha=Number(FARMS[d.farm]?.[o])||0;return `${esc(o)}: ${(ha*d.rate).toFixed(1)} kg · ${(d.totalArea>0?d.volume*ha/d.totalArea:0).toFixed(1)} L`}).join("<br>");b.innerHTML=`<div class="vatCalcTop"><div class="vatMetric"><span>Selected area</span><strong>${d.totalArea.toFixed(2)} ha</strong></div><div class="vatMetric"><span>Product to dissolve</span><strong>${d.totalKg.toFixed(1)} kg</strong></div><div class="vatMetric"><span>Prepared vat</span><strong>${d.volume.toFixed(0)} L</strong></div><div class="vatMetric"><span>Concentration</span><strong>${d.concentration.toFixed(4)} kg/L</strong></div></div><div class="vatAllocation" style="margin-top:8px">${alloc}</div>${d.current.length?`<div class="note blue" style="margin-top:8px"><strong>Current job share:</strong> ${d.current.map(esc).join(", ")} · ${d.currentArea.toFixed(2)} ha · ${d.currentKg.toFixed(1)} kg target · ${d.currentSolution.toFixed(1)} L prepared solution.</div>`:""}`}
-function applyInlineVatToShift(){const d=inlineVatData(),product=$("mixProduct").value,batch=$("mixBatchName").value.trim(),idx=Number($("mixInjector").value);if(!product||!d.outs.length||!(d.rate>0)||!(d.volume>0)){alert("Choose the mixed product, fertilizer outlets, target rate and vat volume first.");return}if(!d.current.length){alert("None of the currently selected job outlets are included in this vat mix.");return}if(!batch){alert("Enter a vat / batch name.");return}const card=document.querySelector(`.inj[data-index="${idx}"]`);if(!card){alert("That injection point could not be found.");return}card.querySelector(".itype").value="product";card.querySelector(".iname").value=product;card.querySelector(".irate").value=d.rate;card.querySelector(".iunit").value="kg/ha";card.querySelector(".ibatch").value=batch;card.querySelector(".isolution").value=Number(d.currentSolution.toFixed(1));const prior=draftShifts().some(p=>(p.injectors||[]).some(x=>x&&x.type==="product"&&x.name===product&&x.batchName===batch));card.querySelector(".ibatchmode").value=prior?"continue":"new";card.querySelector(".ibatchstart").value=prior?0:d.volume;card.querySelector(".itype").dispatchEvent(new Event("change",{bubbles:true}));recalc();alert(`Applied this vat share to the current job.\n\n${d.current.join(", ")}\n${d.currentArea.toFixed(2)} ha\n${d.currentKg.toFixed(1)} kg target\n${d.currentSolution.toFixed(1)} L prepared solution`)}
+function applyInlineVatToShift(){
+ const d=inlineVatData(),product=$("mixProduct").value,batch=$("mixBatchName").value.trim(),idx=Number($("mixInjector").value);
+ if(!product||!d.outs.length||!(d.rate>0)||!(d.volume>0)){alert("Choose the mixed product, fertilizer outlets, target rate and vat volume first.");return}
+ if(!d.current.length){alert("None of the currently selected job outlets are included in this vat mix.");return}
+ if(!batch){alert("Enter a vat / batch name.");return}
+ const card=document.querySelector(`.inj[data-index="${idx}"]`);if(!card){alert("That injection point could not be found.");return}
+ // The Vat Mix Calculator is authoritative for this mixed product in this job.
+ // Clear stale remembered duplicates of the same product on other injection points.
+ document.querySelectorAll(".inj").forEach(other=>{
+   if(other===card)return;
+   const otherType=other.querySelector(".itype")?.value,otherName=other.querySelector(".iname")?.value||"";
+   if(otherType==="product"&&String(otherName).trim().toLowerCase()===String(product).trim().toLowerCase()){
+     other.querySelector(".itype").value="unused";
+     other.dataset.vatBuilder="0";
+     other.querySelector(".itype").dispatchEvent(new Event("change",{bubbles:true}));
+   }
+ });
+ card.dataset.vatBuilder="1";
+ card.querySelector(".itype").value="product";card.querySelector(".iname").value=product;card.querySelector(".irate").value=d.rate;card.querySelector(".iunit").value="kg/ha";card.querySelector(".ibatch").value=batch;card.querySelector(".isolution").value=Number(d.currentSolution.toFixed(1));
+ const prior=draftShifts().some(p=>(p.injectors||[]).some(x=>x&&x.type==="product"&&x.name===product&&x.batchName===batch));
+ card.querySelector(".ibatchmode").value=prior?"continue":"new";card.querySelector(".ibatchstart").value=prior?0:d.volume;
+ card.querySelector(".itype").dispatchEvent(new Event("change",{bubbles:true}));recalc();
+ alert(`Applied this vat share to the current job.\n\n${d.current.join(", ")}\n${d.currentArea.toFixed(2)} ha\n${d.currentKg.toFixed(1)} kg target\n${d.currentSolution.toFixed(1)} L prepared solution`)
+}
 function vatMixedProducts(){return state.fertilizers.filter(n=>{const m=productMetaFor(n);return m.method==="mixed"&&m.unit==="kg/ha"}).sort((a,b)=>a.localeCompare(b))}
 function vatSelectedPlanIds(){return [...document.querySelectorAll("#vatJobs input:checked")].map(x=>x.value)}
 function vatSelectedPlans(){const ids=new Set(vatSelectedPlanIds());return plansForDate($("planViewDate").value||today()).filter(p=>ids.has(p.id)).sort((a,b)=>dtValue(a.date,a.startTime)-dtValue(b.date,b.startTime))}
