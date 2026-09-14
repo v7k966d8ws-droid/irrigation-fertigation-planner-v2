@@ -1,0 +1,79 @@
+:root{--g:#244B35;--bg:#eef3ef;--card:#fff;--line:#d4ddd6;--muted:#667068;--ok:#e5f2e7;--soon:#fff2c9;--due:#fde4d1;--late:#f7dada;--soft:#edf4ef;--blue:#e8f0f7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#202522;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.app{max-width:1240px;margin:auto;padding:14px}
+.hero{background:var(--g);color:#fff;padding:18px;border-radius:18px;margin-bottom:12px}.hero h1{margin:0 0 4px;font-size:28px}.hero p{margin:0;opacity:.9}.status{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pill{padding:7px 10px;border-radius:999px;font-size:13px;font-weight:800}.on{background:#e8f5ea;color:#225b31}.off{background:#fff0d8;color:#795000}.local{background:#eaf0eb;color:#35533d}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}.tabs button{border:0;border-radius:12px;padding:12px 8px;background:#dfe9e1;color:var(--g);font-weight:900;font-size:15px}.tabs button.active{background:var(--g);color:#fff}.page{display:none}.page.active{display:block}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}.card h2,.card h3{margin:0 0 12px;color:var(--g)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}label{display:block;margin:0 0 6px;color:var(--muted);font-weight:800}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;border:1px solid #c9d3cb;border-radius:12px;padding:12px;background:#fff;font-size:16px}textarea{min-height:85px;resize:vertical}.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.primary,.secondary,.danger,.smallbtn{border:0;border-radius:12px;padding:12px 15px;font-weight:900}.primary{background:var(--g);color:#fff}.secondary{background:#e3ece5;color:var(--g)}.danger{background:#f5dfdf;color:#7d2d2d}.smallbtn{padding:8px 10px;background:#e3ece5;color:var(--g)}
+.outlets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.outlet{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--line);border-radius:11px;background:#fafbfa}.outlet input{width:auto}.outlet small{display:block;color:var(--muted)}.summary{padding:12px;border-radius:12px;background:var(--soft);color:var(--g);font-weight:900}.note{padding:12px;border-radius:12px;background:#f5f6f5;border:1px dashed #aeb9b1}.blue{background:var(--blue)}
+.timePicker{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fafcfa}.timeDisplay{font-size:28px;font-weight:900;color:var(--g);text-align:center;margin-bottom:5px}.timeHint{text-align:center;color:var(--muted);font-size:12px;margin-bottom:10px}.timeButtons{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.timeButtons button{border:0;border-radius:10px;padding:10px 6px;background:#e3ece5;color:var(--g);font-weight:900}.timeButtons .suggest{background:var(--g);color:#fff}
+.injectors{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.inj{border:1px solid var(--line);border-radius:14px;padding:12px}.inj h3{font-size:17px}.injFields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.injFields .wide{grid-column:1/-1}.hidden{display:none!important}.injMeta{font-size:13px;color:var(--muted);margin:-2px 0 8px}.calc{margin-top:9px;padding:9px;border-radius:9px;background:var(--soft);color:var(--g);font-weight:900}.runtimeBox{background:#eef5fb;color:#31566f}.warnBox{background:#fff4d8;color:#6e5200}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{border:1px solid var(--line);border-radius:13px;padding:12px;text-align:center}.stat strong{display:block;font-size:24px;color:var(--g)}.stat span{font-size:12px;color:var(--muted);font-weight:800}.statusFilters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.statusFilters button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 11px;font-weight:800;color:var(--g)}.statusFilters button.active{background:var(--g);color:#fff}.compactWrap,.history{overflow:auto}.compactTable{width:100%;border-collapse:collapse;min-width:780px}.compactTable th,.compactTable td{padding:7px 8px;border-bottom:1px solid var(--line);font-size:13px;text-align:left;white-space:nowrap}.compactTable th{color:var(--g);position:sticky;top:0;background:#fff}.compactRow.ok{background:var(--ok)}.compactRow.soon{background:var(--soon)}.compactRow.due{background:var(--due)}.compactRow.late{background:var(--late)}.compactRow.none{background:#f2f3f2}.badge{font-size:11px;font-weight:900;text-transform:uppercase}
+.history table,.planTable{width:100%;border-collapse:collapse;min-width:1350px}.history th,.history td,.planTable th,.planTable td{border-bottom:1px solid var(--line);padding:9px;text-align:left;font-size:13px;vertical-align:top}.history th,.planTable th{color:var(--g)}.setupFarm{border:1px solid var(--line);border-radius:12px;margin:8px 0;overflow:hidden}.setupFarm summary{padding:12px;background:#f4f7f4;color:var(--g);font-weight:900}.setupRows{padding:8px}.setupRow{display:grid;grid-template-columns:1.2fr .9fr .7fr;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #edf0ed}.setupRow:last-child{border-bottom:0}.muted{color:var(--muted);font-size:13px}
+.planHeader{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}.planCards{display:grid;gap:10px}.planCard{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.planTop{display:grid;grid-template-columns:120px 1.2fr .9fr .8fr;gap:10px;align-items:center}.planTime{font-size:20px;font-weight:900;color:var(--g)}.planActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.planInjectWrap{overflow:auto;margin-top:10px;border:1px solid var(--line);border-radius:11px}
+.planInjectTable{width:100%;border-collapse:collapse;min-width:650px;background:#fbfdfb}
+.planInjectTable th,.planInjectTable td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:middle}
+.planInjectTable th{color:var(--g);background:#f4f8f4;font-size:12px}
+.planInjectTable tr:last-child td{border-bottom:0}
+.planInjectorName{font-weight:900;color:var(--g);white-space:nowrap}
+.planProduct{font-weight:800}
+.planProductRate{font-size:11px;color:var(--muted);margin-top:2px}
+.planAmount{font-weight:800;white-space:nowrap}
+.planProgrammingValue{font-weight:900;color:var(--g);font-size:15px;white-space:nowrap}
+.fertSummary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.fertBox{border:1px solid var(--line);border-radius:12px;padding:12px}.fertBox h3{font-size:16px}.fertLine{padding:6px 0;border-bottom:1px solid #edf0ed}.fertLine:last-child{border-bottom:0}.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+.libraryAdd{display:grid;grid-template-columns:1.3fr 1fr .8fr auto;gap:8px;align-items:end}.libraryList{display:grid;gap:8px;margin-top:12px}.productRow{display:grid;grid-template-columns:1.3fr 1fr .8fr auto;gap:8px;align-items:end;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fafcfa}.productName{font-weight:900;color:var(--g);padding:11px 2px}.productDelete{border:0;border-radius:10px;padding:11px 13px;background:#f5dfdf;color:#7d2d2d;font-weight:900}.productMethodHelp{grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:-2px}
+.batchBalanceBox{border:1px solid #c8d8cc;background:#f3f8f4;border-radius:11px;padding:10px 12px;font-size:13px;line-height:1.45;color:#405247}
+.batchBalanceBox strong{color:var(--g)}
+.batchBalanceBox.shortage{border-color:#d9aaaa;background:#fff1f1;color:#7b3030}
+.batchBalanceBox.shortage strong{color:#7b3030}
+.vatBuilderHead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.testBadge{display:inline-block;background:#fff2c7;color:#6d5200;border:1px solid #e8d28a;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;margin-left:8px;vertical-align:middle}
+.vatGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.vatJobs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.vatJob{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--line);border-radius:11px;padding:10px;background:#fbfdfb}
+.vatJob input{margin-top:3px;transform:scale(1.15)}
+.vatJob strong{color:var(--g)}
+.vatJob small{display:block;color:var(--muted);margin-top:2px}
+.vatCalc{margin-top:12px;border:1px solid #bfd4c4;background:#f2f8f3;border-radius:13px;padding:12px}
+.vatCalcTop{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.vatMetric{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px}
+.vatMetric span{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
+.vatMetric strong{font-size:17px;color:var(--g)}
+.vatTableWrap{overflow:auto}
+.vatTable{width:100%;border-collapse:collapse;min-width:820px}
+.vatTable th,.vatTable td{padding:8px;border-bottom:1px solid var(--line);text-align:left;font-size:12px;vertical-align:top}
+.vatTable th{color:var(--g);background:#edf5ef}
+.vatTable tr:last-child td{border-bottom:0}
+.vatAllocation{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+.vatWarning{margin-top:9px;padding:9px 10px;background:#fff3d9;border:1px solid #e8c978;border-radius:10px;color:#6f5200;font-size:12px;line-height:1.4}
+.vatApplied{margin-top:9px;padding:9px 10px;background:#eaf5ed;border:1px solid #b9d5bf;border-radius:10px;color:#244b35;font-size:12px;font-weight:800}
+.programBanner{border:1px solid #b9d1bf;background:#f2f8f3;border-radius:14px;padding:12px;margin-bottom:12px}
+.programBanner.active{background:#e8f4ea;border-color:#94ba9c}
+.programTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.programTitle{font-size:18px;font-weight:900;color:var(--g)}
+.programMeta{font-size:12px;color:var(--muted);margin-top:4px}
+.programPill{display:inline-block;background:var(--g);color:#fff;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900}
+.programList{display:grid;gap:10px;margin-top:10px}
+.programCard{border:1px solid var(--line);border-radius:13px;padding:11px;background:#fff}
+.programCardHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.programSetRow{display:grid;grid-template-columns:75px 1fr 120px 120px;gap:10px;padding:8px 0;border-top:1px solid var(--line);align-items:start}
+.programSetRow:first-child{border-top:0}
+.programSetNo{font-weight:900;color:var(--g)}
+.programSetInj{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+.phaseChooser{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.phaseChoice{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;cursor:pointer}
+.phaseChoice input{margin-right:7px}
+.phaseChoice strong{color:var(--g)}
+.phaseHelp{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35}
+.phaseBadge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:900}
+.phaseBadge.water{background:#e8f1fb;color:#24507d}
+.phaseBadge.fert{background:#e8f4ea;color:#28583a}
+.totalWaterBox{border:1px solid #c8d8cc;background:#f5f9f5;border-radius:11px;padding:10px;margin-top:9px;font-size:12px;line-height:1.45}
+@media(max-width:620px){.phaseChooser{grid-template-columns:1fr}}
+@media(max-width:760px){.programSetRow{grid-template-columns:70px 1fr 100px}.programSetRow>div:last-child{grid-column:2/-1}}
+
+@media(max-width:900px){.vatGrid{grid-template-columns:1fr 1fr}.vatJobs{grid-template-columns:1fr}.vatCalcTop{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.vatGrid{grid-template-columns:1fr}.vatCalcTop{grid-template-columns:1fr 1fr}}
+
+.injectorSetupRow{display:grid;grid-template-columns:1.4fr .8fr .8fr;gap:10px;align-items:end;padding:10px 0;border-bottom:1px solid var(--line)}.injectorSetupRow:last-child{border-bottom:0}.editBanner{display:none;margin-bottom:12px;padding:12px;border-radius:12px;background:#fff2c9;border:1px solid #e3ca7a;color:#5e4a00;font-weight:800}.editBanner.show{display:block}.batchTag,.pumpTag,.flushTag{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800;margin:2px 4px 2px 0}.batchTag{background:#e8f0f7;color:#2f5069}.pumpTag{background:#e9f2e8;color:#31583a}.flushTag{background:#e7eff8;color:#2b5373}.ruleAdd{display:grid;grid-template-columns:1fr 1fr 1.3fr auto;gap:8px;align-items:end}.ruleRow{display:grid;grid-template-columns:.9fr 1fr 1.7fr auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.injHead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.injHead h3{margin:0}.seqBtns{display:flex;gap:6px}.seqBtns button{border:0;border-radius:9px;padding:7px 10px;background:#e3ece5;color:var(--g);font-weight:900}.runtimeHelp,.preflowHelp{margin-top:5px;font-size:12px;color:var(--muted)}.runtimeRow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}.runtimeRow button{white-space:nowrap}.aquaJob{border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0;background:#fff}.aquaJobTop{display:grid;grid-template-columns:120px 1.4fr .7fr 1fr;gap:10px;align-items:start;margin-bottom:10px}.aquaInjectTable{width:100%;border-collapse:collapse;min-width:520px}.aquaInjectTable th,.aquaInjectTable td{padding:9px;border-bottom:1px solid var(--line);text-align:left}.aquaInjectTable th{color:var(--g);background:#f7faf7}.aquaInjectTable td:nth-child(2),.aquaInjectTable td:nth-child(3){font-size:18px;font-weight:900;color:var(--g)}.farmBulkBtns{display:flex;gap:8px;flex-wrap:wrap;padding:10px 8px 4px}.farmBulkBtns button{border:0;border-radius:10px;padding:9px 11px;font-weight:900}.finishAll{background:#f5dfdf;color:#7d2d2d}.activateAll{background:#e3ece5;color:var(--g)}.irrigationModeBar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:11px 12px;margin:10px 0 12px;border:1px solid var(--line);border-radius:12px;background:#f7faf7}.irrigationModeBar .modeText{font-weight:900;color:var(--g)}.irrigationOnlyBtn{border:0;border-radius:11px;padding:10px 13px;background:#e8f0f7;color:#2d526d;font-weight:900}.irrigationOnlyBtn.active{background:var(--g);color:#fff}.irrigationOnlyNote{padding:14px;border-radius:12px;background:#eef5fb;color:#31566f;font-weight:800;margin-bottom:10px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.injectors,.fertSummary{grid-template-columns:1fr}.outlets{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.planTop,.aquaJobTop{grid-template-columns:1fr 1fr}.ruleAdd,.ruleRow{grid-template-columns:1fr}.timeButtons{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:620px){.tabs{grid-template-columns:1fr 1fr}.outlets,.stats,.planTop,.injFields,.libraryAdd,.productRow{grid-template-columns:1fr}.injFields .wide{grid-column:auto}.hero h1{font-size:23px}.timeButtons{grid-template-columns:1fr 1fr}.injectorSetupRow{grid-template-columns:1fr}}
