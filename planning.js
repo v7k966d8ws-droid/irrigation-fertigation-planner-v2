@@ -66,16 +66,29 @@ function applyPreparedVatToCurrentJob(silent=true){
  const farm=$("farm")?.value||"",v=preparedVatForFarm(farm);if(!v)return false;
  const current=selected().filter(o=>(v.outlets||[]).includes(o));
  if(!current.length){
-   // Never leave the previous job's vat litres/runtime sitting in a fresh job.
+   // A prepared vat that still has outlets remaining must stay visibly attached
+   // to the fresh next job, even before that job has any outlets selected.
+   // Keep the source/product identity, but give the current job a zero allocation.
    const idx=Number(v.injectorIndex)||0,card=document.querySelector(`.inj[data-index="${idx}"]`);
    if(card){
+     const type=card.querySelector(".itype"),name=card.querySelector(".iname"),rate=card.querySelector(".irate"),unit=card.querySelector(".iunit"),batch=card.querySelector(".ibatch"),mode=card.querySelector(".ibatchmode"),start=card.querySelector(".ibatchstart"),sol=card.querySelector(".isolution"),run=card.querySelector(".iruntimeinput");
+     if(type)type.value="product";
+     if(name)name.value=v.product;
+     if(rate)rate.value=Number(v.rate)||0;
+     if(unit)unit.value="kg/ha";
+     if(batch)batch.value=v.batchName||"";
+     if(mode)mode.value="continue";
+     if(start)start.value=0;
+     if(sol)sol.value=0;
+     if(run)run.value="";
      card.dataset.vatBuilder="1";card.dataset.vatAllocations="[]";
-     const sol=card.querySelector(".isolution"),start=card.querySelector(".ibatchstart"),run=card.querySelector(".iruntime");
-     if(sol)sol.value=0;if(start)start.value=0;if(run)run.value=0;
-     card.querySelector(".ibatchmode")&&(card.querySelector(".ibatchmode").value="continue");
-     const modeWrap=card.querySelector(".ibatchmode")?.parentElement;if(modeWrap)modeWrap.style.display="none";
+     if(type)type.dispatchEvent(new Event("change",{bubbles:true}));
+     // The type change updates field visibility; reassert the prepared-vat marker
+     // and hide controls that are automatic for a one-session prepared vat.
+     card.dataset.vatBuilder="1";card.dataset.vatAllocations="[]";
+     const modeWrap=mode?.parentElement;if(modeWrap)modeWrap.style.display="none";
      const startWrap=card.querySelector(".batchStartField");if(startWrap)startWrap.style.display="none";
-     recalc();
+     recalc();syncPreparedVatStatus();
    }
    return false
  }
