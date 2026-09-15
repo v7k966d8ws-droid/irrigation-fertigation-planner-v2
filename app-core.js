@@ -50,7 +50,31 @@ function batchIsKnown(farm,x){
  const drafts=(state.activeProgram&&Array.isArray(state.activeProgram.draftShifts))?state.activeProgram.draftShifts:[];
  return drafts.some(p=>p&&p.farm===farm&&(p.injectors||[]).some(y=>y&&y.type==="product"&&y.batchName&&batchKey(farm,y.name,y.batchName)===key&&(y.batchMode==="new"||y.batchMode==="continue")));
 }
-function rememberedInjectors(f){const items=copyInjectionSetup(state.fertigationMemory[f]||[]);items.forEach(x=>{if(batchIsKnown(f,x)){x.batchMode="continue";x.batchStartAmount=0}});return items}
+function rememberedInjectors(f){
+ const items=copyInjectionSetup(state.fertigationMemory[f]||[]);
+ // Remember the useful setup (injector, product, rate and unit), but never load
+ // quantities or batch transaction state from the previous job into a fresh job.
+ // An active prepared vat will populate its own batch/allocation only after the
+ // current job outlets are selected.
+ items.forEach(x=>{
+   if(!x)return;
+   x.qty=0;
+   x.solutionVolume=0;
+   x.preflow=0;
+   x.preflowManual=false;
+   x.runtime=0;
+   x.calculatedRuntime=0;
+   x.runtimeManual=false;
+   x.batchMode="none";
+   x.batchName="";
+   x.batchStartAmount=0;
+   x.outletAllocations=[];
+   x.vatBuilder=false;
+   x.productRuntime=0;
+   x.vatRinseTime=0;
+ });
+ return items
+}
 let state=initState(),editingPlanId=null,statusFilter="all",timeManuallyAdjusted=false,irrigationOnly=false,draftInjectionBeforeIrrigationOnly=null;
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}save();
 function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));if(id==="dashboard")dashboard();if(id==="tonight")renderPlan();if(id==="history")history();if(id==="setup")setup();if(id==="new"&&!editingPlanId&&!timeManuallyAdjusted)applySuggestedStart()}
