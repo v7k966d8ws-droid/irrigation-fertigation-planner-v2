@@ -72,6 +72,8 @@ function applyPreparedVatToCurrentJob(silent=true){
      const sol=card.querySelector(".isolution"),start=card.querySelector(".ibatchstart"),run=card.querySelector(".iruntime");
      if(sol)sol.value=0;if(start)start.value=0;if(run)run.value=0;
      card.querySelector(".ibatchmode")&&(card.querySelector(".ibatchmode").value="continue");
+     const modeWrap=card.querySelector(".ibatchmode")?.parentElement;if(modeWrap)modeWrap.style.display="none";
+     const startWrap=card.querySelector(".batchStartField");if(startWrap)startWrap.style.display="none";
      recalc();
    }
    return false
@@ -87,11 +89,14 @@ function applyPreparedVatToCurrentJob(silent=true){
      other.querySelector(".itype").dispatchEvent(new Event("change",{bubbles:true}));
    }
  });
- const prior=draftShifts().some(p=>(p.injectors||[]).some(x=>x&&x.vatBuilder&&x.name===v.product&&x.batchName===v.batchName));
+ const earlierVatUse=draftShifts().reduce((sum,p)=>sum+(p.injectors||[]).reduce((inner,x)=>inner+(x&&x.vatBuilder&&x.name===v.product&&x.batchName===v.batchName?Number(x.solutionVolume||0):0),0),0);
+ const prior=earlierVatUse>0;
  const jobAlloc=(v.allocations||[]).filter(a=>current.includes(a.outlet));
  card.dataset.vatBuilder="1";card.dataset.vatAllocations=JSON.stringify(jobAlloc);
  card.querySelector(".itype").value="product";card.querySelector(".iname").value=v.product;card.querySelector(".irate").value=v.rate;card.querySelector(".iunit").value="kg/ha";
  card.querySelector(".ibatch").value=v.batchName;card.querySelector(".isolution").value=Number(solution.toFixed(1));card.querySelector(".ibatchmode").value=prior?"continue":"new";card.querySelector(".ibatchstart").value=prior?0:v.volume;
+ const modeWrap=card.querySelector(".ibatchmode")?.parentElement;if(modeWrap)modeWrap.style.display="none";
+ const startWrap=card.querySelector(".batchStartField");if(startWrap)startWrap.style.display="none";
  card.querySelector(".itype").dispatchEvent(new Event("change",{bubbles:true}));recalc();
  const remembered=injData().map(x=>({...x}));state.fertigationMemory[farm]=remembered;save();syncPreparedVatStatus();
  if(!silent)alert(`${current.join(", ")} allocated ${solution.toFixed(1)} L of ${v.batchName} (${currentKg.toFixed(1)} kg target).`);
