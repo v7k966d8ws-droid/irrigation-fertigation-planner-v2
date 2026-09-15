@@ -114,3 +114,6 @@
 #vatRequirementCard .summary{align-self:end}
 #vatPreparePanel{border:2px solid #d7e7dc;padding:14px;border-radius:14px;background:#f7fbf8}
 #preparedVatStatus{min-height:58px}
+
+.farmProgramHeading{font-size:1.35rem;font-weight:800;margin:22px 0 8px;padding:10px 12px;border-bottom:2px solid #d7e7dc;color:#294f38}
+.vatRinseTag{display:inline-block;margin-top:4px;padding:3px 7px;border-radius:999px;background:#edf5ef;font-size:.82rem;font-weight:700;color:#294f38}

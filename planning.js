@@ -185,11 +185,24 @@ function cancelIrrigationProgram(){
  const a=activeProgram();if(!a)return;if(draftShifts().length&&!confirm(`Discard ${draftShifts().length} unsaved draft job${draftShifts().length===1?"":"s"} from ${a.name}?`))return;
  if(state.activeVatMix&&state.activeVatMix[a.farm])delete state.activeVatMix[a.farm];state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;save();resetNewForm();renderProgramBanner()
 }
+function applyFinalVatRinseToDraftJobs(){
+ const a=activeProgram(),v=a?preparedVatForFarm(a.farm):null,jobs=draftShifts();if(!a||!v||!jobs.length)return;
+ // Remove any earlier preview rinse before recalculating.
+ jobs.forEach(j=>(j.injectors||[]).forEach(x=>{if(Number(x?.vatRinseTime)>0){const rinse=Number(x.vatRinseTime)||0;x.runtime=Math.max(0,(Number(x.runtime)||0)-rinse);x.vatRinseTime=0;x.productRuntime=0}}));
+ const candidates=jobs.map((j,i)=>({j,i})).filter(({j})=>j.phaseMode==="fertigation"&&(j.outlets||[]).some(o=>(v.outlets||[]).includes(o)));
+ if(!candidates.length)return;
+ const last=candidates[candidates.length-1].j,idx=Number(v.injectorIndex)||0,x=last.injectors?.[idx];if(!x||x.type!=="product")return;
+ const cfg=state.injectorConfig?.[a.farm]?.[idx]||{},rinse=Math.max(0,Math.round(Number(cfg.finalVatRinseMinutes)||0));if(!rinse)return;
+ const oldRuntime=Math.max(0,Math.round(Number(x.runtime)||0));x.productRuntime=oldRuntime;x.vatRinseTime=rinse;x.runtime=oldRuntime+rinse;
+ // Later injector actions must begin later because this vat injector now runs for the rinse period too.
+ const seq=Number(x.sequenceOrder)||0;(last.injectors||[]).forEach(y=>{if(y!==x&&y&&y.type!=="unused"&&(Number(y.sequenceOrder)||0)>seq)y.preflow=Math.max(0,Math.round(Number(y.preflow)||0)+rinse)});
+}
 function saveNightProgram(){
  const a=activeProgram();if(!a){alert("Start a Night Program first.");return}
  const jobs=draftShifts();if(!jobs.length){alert("Add at least one job before saving the night plan.");return}
  const coverage=preparedVatCoverage();
  if(coverage.vat&&coverage.missing.length){alert(`The prepared vat cannot be finished yet.\n\n${coverage.vat.batchName} was prepared for: ${coverage.vat.outlets.join(", ")}\nStill not allocated to a fertigation job: ${coverage.missing.join(", ")}\n\nAdd those outlet(s) to the fertigation program so the planned vat balance finishes at 0 L.`);return}
+ applyFinalVatRinseToDraftJobs();
  if(!confirm(`Save ${a.name} to Tonight's Plan?\n\n${jobs.length} job${jobs.length===1?"":"s"} will be saved together.`))return;
  jobs.forEach((s,i)=>state.plans.push({...s,id:uid(),programId:a.id,programName:a.name,programSequence:i+1,created:new Date().toISOString()}));
  const fert=[...jobs].reverse().find(s=>s.phaseMode==="fertigation"&&hasProductInjection(s.injectors));if(fert){const mem=copyInjectionSetup(fert.injectors);mem.forEach(x=>{if(x&&x.type==="product"&&x.batchName&&(x.batchMode==="new"||x.batchMode==="continue")){x.batchMode="continue";x.batchStartAmount=0}});state.fertigationMemory[a.farm]=mem}
@@ -208,8 +221,12 @@ function prepareNextShiftForm(){
  }
 
  resetNewForm();$("farm").value=a.farm;renderOutlets();$("pumpSystem").value=GROUP[a.farm]||"";$("nightDate").value=a.nightDate;$("programName").value=a.name;
- $("shiftMode").value="water";$("shiftPumps").value="";$("useIndividualValveRuntimes").checked=false;renderIndividualValveRuntimes();
- if(last)setStart(last.finishDate,last.finishTime,"Suggested after previous job finishes");else setStart(a.nightDate,"18:00","Default first job start — 6:00 PM");syncShiftMode();renderProgramBanner()
+ const activeVat=preparedVatForFarm(a.farm),coverage=preparedVatCoverage();
+ const vatStillActive=!!(activeVat&&coverage.missing.length);
+ $("shiftMode").value=(vatStillActive||(last&&last.phaseMode==="fertigation"))?"fertigation":"water";
+ if($("vatRequired"))$("vatRequired").value=vatStillActive?"yes":"no";
+ $("shiftPumps").value="";$("useIndividualValveRuntimes").checked=false;renderIndividualValveRuntimes();
+ if(last)setStart(last.finishDate,last.finishTime,"Suggested after previous job finishes");else setStart(a.nightDate,"18:00","Default first job start — 6:00 PM");syncShiftMode();syncPreparedVatStatus();renderProgramBanner()
 }
 function resetShiftExtras(){
  if($("shiftPumps"))$("shiftPumps").value="";if($("useIndividualValveRuntimes"))$("useIndividualValveRuntimes").checked=false;renderIndividualValveRuntimes();
