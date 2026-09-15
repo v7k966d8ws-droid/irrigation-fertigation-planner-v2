@@ -206,6 +206,8 @@ function renderProgramBanner(){
 function startIrrigationProgram(){
  const existing=activeProgram();if(existing&&!confirm(`A program is already being built: ${existing.name}. Discard its unsaved draft jobs and start again?`))return;
  const farm=$("farm").value,nightDate=$("nightDate").value||today(),name=$("programName").value.trim()||defaultProgramName(farm,nightDate);
+ // A genuinely new program must never inherit a prepared vat from an earlier or abandoned program.
+ if(state.activeVatMix&&state.activeVatMix[farm])delete state.activeVatMix[farm];
  state.activeProgram={id:uid(),name,farm,nightDate,draftShifts:[],created:new Date().toISOString()};editingDraftShiftIndex=-1;save();prepareNextShiftForm();renderProgramBanner();
  alert(`${name} started.\n\nBuild Job 1, then tap Add Job to Program. Nothing is added to Tonight's Plan until you finish and save the whole program.`)
 }
