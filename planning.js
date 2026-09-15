@@ -13,7 +13,8 @@ function draftShifts(){const a=activeProgram();return a&&Array.isArray(a.draftSh
 function nextJobNumber(){return draftShifts().length+1}
 function currentPhaseMode(){return $("shiftMode")?.value||"water"}
 function vatMemoryKey(farm,product){return `${farm||""}|${product||""}`}
-function preparedVatForFarm(farm){return state.activeVatMix?.[farm]||null}
+function storedPreparedVatForFarm(farm){return state.activeVatMix?.[farm]||null}
+function preparedVatForFarm(farm){const v=storedPreparedVatForFarm(farm);return v&&v.completed!==true?v:null}
 function preparedVatSeedInjectors(farm){
  const v=preparedVatForFarm(farm),items=rememberedInjectors(farm);
  if(!v)return items;
@@ -125,7 +126,7 @@ function applyPreparedVatToCurrentJob(silent=true){
  return true
 }
 function preparedVatCoverage(){
- const farm=$("farm")?.value||activeProgram()?.farm||"",v=preparedVatForFarm(farm);if(!v)return{vat:null,missing:[],used:[]};
+ const farm=$("farm")?.value||activeProgram()?.farm||"",v=storedPreparedVatForFarm(farm);if(!v)return{vat:null,missing:[],used:[]};
  const used=new Set();draftShifts().filter(j=>j.phaseMode==="fertigation").forEach(j=>(j.outlets||[]).forEach(o=>{if((v.outlets||[]).includes(o))used.add(o)}));
  return{vat:v,missing:(v.outlets||[]).filter(o=>!used.has(o)),used:[...used]}
 }
@@ -243,7 +244,7 @@ function cancelIrrigationProgram(){
  if(state.activeVatMix&&state.activeVatMix[a.farm])delete state.activeVatMix[a.farm];state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;save();resetNewForm();renderProgramBanner()
 }
 function applyFinalVatRinseToDraftJobs(){
- const a=activeProgram(),v=a?preparedVatForFarm(a.farm):null,jobs=draftShifts();if(!a||!v||!jobs.length)return;
+ const a=activeProgram(),v=a?storedPreparedVatForFarm(a.farm):null,jobs=draftShifts();if(!a||!v||!jobs.length)return;
  // Remove any earlier preview rinse before recalculating.
  jobs.forEach(j=>(j.injectors||[]).forEach(x=>{if(Number(x?.vatRinseTime)>0){const rinse=Number(x.vatRinseTime)||0;x.runtime=Math.max(0,(Number(x.runtime)||0)-rinse);x.vatRinseTime=0;x.productRuntime=0}}));
  const candidates=jobs.map((j,i)=>({j,i})).filter(({j})=>j.phaseMode==="fertigation"&&(j.outlets||[]).some(o=>(v.outlets||[]).includes(o)));
@@ -284,6 +285,14 @@ function prepareNextShiftForm(){
  const activeVat=preparedVatForFarm(a.farm),coverage=preparedVatCoverage();
  const vatStillActive=!!(activeVat&&coverage.missing.length);
  const vatJustFinished=!!(activeVat&&!coverage.missing.length);
+ // Once every prepared-vat outlet has been allocated, close the vat as a live
+ // source immediately. Keep its record only so final-save validation and the
+ // optional final rinse can still use the completed vat details.
+ if(vatJustFinished){
+   const stored=storedPreparedVatForFarm(a.farm);
+   if(stored)stored.completed=true;
+   save();
+ }
 
  resetNewForm();$("farm").value=a.farm;renderOutlets();$("pumpSystem").value=GROUP[a.farm]||"";$("nightDate").value=a.nightDate;$("programName").value=a.name;
 
