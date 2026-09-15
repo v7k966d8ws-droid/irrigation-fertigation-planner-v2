@@ -51,6 +51,7 @@ function syncVatRequirementUI(){
 function prepareVatMix(){
  const d=inlineVatData(),product=$("mixProduct").value,batch=$("mixBatchName").value.trim(),idx=Number($("mixInjector").value);
  if(!product||!d.outs.length||!(d.rate>0)||!(d.volume>0)){alert("Choose the mixed product, every outlet this vat is being prepared for, the rate per hectare and the prepared vat volume.");return}
+ if(!activeProgram()){const farm=d.farm,nightDate=$("nightDate").value||today(),name=$("programName").value.trim()||defaultProgramName(farm,nightDate);state.activeProgram={id:uid(),name,farm,nightDate,draftShifts:[],created:new Date().toISOString()};editingDraftShiftIndex=-1;save();renderProgramBanner()}
  if(!batch){alert("Enter a vat name.");return}
  const alloc=d.outs.map(o=>{const ha=Number(FARMS[d.farm]?.[o])||0;return{outlet:o,ha,productKg:Number((ha*d.rate).toFixed(4)),solutionL:Number((d.totalArea>0?d.volume*ha/d.totalArea:0).toFixed(4)),rateKgHa:d.rate}});
  state.activeVatMix[d.farm]={id:uid(),farm:d.farm,product,rate:d.rate,volume:d.volume,batchName:batch,injectorIndex:idx,outlets:[...d.outs],totalArea:d.totalArea,totalKg:d.totalKg,allocations:alloc,preparedAt:new Date().toISOString(),oneSessionVat:true};
