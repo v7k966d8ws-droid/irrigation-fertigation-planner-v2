@@ -14,6 +14,14 @@ function nextJobNumber(){return draftShifts().length+1}
 function currentPhaseMode(){return $("shiftMode")?.value||"water"}
 function vatMemoryKey(farm,product){return `${farm||""}|${product||""}`}
 function preparedVatForFarm(farm){return state.activeVatMix?.[farm]||null}
+function preparedVatSeedInjectors(farm){
+ const v=preparedVatForFarm(farm),items=rememberedInjectors(farm);
+ if(!v)return items;
+ const idx=Math.max(0,Math.min(3,Number(v.injectorIndex)||0));
+ while(items.length<4)items.push({type:"unused",sequenceOrder:items.length});
+ items[idx]={...(items[idx]||{}),type:"product",name:v.product,rate:Number(v.rate)||0,unit:"kg/ha",qty:0,solutionVolume:0,preflow:0,preflowManual:false,runtime:0,calculatedRuntime:0,runtimeManual:false,batchMode:"continue",batchName:v.batchName||"",batchStartAmount:0,vatBuilder:true,outletAllocations:[],productRuntime:0,vatRinseTime:0};
+ return items
+}
 function vatRequired(){return $("vatRequired")?.value==="yes"}
 function rememberVatRate(farm,product,rate,volume,injectorIndex){
  if(!farm||!product)return;
@@ -287,6 +295,17 @@ function prepareNextShiftForm(){
  if(last)setStart(last.finishDate,last.finishTime,"Suggested after previous job finishes");else setStart(a.nightDate,"18:00","Default first job start — 6:00 PM");
  syncShiftMode();
 
+ // Build the fresh job from the active prepared vat itself, not from ordinary
+ // fertigation memory. This makes Job 2 deterministic even after Job 1 has
+ // deliberately stripped its per-job vat allocation from memory.
+ if(vatStillActive){
+   renderInjectors(preparedVatSeedInjectors(a.farm));
+   irrigationOnly=false;updateInjectionMode();
+   if($("vatRequired"))$("vatRequired").value="yes";
+   syncVatRequirementUI();
+   applyPreparedVatToCurrentJob(true);
+ }
+
  if(vatJustFinished){
    clearPreparedVatDraftFromInjectors(a.farm);
    // The vat remains in program history for final-save validation/rinse logic,
@@ -295,7 +314,7 @@ function prepareNextShiftForm(){
    syncVatRequirementUI();
  }
  // A new job with no outlets selected must always start with zero vat allocation.
- if(vatStillActive)applyPreparedVatToCurrentJob(true);
+ // The active-vat seed above has already attached the source with a 0 L share.
  syncPreparedVatStatus();renderProgramBanner()
 }
 function resetShiftExtras(){
