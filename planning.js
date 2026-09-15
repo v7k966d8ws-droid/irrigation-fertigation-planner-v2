@@ -89,7 +89,7 @@ function applyPreparedVatToCurrentJob(silent=true){
      other.querySelector(".itype").dispatchEvent(new Event("change",{bubbles:true}));
    }
  });
- const earlierVatUse=draftShifts().reduce((sum,p)=>sum+(p.injectors||[]).reduce((inner,x)=>inner+(x&&x.vatBuilder&&x.name===v.product&&x.batchName===v.batchName?Number(x.solutionVolume||0):0),0),0);
+ const earlierVatUse=draftShifts().reduce((sum,p)=>sum+(p.injectors||[]).reduce((inner,x)=>inner+(x&&x.type==="product"&&x.name===v.product&&x.batchName===v.batchName?Number(x.solutionVolume||0):0),0),0);
  const prior=earlierVatUse>0;
  const jobAlloc=(v.allocations||[]).filter(a=>current.includes(a.outlet));
  card.dataset.vatBuilder="1";card.dataset.vatAllocations=JSON.stringify(jobAlloc);
