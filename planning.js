@@ -244,16 +244,28 @@ function cancelIrrigationProgram(){
  if(state.activeVatMix&&state.activeVatMix[a.farm])delete state.activeVatMix[a.farm];state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;save();resetNewForm();renderProgramBanner()
 }
 function applyFinalVatRinseToDraftJobs(){
- const a=activeProgram(),v=a?storedPreparedVatForFarm(a.farm):null,jobs=draftShifts();if(!a||!v||!jobs.length)return;
- // Remove any earlier preview rinse before recalculating.
- jobs.forEach(j=>(j.injectors||[]).forEach(x=>{if(Number(x?.vatRinseTime)>0){const rinse=Number(x.vatRinseTime)||0;x.runtime=Math.max(0,(Number(x.runtime)||0)-rinse);x.vatRinseTime=0;x.productRuntime=0}}));
+ const a=activeProgram(),v=a?storedPreparedVatForFarm(a.farm):null,jobs=draftShifts();if(!a||!jobs.length)return;
+ // Make this calculation idempotent. Remove any rinse that was previewed on an
+ // earlier draft state, including the matching preflow shift on later injectors.
+ jobs.forEach(j=>(j.injectors||[]).forEach(x=>{
+   const rinse=Math.max(0,Number(x?.vatRinseTime)||0);
+   if(rinse){x.runtime=Math.max(0,(Number(x.runtime)||0)-rinse);x.vatRinseTime=0;x.productRuntime=0}
+   const preAdj=Math.max(0,Number(x?.vatRinsePreflowAdjustment)||0);
+   if(preAdj){x.preflow=Math.max(0,(Number(x.preflow)||0)-preAdj);x.vatRinsePreflowAdjustment=0}
+ }));
+ if(!v)return;
+ // Rinse belongs only to the job that completes every outlet assigned to this
+ // prepared vat. A partially allocated vat must not receive the rinse yet.
+ const coverage=preparedVatCoverage();if(coverage.missing.length)return;
  const candidates=jobs.map((j,i)=>({j,i})).filter(({j})=>j.phaseMode==="fertigation"&&(j.outlets||[]).some(o=>(v.outlets||[]).includes(o)));
  if(!candidates.length)return;
- const last=candidates[candidates.length-1].j,idx=Number(v.injectorIndex)||0,x=last.injectors?.[idx];if(!x||x.type!=="product")return;
+ const last=candidates[candidates.length-1].j,idx=Number(v.injectorIndex)||0,x=last.injectors?.[idx];if(!x||x.type!=="product"||!x.vatBuilder)return;
  const cfg=state.injectorConfig?.[a.farm]?.[idx]||{},rinse=Math.max(0,Math.round(Number(cfg.finalVatRinseMinutes)||0));if(!rinse)return;
  const oldRuntime=Math.max(0,Math.round(Number(x.runtime)||0));x.productRuntime=oldRuntime;x.vatRinseTime=rinse;x.runtime=oldRuntime+rinse;
- // Later injector actions must begin later because this vat injector now runs for the rinse period too.
- const seq=Number(x.sequenceOrder)||0;(last.injectors||[]).forEach(y=>{if(y!==x&&y&&y.type!=="unused"&&(Number(y.sequenceOrder)||0)>seq)y.preflow=Math.max(0,Math.round(Number(y.preflow)||0)+rinse)});
+ // Later injector actions must begin later because this vat injector now runs
+ // for the fresh-water rinse period too. Store the adjustment so recalculation
+ // can reverse it cleanly if jobs are edited or removed.
+ const seq=Number(x.sequenceOrder)||0;(last.injectors||[]).forEach(y=>{if(y!==x&&y&&y.type!=="unused"&&(Number(y.sequenceOrder)||0)>seq){y.preflow=Math.max(0,Math.round(Number(y.preflow)||0)+rinse);y.vatRinsePreflowAdjustment=rinse}});
 }
 function saveNightProgram(){
  const a=activeProgram();if(!a){alert("Start a Night Program first.");return}
@@ -338,7 +350,7 @@ function addOrUpdateDraftShift(){
  if(!data.shiftPumps.length&&!confirm("No pumps have been entered for this job.\n\nAdd the job anyway?"))return true;
  const jobs=draftShifts();data.programSequence=editingDraftShiftIndex>=0?(jobs[editingDraftShiftIndex].programSequence||editingDraftShiftIndex+1):jobs.length+1;
  if(editingDraftShiftIndex>=0)jobs[editingDraftShiftIndex]={...jobs[editingDraftShiftIndex],...data,updated:new Date().toISOString()};else jobs.push({id:"draft-"+uid(),...data,created:new Date().toISOString()});
- jobs.forEach((j,i)=>j.programSequence=i+1);a.draftShifts=jobs;save();editingDraftShiftIndex=-1;prepareNextShiftForm();return true
+ jobs.forEach((j,i)=>j.programSequence=i+1);a.draftShifts=jobs;applyFinalVatRinseToDraftJobs();save();editingDraftShiftIndex=-1;prepareNextShiftForm();return true
 }
 function savePlan(){
  if(activeProgram()){addOrUpdateDraftShift();return}
@@ -352,7 +364,7 @@ function savePlan(){
  state.plans[idx]={...state.plans[idx],...data,updated:new Date().toISOString()};sortPlans();save();resetNewForm();renderPlan();showPage("tonight");alert("Job updated.")
 }
 function editDraftShift(i){const job=draftShifts()[i];if(!job)return;editingDraftShiftIndex=i;loadPlanToForm(job,false);renderProgramBanner();syncShiftMode();window.scrollTo({top:$("formTitle").getBoundingClientRect().top+window.scrollY-20,behavior:"smooth"})}
-function removeDraftShift(i){const a=activeProgram(),job=draftShifts()[i];if(!a||!job)return;if(!confirm(`Remove Job ${i+1} from this draft program?`))return;a.draftShifts.splice(i,1);a.draftShifts.forEach((j,n)=>j.programSequence=n+1);save();editingDraftShiftIndex=-1;prepareNextShiftForm()}
+function removeDraftShift(i){const a=activeProgram(),job=draftShifts()[i];if(!a||!job)return;if(!confirm(`Remove Job ${i+1} from this draft program?`))return;a.draftShifts.splice(i,1);a.draftShifts.forEach((j,n)=>j.programSequence=n+1);applyFinalVatRinseToDraftJobs();save();editingDraftShiftIndex=-1;prepareNextShiftForm()}
 function loadPlanToForm(p,isEdit){
  editingPlanId=isEdit?p.id:null;setEditMode(isEdit);$("nightDate").value=p.nightDate||p.date;$("date").value=p.date;$("startTime").value=p.startTime;$("timeDisplay").textContent=fmtTime(p.startTime);$("timeHint").textContent=isEdit?"Existing planned start":"Draft job";$("duration").value=p.hours;$("farm").value=p.farm;renderOutlets();$("pumpSystem").value=GROUP[p.farm]||"";$("outlets").querySelectorAll("input").forEach(x=>x.checked=(p.outlets||[]).includes(x.value));
  irrigationOnly=p.irrigationOnly===true;draftInjectionBeforeIrrigationOnly=irrigationOnly?rememberedInjectors(p.farm):null;renderInjectors(irrigationOnly?rememberedInjectors(p.farm):(p.injectors||[]));updateInjectionMode();$("notes").value=p.notes||"";
