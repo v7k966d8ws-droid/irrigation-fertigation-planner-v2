@@ -117,3 +117,73 @@
 
 .farmProgramHeading{font-size:1.35rem;font-weight:800;margin:22px 0 8px;padding:10px 12px;border-bottom:2px solid #d7e7dc;color:#294f38}
 .vatRinseTag{display:inline-block;margin-top:4px;padding:3px 7px;border-radius:999px;background:#edf5ef;font-size:.82rem;font-weight:700;color:#294f38}
+
+/* Compact UI development — pass 1
+   Layout-only changes. No irrigation/fertigation calculation logic is changed. */
+@media (min-width: 901px){
+  .app{max-width:1440px;padding:8px 12px}
+  .hero{padding:11px 14px;border-radius:14px;margin-bottom:8px}
+  .hero h1{font-size:23px}
+  .status{margin-top:7px}
+  .pill{padding:5px 8px;font-size:11px}
+
+  .tabs{gap:6px;margin-bottom:8px}
+  .tabs button{padding:9px 7px;border-radius:10px;font-size:14px}
+
+  .card{padding:11px 13px;border-radius:13px;margin-bottom:8px}
+  .card h2,.card h3{margin-bottom:8px}
+  .grid{gap:8px 10px}
+  label{margin-bottom:4px;font-size:14px}
+  input,select,textarea{padding:9px 10px;border-radius:10px;font-size:15px}
+  textarea{min-height:62px}
+  .btns{gap:6px;margin-top:8px}
+  .primary,.secondary,.danger{padding:9px 12px;border-radius:10px}
+  .smallbtn{padding:6px 9px}
+
+  .programBanner{padding:9px 11px;margin-bottom:8px;border-radius:12px}
+  .programTitle{font-size:17px}
+  .programMeta{margin-top:2px}
+  .programList{gap:7px;margin-top:7px}
+  .programCard{padding:8px 10px}
+
+  .timePicker{padding:8px 10px;border-radius:11px}
+  .timeDisplay{font-size:24px;margin-bottom:2px}
+  .timeHint{margin-bottom:6px}
+  .timeButtons{gap:5px}
+  .timeButtons button{padding:7px 5px}
+
+  .outlets{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  .outlet{padding:7px 8px;border-radius:9px}
+  .summary,.note{padding:9px 10px;border-radius:10px}
+
+  .inlineVatMix{padding:9px 10px;margin:7px 0 9px;border-radius:11px}
+  #vatPreparePanel{padding:10px;border-radius:11px}
+  #preparedVatStatus{min-height:42px}
+  .mixOutlets{gap:5px;margin-top:4px}
+  .vatGrid{gap:7px;margin-top:8px}
+  .vatCalc{margin-top:8px;padding:9px 10px}
+  .vatCalcTop{gap:6px;margin-bottom:6px}
+  .vatMetric{padding:6px 8px}
+  .vatMetric strong{font-size:15px}
+
+  .injectors{gap:7px}
+  .inj{padding:8px 10px;border-radius:11px}
+  .inj h3{font-size:16px}
+  .injHead{margin-bottom:5px}
+  .injMeta{font-size:12px;margin:-1px 0 5px}
+  .injFields{gap:6px 8px}
+  .seqBtns{gap:4px}
+  .seqBtns button{padding:5px 8px;border-radius:8px;font-size:13px}
+  .calc{margin-top:6px;padding:7px 8px}
+  .runtimeHelp,.preflowHelp,.fieldHelp{margin-top:3px;font-size:11px;line-height:1.25}
+  .runtimeRow{gap:6px}
+
+  .irrigationModeBar{padding:8px 10px;margin:7px 0 8px}
+  .irrigationOnlyNote{padding:9px 10px;margin-bottom:7px}
+  .individualValveRuntimes{gap:6px;margin-top:7px}
+  .valveRuntime{padding:6px 7px}
+
+  .draftShiftList{gap:6px;margin-top:8px}
+  .draftShiftCard{padding:7px 9px}
+  .draftShiftActions{margin-top:5px}
+}
