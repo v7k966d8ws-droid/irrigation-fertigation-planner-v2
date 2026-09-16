@@ -69,22 +69,17 @@
 <div id="editBanner" class="editBanner">Editing an existing planned job. Save Changes updates the same job and does not affect rotation until Mark Complete.</div><div class="card"><h2 id="formTitle">New Irrigation Plan</h2><div class="grid"><div><label>Night plan date</label><input id="nightDate" type="date"></div><div><label>Actual start date</label><input id="date" type="date"></div><div><label>Farm</label><select id="farm"></select></div><div><label>Irrigation duration (hours)</label><input id="duration" type="number" min="0" step="0.1" placeholder="Example: 4"></div>
 <div><label>Job type</label><select id="shiftMode"><option value="water">Water Only</option><option value="fertigation">Fertigation</option></select></div>
 <div class="full"><label>Pumps selected for this job</label><div class="inlineField"><input id="shiftPumps" placeholder="Example: Jacks Field Pump, Jacks Shed Pump"><button type="button" class="secondary smallbtn" id="usePumpRule">Use saved pump rule</button></div><div class="fieldHelp">Enter the pumps exactly as you intend to select them in AquaLink. Water-only jobs may use multiple pumps.</div></div>
-<div class="full"><label>Pump start time</label><div class="timePicker"><input id="startTime" type="hidden"><div id="timeDisplay" class="timeDisplay">6:00 PM</div><div id="timeHint" class="timeHint">Suggested start</div><div class="timeButtons"><button type="button" data-min="-60">−1 hr</button><button type="button" data-min="-15">−15 min</button><button type="button" id="useSuggested" class="suggest">Use suggested</button><button type="button" data-min="15">+15 min</button><button type="button" data-min="60">+1 hr</button></div></div></div><div class="full"><label>Outlets</label><div id="outlets" class="outlets"></div></div>
+<div class="full"><label>Pump start time</label><div class="timePicker compactTimePicker"><input id="startTime" type="hidden"><button type="button" data-min="-60">−1 hr</button><button type="button" data-min="-15">−15</button><button type="button" id="useSuggested" class="suggest timeCentre"><span id="timeDisplay" class="timeDisplay">6:00 PM</span><span id="timeHint" class="timeHint">Suggested start</span></button><button type="button" data-min="15">+15</button><button type="button" data-min="60">+1 hr</button></div></div><div class="full"><label>Outlets</label><div id="outlets" class="outlets"></div></div>
 <div class="full shiftOptionBox">
   <label class="checkLine"><input id="useIndividualValveRuntimes" type="checkbox"> Use Individual Valve Runtimes</label>
   <div class="fieldHelp">Normally each selected outlet uses the full job runtime. Turn this on when AquaLink uses individual valve runtimes.</div>
   <div id="individualValveRuntimes" class="individualValveRuntimes hidden"></div>
 </div>
 <div class="full"><div id="areaSummary" class="summary">Selected area: 0.00 ha</div></div><div><label>Shared pump system</label><input id="pumpSystem" readonly></div><div><label>Required pumps from saved rule</label><input id="requiredPumps" readonly></div><div><label>Calculated finish</label><input id="finishDisplay" readonly></div><div><label>AquaLink set runtime</label><input id="setRuntimeDisplay" readonly></div><div class="full"><div class="note blue">Planned jobs do not update Last Irrigated. Only Mark Complete changes the rotation.</div></div></div></div>
-<div class="card" id="fertigationTimingCard">
-  <h2>Fertigation Timing</h2>
-  <p class="muted">The planner uses the Fertilizer travel time saved against the selected outlets in Setup. If several outlets are selected, it uses the longest travel time.</p>
-  <div class="grid">
-    <div class="full">
-      <button type="button" id="calculateFertTiming" class="secondary">Calculate AquaLink Preflow</button>
-      <div id="fertTimingResult" class="fieldHelp"></div>
-    </div>
-  </div>
+<div class="card compactTimingCard" id="fertigationTimingCard">
+  <div class="compactTimingInfo"><h2>Fertigation Timing</h2><p class="muted">Uses the longest fertilizer travel time of the selected outlets.</p></div>
+  <button type="button" id="calculateFertTiming" class="secondary">Calculate AquaLink Preflow</button>
+  <div id="fertTimingResult" class="fieldHelp compactTimingResult"></div>
 </div>
 <div id="waterOnlyInjectionNote" class="card waterOnlyInjectionCard hidden">
   <h2>Injection Programming</h2>

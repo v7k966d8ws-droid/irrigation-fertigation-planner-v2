@@ -187,3 +187,39 @@
   .draftShiftCard{padding:7px 9px}
   .draftShiftActions{margin-top:5px}
 }
+
+
+/* Compact UI development — pass 2
+   Structural layout only; calculations remain unchanged. */
+@media (min-width: 901px){
+  /* One-row start-time control */
+  .compactTimePicker{display:grid;grid-template-columns:.72fr .72fr 1.35fr .72fr .72fr;gap:6px;align-items:stretch;padding:6px}
+  .compactTimePicker>button{border:0;border-radius:9px;padding:6px 8px;background:#e3ece5;color:var(--g);font-weight:900;min-height:48px}
+  .compactTimePicker .timeCentre{background:var(--g);color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center}
+  .compactTimePicker .timeDisplay{font-size:20px;line-height:1.05;color:inherit;margin:0}
+  .compactTimePicker .timeHint{font-size:10px;line-height:1.1;color:inherit;opacity:.82;margin:3px 0 0}
+
+  /* Reduce height of the options/summary area under outlets */
+  .shiftOptionBox{padding:7px 9px}
+  .shiftOptionBox .fieldHelp{display:inline;margin-left:8px}
+  #areaSummary{padding:7px 9px}
+  #pumpSystem,#requiredPumps,#finishDisplay,#setRuntimeDisplay{padding-top:7px;padding-bottom:7px}
+
+  /* Timing is now one compact row */
+  .compactTimingCard{display:grid;grid-template-columns:minmax(280px,1fr) auto minmax(260px,1fr);gap:10px;align-items:center;padding:8px 12px}
+  .compactTimingCard h2{font-size:18px;margin:0 0 2px}
+  .compactTimingCard p{margin:0;font-size:11px;line-height:1.2}
+  .compactTimingCard .secondary{padding:8px 11px;white-space:nowrap}
+  .compactTimingResult{margin:0;font-size:11px}
+
+  /* Denser injector programming while retaining readable touch targets */
+  .injFields{grid-template-columns:1fr 1fr 1fr 1fr;gap:6px 8px}
+  .injFields .wide{grid-column:span 2}
+  .injFields .batchBalanceBox.wide{grid-column:1/-1}
+  .injFields .activeFields.wide{grid-column:span 2}
+  .inj input,.inj select{padding:7px 8px}
+  .inj label{font-size:12px;margin-bottom:3px}
+  .inj .productMethodHelp{font-size:10px;line-height:1.15}
+  .batchBalanceBox{padding:7px 9px;line-height:1.3}
+  .runtimeRow{grid-template-columns:1fr auto}
+}
