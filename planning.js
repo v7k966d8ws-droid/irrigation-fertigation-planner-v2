@@ -147,9 +147,16 @@ function clearPreparedVatDraftFromInjectors(farm){
 }
 
 function selectedShiftPumps(){return ($("shiftPumps")?.value||"").split(",").map(s=>s.trim()).filter(Boolean)}
+function selectedOutletTravelMinutes(){
+ const farm=$("farm")?.value||"",outs=selected();
+ if(!farm||!outs.length)return 0;
+ return outs.reduce((max,o)=>{
+   const r=state.rotation[farm+"|"+o]||{};
+   return Math.max(max,Math.max(0,Math.round(Number(r.fertilizerTravelMinutes)||0)))
+ },0)
+}
 function fertFinishMinutes(){
- const v=$("fertFinishBefore")?.value||"60";
- return v==="custom"?Math.max(0,Math.round(Number($("fertFinishCustom")?.value)||0)):Math.max(0,Math.round(Number(v)||60))
+ return selectedOutletTravelMinutes()
 }
 function getIndividualValveRuntimes(){
  if(!$("useIndividualValveRuntimes")?.checked)return{};
@@ -197,7 +204,7 @@ function autoFertigationPreflow(){
  if(firstPreflow<0){result.textContent=`The injection sequence needs ${totalRuntime} min but only ${Math.max(0,available)} min is available before the ${finishBefore}-minute fresh-water finish period.`;alert("The injection sequence will not fit inside this irrigation job with the selected finish target.");return}
  const first=active[0];first.querySelector(".ipreflow").value=Math.max(0,Math.round(firstPreflow));first.dataset.preflowManual="1";active.slice(1).forEach(d=>d.dataset.preflowManual="0");recalc();
  const finalFinish=Math.round(firstPreflow+totalRuntime);
- result.innerHTML=`First Preflow: <strong>${Math.round(firstPreflow)} min</strong>. Injection sequence: <strong>${totalRuntime} min</strong>. Fertilizer finishes at about <strong>${finalFinish} min</strong> into the ${Math.round(hours*60)}-minute job, leaving <strong>${finishBefore} min</strong> fresh water at the end.`
+ result.innerHTML=`Outlet travel time used: <strong>${finishBefore} min</strong>. First AquaLink Preflow: <strong>${Math.round(firstPreflow)} min</strong>. Injection sequence: <strong>${totalRuntime} min</strong>. Fertigation/rinse finishes at about <strong>${finalFinish} min</strong> into the ${Math.round(hours*60)}-minute job, leaving <strong>${finishBefore} min</strong> clean-water travel time.`
 }
 function renderDraftShiftList(){
  const host=$("draftShiftList");if(!host)return;const a=activeProgram(),jobs=draftShifts();
