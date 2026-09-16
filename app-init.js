@@ -16,7 +16,7 @@ $("usePumpRule").addEventListener("click",useSavedPumpRule);
 $("useIndividualValveRuntimes").addEventListener("change",()=>renderIndividualValveRuntimes());
 $("outlets").addEventListener("change",()=>{renderIndividualValveRuntimes();renderInlineVatSummary();applyPreparedVatToCurrentJob(true);syncPreparedVatStatus()});
 $("duration").addEventListener("input",()=>renderIndividualValveRuntimes(getIndividualValveRuntimes()));
-$("fertFinishBefore").addEventListener("change",()=>{$("fertFinishCustomWrap").classList.toggle("hidden",$("fertFinishBefore").value!=="custom")});
+if($("fertFinishBefore"))$("fertFinishBefore").addEventListener("change",()=>{$("fertFinishCustomWrap")?.classList.toggle("hidden",$("fertFinishBefore").value!=="custom")});
 $("calculateFertTiming").addEventListener("click",autoFertigationPreflow);
 $("savePlan").addEventListener("click",savePlan);$("irrigationOnlyBtn").addEventListener("click",toggleIrrigationOnly);$("clearForm").addEventListener("click",resetNewForm);$("cancelEdit").addEventListener("click",()=>{resetNewForm();showPage("tonight")});$("exportCsv").addEventListener("click",exportCsv);$("clearHistory").addEventListener("click",clearHistory);$("vatFarm").addEventListener("change",renderVatBuilder);
 $("vatProduct").addEventListener("change",renderVatSummary);
