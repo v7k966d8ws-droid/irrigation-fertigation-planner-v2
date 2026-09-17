@@ -88,18 +88,14 @@
   <div id="individualValveRuntimes" class="individualValveRuntimes hidden"></div>
 </div>
 <div class="full"><div id="areaSummary" class="summary">Selected area: 0.00 ha</div></div><div><label>Shared pump system</label><input id="pumpSystem" readonly></div><div><label>Required pumps from saved rule</label><input id="requiredPumps" readonly></div><div><label>Calculated finish</label><input id="finishDisplay" readonly></div><div><label>AquaLink set runtime</label><input id="setRuntimeDisplay" readonly></div><div class="full"><div class="note blue">Planned jobs do not update Last Irrigated. Only Mark Complete changes the rotation.</div></div></div></div>
-<div class="card compactTimingCard" id="fertigationTimingCard">
-  <div class="compactTimingInfo"><h2>Fertigation Timing</h2><p class="muted">Uses the longest fertilizer travel time of the selected outlets.</p></div>
-  <button type="button" id="calculateFertTiming" class="secondary">Calculate AquaLink Preflow</button>
-  <div id="fertTimingResult" class="fieldHelp compactTimingResult"></div>
-</div>
+<div class="hidden" id="fertigationTimingCard"><div id="fertTimingResult"></div></div>
 <div id="waterOnlyInjectionNote" class="card waterOnlyInjectionCard hidden">
   <h2>Injection Programming</h2>
   <div class="irrigationOnlyNote"><strong>Water Only job:</strong> no fertilizer, vat, injector runtime or preflow information will be saved for this job.</div>
 </div>
 
 
-<div class="card" id="injectionProgrammingCard"><div class="injectionHeadingRow"><h2>Injection Programming</h2><div class="muted">AquaLink format — copy Runtime and Pre/FL directly.</div></div><div id="currentAquaSummary" class="currentAquaSummary"></div>
+<div class="card" id="injectionProgrammingCard"><div class="injectionHeadingRow"><div><h2>Injection Programming</h2><div class="muted">AquaLink format — copy Runtime and Pre/FL directly.</div></div><button type="button" id="calculateFertTiming" class="secondary compactPreflowButton">Recalculate Pre/FL</button></div><div id="currentAquaSummary" class="currentAquaSummary"></div>
 <details class="injectionEditDetails"><summary>Edit injection programming</summary><div class="irrigationModeBar"><div><div id="injectionModeText" class="modeText">Fertigation</div><div id="injectionMemoryText" class="muted">Last saved fertigation setup will be remembered for this farm.</div></div><button id="irrigationOnlyBtn" type="button" class="irrigationOnlyBtn">Irrigation Only</button></div><div id="irrigationOnlyNote" class="irrigationOnlyNote hidden">Irrigation only for this job — no fertilizer or injector programming will be saved. Your last saved fertigation setup remains remembered for the next irrigation.</div><div id="injectors" class="injectors"></div></details></div>
 <div class="card"><label>Notes</label><textarea id="notes" placeholder="Optional notes — for example an AquaLink shift reference, product mixing note or irrigation detail."></textarea><div class="btns"><button id="savePlan" class="primary">Add Job to Program</button><button id="cancelEdit" class="secondary hidden">Cancel Edit</button><button id="clearForm" class="secondary">Clear Job</button></div></div></section>
 

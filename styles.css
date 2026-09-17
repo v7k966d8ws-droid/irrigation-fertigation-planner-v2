@@ -354,3 +354,73 @@
  .vatPrepareGrid>div:nth-child(4){grid-column:1/-1}
  .vatStatusTitle{align-items:flex-start;flex-direction:column;gap:2px}
 }
+
+
+/* Compact UI development — pass 5: more information, less scrolling */
+@media (min-width:901px){
+  /* Outlet cards: same footprint, easier to read at a glance */
+  .outlet{min-height:52px;padding:6px 9px;gap:9px}
+  .outlet strong,.outlet>span:first-of-type{font-size:15px;line-height:1.05}
+  .outlet small{font-size:12px;line-height:1.05;margin-top:2px;font-weight:700}
+  .mixOutlet{font-size:14px;line-height:1.05}
+  .mixOutlet small{font-size:11px;font-weight:700}
+
+  /* Turn the lower job information into a compact dashboard strip */
+  .shiftOptionBox{padding:6px 9px!important;min-height:0}
+  .shiftOptionBox .fieldHelp{font-size:10px;line-height:1.15;margin-top:2px}
+  .jobBasicsGrid #areaSummary{height:34px;padding:6px 9px;display:flex;align-items:center;font-size:14px}
+  #pumpSystem,#requiredPumps,#finishDisplay,#setRuntimeDisplay{height:34px;padding:5px 8px;font-size:13px}
+
+  /* Prepared vat stays high in the workflow but occupies less height. */
+  .compactVatWorkflow{padding:7px 9px}
+  .preparedVatCompact{min-height:0!important;padding:6px 8px}
+  .vatStatusTitle{font-size:13px}
+  .vatStatusLine{font-size:11px;margin-top:2px}
+  .vatStill{font-size:12px;padding:3px 5px}
+  .compactVatWorkflow .mixOutlet{min-height:38px;padding:3px 6px}
+  .compactVatWorkflow .vatCalcTop{gap:5px}
+  .compactVatWorkflow .vatMetric{padding:5px 7px}
+  .compactVatWorkflow .vatMetric span{font-size:9px}
+  .compactVatWorkflow .vatMetric strong{font-size:13px}
+
+  /* Injection programming is now the one AquaLink-focused section. */
+  #injectionProgrammingCard{padding:9px 11px}
+  .injectionHeadingRow{margin-bottom:4px}
+  .injectionHeadingRow>div:first-child{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .compactPreflowButton{padding:5px 9px;font-size:11px;white-space:nowrap}
+  .currentAquaTable th{padding:4px 7px;font-size:10px}
+  .currentAquaTable td{padding:4px 7px;line-height:1.12}
+  .currentAquaTable td:nth-child(2) strong,.currentAquaTable td:nth-child(3) strong{font-size:16px}
+  .injectionEditDetails{margin-top:3px;padding-top:2px}
+  .injectionEditDetails>summary{padding:4px 2px}
+
+  /* Four injector editors fit as two columns with much less dead space. */
+  .injectors{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .inj{padding:7px 8px;border-radius:10px}
+  .injHead{margin-bottom:2px}
+  .inj h3{font-size:15px;margin:0}
+  .injMeta{font-size:10px;margin:0 0 4px}
+  .seqBtns{gap:3px}
+  .seqBtns button{padding:3px 6px;font-size:10px}
+  .injFields{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 6px}
+  .injFields .wide{grid-column:span 2}
+  .injFields .batchBalanceBox.wide{grid-column:1/-1}
+  .injFields label{font-size:10px;margin-bottom:1px}
+  .injFields input,.injFields select{height:32px;padding:4px 6px;font-size:12px}
+  .productMethodHelp,.runtimeHelp,.preflowHelp{font-size:9px;line-height:1.12;margin-top:2px}
+  .runtimeRow{gap:5px;align-items:end}
+  .runtimeRow .smallbtn{padding:5px 6px;font-size:10px}
+  .calc{margin-top:4px;padding:5px 7px;font-size:11px}
+  .batchBalanceBox{padding:5px 7px;font-size:10px;line-height:1.15}
+
+  /* Notes are useful, but do not need a large empty writing area. */
+  #notes{min-height:54px;height:54px}
+}
+
+@media (max-width:900px){
+  .compactPreflowButton{padding:6px 8px;font-size:11px}
+  .injectionHeadingRow{align-items:center}
+  .outlet{padding:8px 10px}
+  .outlet strong,.outlet>span:first-of-type{font-size:15px}
+  .outlet small{font-size:12px;font-weight:700}
+}
