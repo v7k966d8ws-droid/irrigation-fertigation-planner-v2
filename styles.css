@@ -307,3 +307,50 @@
   .jobBasicsGrid>.full{grid-column:1/-1}
   .jobBasicsGrid>div:nth-child(11),.jobBasicsGrid>div:nth-child(12),.jobBasicsGrid>div:nth-child(13),.jobBasicsGrid>div:nth-child(14){grid-column:auto}
 }
+
+/* Compact UI development — pass 4: guided vat workflow + AquaLink live summary */
+.compactVatWorkflow{padding:9px 11px;margin:2px 0 5px;border-color:#bfd6c7}
+.vatQuestionRow{display:grid;grid-template-columns:minmax(240px,1fr) minmax(260px,.8fr);gap:10px;align-items:end}
+.vatQuestionRow h2{font-size:17px;margin:0 0 2px}
+.vatQuestionRow label{font-size:11px;margin-bottom:2px}
+.vatQuestionRow select{height:36px;padding:5px 8px}
+.preparedVatCompact{margin-top:6px;padding:7px 9px;line-height:1.25}
+.vatStatusTitle{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:14px}
+.vatStatusTitle>span{font-weight:700;white-space:nowrap}
+.vatStatusLine{margin-top:3px;font-size:12px}
+.vatLabel{color:#607064}
+.vatStill{font-size:13px;background:#fff8d8;border-radius:6px;padding:4px 6px;margin-left:-2px;margin-right:-2px}
+.vatDone{color:#356347}
+.inlineVatMix{margin-top:7px;padding-top:7px;border-top:1px solid #d8e4dc}
+.inlineVatHead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:5px}
+.inlineVatHead h3{font-size:15px;margin:0}
+.inlineVatHead .muted{font-size:10px}
+.vatPrepareGrid{display:grid;grid-template-columns:1.2fr .65fr .7fr 1.35fr 1fr;gap:6px 8px;align-items:end}
+.vatPrepareGrid label,.vatOutletRow label{font-size:11px;margin-bottom:2px}
+.vatPrepareGrid input,.vatPrepareGrid select{height:35px;padding:5px 7px}
+.vatOutletRow{margin-top:6px}
+.compactVatWorkflow .mixOutlets{gap:4px}
+.compactVatWorkflow .mixOutlet{padding:4px 6px;min-height:42px}
+.compactVatWorkflow .vatCalc{padding:5px 8px;margin-top:5px;font-size:11px}
+.compactVatWorkflow .btns{margin-top:5px}
+.compactVatWorkflow .btns button{padding:6px 10px}
+
+.injectionHeadingRow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:5px}
+.injectionHeadingRow h2{margin:0;font-size:18px}
+.currentAquaSummary{margin:0}
+.currentAquaTable{width:100%;border-collapse:collapse;font-size:13px}
+.currentAquaTable th{padding:5px 8px;text-align:left;background:#eef4f0;border-bottom:1px solid #ccd9d0;font-size:11px;text-transform:uppercase;letter-spacing:.03em}
+.currentAquaTable td{padding:6px 8px;border-bottom:1px solid #e2e9e4;vertical-align:top}
+.currentAquaTable th:nth-child(2),.currentAquaTable th:nth-child(3),.currentAquaTable td:nth-child(2),.currentAquaTable td:nth-child(3){width:110px;text-align:center}
+.currentAquaTable td:nth-child(2) strong,.currentAquaTable td:nth-child(3) strong{font-size:17px}
+.aquaSub{font-size:10px;color:#68756c;margin-top:1px;font-weight:400}
+.injectionEditDetails{margin-top:5px;border-top:1px solid #dce5df;padding-top:4px}
+.injectionEditDetails>summary{cursor:pointer;font-size:12px;font-weight:700;color:#315c43;padding:5px 2px;user-select:none}
+.injectionEditDetails[open]>summary{margin-bottom:5px}
+
+@media (max-width:900px){
+ .vatQuestionRow{grid-template-columns:1fr}
+ .vatPrepareGrid{grid-template-columns:1fr 1fr}
+ .vatPrepareGrid>div:nth-child(4){grid-column:1/-1}
+ .vatStatusTitle{align-items:flex-start;flex-direction:column;gap:2px}
+}

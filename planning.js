@@ -45,8 +45,8 @@ function syncPreparedVatStatus(){
  const usedArea=[...used].reduce((s,o)=>s+(Number(FARMS[farm]?.[o])||0),0);
  const remainingArea=Math.max(0,(Number(v.totalArea)||0)-usedArea);
  const remainingL=(Number(v.totalArea)||0)>0?(Number(v.volume)||0)*(remainingArea/Number(v.totalArea)):0;
- const done=remainingL<0.05;
- box.innerHTML=`<strong>${esc(v.batchName)}${done?" — COMPLETE":""}</strong><br>${esc(v.product)} · ${Number(v.rate)} kg/ha · ${Number(v.totalArea).toFixed(2)} ha · ${Number(v.totalKg).toFixed(1)} kg to mix<br><span class="muted">Planned prepared solution remaining: ${remainingL.toFixed(1)} L · ${done?"Vat allocation finished — do not carry into the next job.":"End target: 0 L"}</span>`;
+ const done=remainingL<0.05,prepared=(v.outlets||[]),fertigated=prepared.filter(o=>used.has(o)),still=prepared.filter(o=>!used.has(o));
+ box.innerHTML=`<div class="vatStatusTitle"><strong>${esc(v.batchName)}${done?" — COMPLETE":""}</strong><span>${Number(remainingL.toFixed(1)).toLocaleString("en-AU")} L remaining</span></div><div class="vatStatusLine">${esc(v.product)} · ${Number(v.volume||0).toLocaleString("en-AU")} L · ${Number(v.rate)} kg/ha · ${Number(v.totalKg).toFixed(1)} kg · ${esc(state.injectorConfig?.[farm]?.[Number(v.injectorIndex)||0]?.name||`Injector ${(Number(v.injectorIndex)||0)+1}`)}</div><div class="vatStatusLine"><span class="vatLabel">Prepared for:</span> <strong>${prepared.map(esc).join(", ")}</strong></div>${fertigated.length?`<div class="vatStatusLine vatDone"><span class="vatLabel">✓ Fertigated:</span> <strong>${fertigated.map(esc).join(", ")}</strong></div>`:""}<div class="vatStatusLine vatStill"><span class="vatLabel">Still to fertigate:</span> <strong>${still.length?still.map(esc).join(", "):"None — all allocated ✓"}</strong></div>`;
 }
 function syncVatRequirementUI(){
  const fert=currentPhaseMode()==="fertigation",card=$("vatRequirementCard"),panel=$("vatPreparePanel");
@@ -54,7 +54,7 @@ function syncVatRequirementUI(){
  if(!fert){if(panel)panel.classList.add("hidden");return}
  const existing=preparedVatForFarm($("farm")?.value||"");
  if(existing&&$("vatRequired"))$("vatRequired").value="yes";
- if(panel)panel.classList.toggle("hidden",!vatRequired());
+ if(panel)panel.classList.toggle("hidden",!vatRequired()||!!existing);
  syncPreparedVatStatus();
 }
 function prepareVatMix(){
