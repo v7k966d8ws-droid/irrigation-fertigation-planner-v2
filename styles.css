@@ -506,3 +506,40 @@
 @media(max-width:900px){
   .compactTimePicker{grid-template-columns:minmax(54px,.65fr) minmax(54px,.65fr) minmax(190px,2fr) minmax(54px,.65fr) minmax(54px,.65fr)}
 }
+
+/* Compact UI development — pass 9: matched duration/start-time proportions */
+.durationControl,
+.compactTimePicker{
+  grid-template-columns:minmax(72px,.72fr) minmax(72px,.72fr) minmax(190px,1.65fr) minmax(72px,.72fr) minmax(72px,.72fr);
+  gap:6px;
+}
+.durationControl button,.durationControl select,
+.compactTimePicker>button{height:46px;min-height:46px}
+
+@media (min-width:901px){
+  .durationControl,
+  .compactTimePicker{
+    grid-template-columns:minmax(90px,.75fr) minmax(90px,.75fr) minmax(250px,1.7fr) minmax(90px,.75fr) minmax(90px,.75fr);
+  }
+}
+
+@media (max-width:900px){
+  .durationControl,
+  .compactTimePicker{
+    grid-template-columns:minmax(52px,.72fr) minmax(52px,.72fr) minmax(150px,1.65fr) minmax(52px,.72fr) minmax(52px,.72fr);
+    gap:5px;
+  }
+  .durationStep{padding:6px 4px;font-size:14px}
+  .durationPicker{font-size:20px;padding-left:6px;padding-right:22px}
+  .compactTimePicker>button{padding-left:5px;padding-right:5px}
+  .compactTimePicker .timeDisplay{font-size:clamp(20px,4.7vw,30px);white-space:nowrap}
+  .compactTimePicker .timeHint{font-size:11px;white-space:nowrap}
+}
+
+@media (max-width:600px){
+  .durationControl,
+  .compactTimePicker{
+    grid-template-columns:minmax(46px,.68fr) minmax(46px,.68fr) minmax(136px,1.55fr) minmax(46px,.68fr) minmax(46px,.68fr);
+    gap:4px;
+  }
+}
