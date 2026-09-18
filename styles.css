@@ -547,3 +547,18 @@
 /* Pass 10 — collapse prepared-vat setup after preparation */
 .vatDetailsToggle{margin-top:8px;padding:7px 12px;min-height:34px;font-size:12px;font-weight:800;width:auto}
 @media (max-width:800px){.vatDetailsToggle{width:100%;min-height:42px;font-size:13px}}
+
+
+/* Pass 10 final polish — portrait pump time + clearer current-job outlet heading */
+.jobOutletHeading{font-size:18px;line-height:1.2;font-weight:900;color:var(--g);margin:2px 0 9px}
+@media (max-width:900px){
+  .jobOutletHeading{font-size:20px;margin:4px 0 10px}
+  .compactTimePicker .timeCentre{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+  .compactTimePicker .timeDisplay{display:block;line-height:1;font-size:clamp(22px,4.9vw,30px);margin:0}
+  .compactTimePicker .timeHint{display:block;line-height:1.05;font-size:10px;margin:2px 0 0;max-width:100%;white-space:nowrap}
+}
+@media (max-width:600px){
+  .compactTimePicker{grid-template-columns:minmax(44px,.62fr) minmax(44px,.62fr) minmax(150px,1.9fr) minmax(44px,.62fr) minmax(44px,.62fr)}
+  .compactTimePicker .timeDisplay{font-size:clamp(22px,6vw,28px)}
+  .compactTimePicker .timeHint{font-size:9px}
+}
