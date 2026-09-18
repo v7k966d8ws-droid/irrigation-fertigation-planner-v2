@@ -424,3 +424,37 @@
   .outlet strong,.outlet>span:first-of-type{font-size:15px}
   .outlet small{font-size:12px;font-weight:700}
 }
+
+/* Compact UI development — pass 6: larger touch/readability targets */
+@media (min-width:901px){
+  /* Prepared-vat outlets: keep the compact 5-column layout, but make the
+     outlet number and hectare value fill the available tile much better. */
+  .compactVatWorkflow .mixOutlet,
+  .compactVatWorkflow .vatJob{min-height:58px;padding:7px 10px;gap:10px;align-items:center}
+  .compactVatWorkflow .mixOutlet input,
+  .compactVatWorkflow .vatJob input{width:30px;height:30px;min-width:30px;margin:0;transform:none}
+  .compactVatWorkflow .mixOutlet strong,
+  .compactVatWorkflow .vatJob strong{font-size:21px;line-height:1;font-weight:900}
+  .compactVatWorkflow .mixOutlet small,
+  .compactVatWorkflow .vatJob small{font-size:16px;line-height:1.05;margin-top:3px;font-weight:800}
+
+  /* Normal job outlets now use the same visual scale as prepared-vat outlets. */
+  .outlet{min-height:58px;padding:7px 10px;gap:10px;align-items:center}
+  .outlet input{width:30px;height:30px;min-width:30px;margin:0}
+  .outlet strong,.outlet>span:first-of-type{font-size:21px;line-height:1;font-weight:900}
+  .outlet small{font-size:16px;line-height:1.05;margin-top:3px;font-weight:800}
+
+  /* Make the collapsed injector editor unmistakably actionable. */
+  .injectionEditDetails{margin-top:7px;padding-top:7px}
+  .injectionEditDetails>summary{display:inline-flex;align-items:center;min-height:44px;padding:9px 15px;border-radius:10px;background:#e3ece5;color:var(--g);font-size:16px;line-height:1;font-weight:900;list-style-position:inside}
+  .injectionEditDetails>summary:hover{background:#d8e6dc}
+  .injectionEditDetails[open]>summary{margin-bottom:8px}
+}
+
+@media (max-width:900px){
+  .compactVatWorkflow .mixOutlet,.compactVatWorkflow .vatJob,.outlet{min-height:58px;padding:8px 10px;gap:10px;align-items:center}
+  .compactVatWorkflow .mixOutlet input,.compactVatWorkflow .vatJob input,.outlet input{width:30px;height:30px;min-width:30px;margin:0;transform:none}
+  .compactVatWorkflow .mixOutlet strong,.compactVatWorkflow .vatJob strong,.outlet strong,.outlet>span:first-of-type{font-size:20px;line-height:1;font-weight:900}
+  .compactVatWorkflow .mixOutlet small,.compactVatWorkflow .vatJob small,.outlet small{font-size:15px;line-height:1.05;margin-top:3px;font-weight:800}
+  .injectionEditDetails>summary{display:inline-flex;align-items:center;min-height:44px;padding:9px 14px;border-radius:10px;background:#e3ece5;color:var(--g);font-size:16px;font-weight:900}
+}
