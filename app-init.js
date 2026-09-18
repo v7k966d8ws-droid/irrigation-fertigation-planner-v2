@@ -26,3 +26,28 @@ $("applyVatBatch").addEventListener("click",applyVatBatchToPlans);
 $("planViewDate").addEventListener("change",()=>{renderPlan();if(!editingPlanId){$("nightDate").value=$("planViewDate").value;timeManuallyAdjusted=false;applySuggestedStart()}});$("copyProgram").addEventListener("click",copyProgram);$("viewProgramTime").addEventListener("click",()=>{programViewMode="time";$("viewProgramTime").className="primary";$("viewProgramFarm").className="secondary";renderProgram(plansForDate($("planViewDate").value||today()))});
 $("viewProgramFarm").addEventListener("click",()=>{programViewMode="farm";$("viewProgramFarm").className="primary";$("viewProgramTime").className="secondary";renderProgram(plansForDate($("planViewDate").value||today()))});$("duration").addEventListener("input",finishText);$("date").addEventListener("change",finishText);$("nightDate").addEventListener("change",()=>{if(!editingPlanId){timeManuallyAdjusted=false;applySuggestedStart();updateDefaultProgramName()}});document.querySelectorAll(".timeButtons button[data-min]").forEach(b=>b.addEventListener("click",()=>shiftStart(Number(b.dataset.min))));$("useSuggested").addEventListener("click",()=>{timeManuallyAdjusted=false;applySuggestedStart()});$("addProduct").addEventListener("click",addProduct);$("newProductMethod").addEventListener("change",()=>{if($("newProductMethod").value==="direct")$("newProductUnit").value="L/ha";else $("newProductShuttle").value=""});$("newProduct").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addProduct()}});$("addPumpRule").addEventListener("click",addPumpRule);
 $("planViewDate").value=today();$("nightDate").value=today();$("date").value=today();farmInit();updateDefaultProgramName(true);renderInlineVatMix();applySuggestedStart();syncShiftMode();renderProgramBanner();dashboard();history();setup();renderPlan();network();
+
+// Compact duration selector. Keep the original numeric #duration value as the
+// calculation source so existing finish-time, preflow and save logic is unchanged.
+(function initCompactDurationControl(){
+ const duration=$('duration'),picker=$('durationPicker');
+ if(!duration||!picker)return;
+ function nearestPickerValue(hours){
+   const values=[...picker.options].map(o=>Number(o.value));
+   return values.reduce((a,b)=>Math.abs(b-hours)<Math.abs(a-hours)?b:a,values[0]);
+ }
+ function syncPicker(){
+   const h=Math.max(.25,Number(duration.value)||4);
+   picker.value=String(nearestPickerValue(h));
+ }
+ function setDuration(hours){
+   const h=Math.max(.25,Math.min(24,Math.round(Number(hours)*4)/4));
+   duration.value=String(h);
+   syncPicker();
+   duration.dispatchEvent(new Event('input',{bubbles:true}));
+ }
+ picker.addEventListener('change',()=>setDuration(Number(picker.value)));
+ document.querySelectorAll('[data-duration-min]').forEach(btn=>btn.addEventListener('click',()=>setDuration((Number(duration.value)||4)+(Number(btn.dataset.durationMin)||0)/60)));
+ duration.addEventListener('input',syncPicker);
+ syncPicker();
+})();
