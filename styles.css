@@ -482,3 +482,27 @@
  .vatRemainingHero{position:absolute;right:14px;top:14px}
  .preparedVatCompact{position:relative}
 }
+
+/* Compact UI development — pass 8: reliable landscape time controls */
+@media (min-width:1151px){
+  /* Keep the four simple job fields on the first line and give duration a full line. */
+  .jobBasicsGrid{grid-template-columns:1fr 1fr .95fr .72fr .72fr}
+  .jobBasicsGrid>div:nth-child(1){grid-column:1}
+  .jobBasicsGrid>div:nth-child(2){grid-column:2}
+  .jobBasicsGrid>div:nth-child(3){grid-column:3}
+  .jobBasicsGrid>div:nth-child(5){grid-column:4/6}
+  .jobBasicsGrid>div.durationField{grid-column:1/-1}
+  .durationControl{grid-template-columns:minmax(100px,.55fr) minmax(100px,.55fr) minmax(280px,2fr) minmax(100px,.55fr) minmax(100px,.55fr);gap:6px}
+  .durationControl button,.durationControl select{height:42px}
+  .durationStep{font-size:15px}
+  .durationPicker{font-size:20px}
+}
+
+/* Each visible pump-time button owns its complete touch area. */
+.compactTimePicker{display:grid;grid-template-columns:minmax(90px,.75fr) minmax(90px,.75fr) minmax(260px,1.7fr) minmax(90px,.75fr) minmax(90px,.75fr);gap:6px;overflow:visible}
+.compactTimePicker>button{position:relative;z-index:1;width:100%;min-width:0;touch-action:manipulation;cursor:pointer}
+.compactTimePicker .timeCentre{z-index:1;overflow:hidden}
+.compactTimePicker .timeHint{pointer-events:none;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:900px){
+  .compactTimePicker{grid-template-columns:minmax(54px,.65fr) minmax(54px,.65fr) minmax(190px,2fr) minmax(54px,.65fr) minmax(54px,.65fr)}
+}
