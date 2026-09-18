@@ -11,6 +11,12 @@ $("mixProduct").addEventListener("change",()=>{$("mixBatchName").value=`${$("far
 ["mixRate","mixVolume"].forEach(id=>$(id).addEventListener("input",renderInlineVatSummary));$("mixBatchName").addEventListener("input",()=>{$("mixBatchName").dataset.autoName="0";renderInlineVatSummary()});
 $("mixInjector").addEventListener("change",renderInlineVatSummary);
 $("applyMixToShift").addEventListener("click",prepareVatMix);
+$("preparedVatStatus").addEventListener("click",e=>{
+ const btn=e.target.closest("#toggleVatPrepareDetails");if(!btn)return;
+ vatPrepareExpanded=!vatPrepareExpanded;
+ syncVatRequirementUI();
+ if(vatPrepareExpanded)renderInlineVatSummary();
+});
 $("farm").addEventListener("change",()=>setTimeout(()=>{syncShiftMode();renderInlineVatMix();updateDefaultProgramName()},0));
 $("usePumpRule").addEventListener("click",useSavedPumpRule);
 $("useIndividualValveRuntimes").addEventListener("change",()=>renderIndividualValveRuntimes());

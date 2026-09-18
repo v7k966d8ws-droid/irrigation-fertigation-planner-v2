@@ -1,5 +1,6 @@
 
 let editingDraftShiftIndex=-1;
+let vatPrepareExpanded=false;
 
 function plansForDate(date){return state.plans.filter(p=>(p.nightDate||p.date)===date).sort((a,b)=>dtValue(a.date,a.startTime)-dtValue(b.date,b.startTime))}
 function orderedInjectors(items){return (items||[]).filter(x=>x&&x.type!=="unused").slice().sort((a,b)=>(Number(a.sequenceOrder)||0)-(Number(b.sequenceOrder)||0))}
@@ -46,7 +47,7 @@ function syncPreparedVatStatus(){
  const remainingArea=Math.max(0,(Number(v.totalArea)||0)-usedArea);
  const remainingL=(Number(v.totalArea)||0)>0?(Number(v.volume)||0)*(remainingArea/Number(v.totalArea)):0;
  const done=remainingL<0.05,prepared=(v.outlets||[]),fertigated=prepared.filter(o=>used.has(o)),still=prepared.filter(o=>!used.has(o));
- box.innerHTML=`<div class="vatStatusDashboard"><div class="vatStatusDetails"><div class="vatStatusTitle"><strong>${esc(v.batchName)}${done?" — COMPLETE":""}</strong></div><div class="vatStatusLine">${esc(v.product)} · ${Number(v.volume||0).toLocaleString("en-AU")} L · ${Number(v.rate)} kg/ha · ${Number(v.totalKg).toFixed(1)} kg · ${esc(state.injectorConfig?.[farm]?.[Number(v.injectorIndex)||0]?.name||`Injector ${(Number(v.injectorIndex)||0)+1}`)}</div><div class="vatStatusLine"><span class="vatLabel">Prepared for:</span> <strong>${prepared.map(esc).join(", ")}</strong></div>${fertigated.length?`<div class="vatStatusLine vatDone"><span class="vatLabel">✓ Fertigated:</span> <strong>${fertigated.map(esc).join(", ")}</strong></div>`:""}</div><div class="vatStillHero ${done?"complete":""}"><span>${done?"VAT COMPLETE":"STILL TO FERTIGATE"}</span><strong>${done?"✓":still.map(esc).join(", ")}</strong></div><div class="vatRemainingHero"><strong>${Number(remainingL.toFixed(1)).toLocaleString("en-AU")} L</strong><span>remaining</span></div></div>`;
+ box.innerHTML=`<div class="vatStatusDashboard"><div class="vatStatusDetails"><div class="vatStatusTitle"><strong>${esc(v.batchName)}${done?" — COMPLETE":""}</strong></div><div class="vatStatusLine">${esc(v.product)} · ${Number(v.volume||0).toLocaleString("en-AU")} L · ${Number(v.rate)} kg/ha · ${Number(v.totalKg).toFixed(1)} kg · ${esc(state.injectorConfig?.[farm]?.[Number(v.injectorIndex)||0]?.name||`Injector ${(Number(v.injectorIndex)||0)+1}`)}</div><div class="vatStatusLine"><span class="vatLabel">Prepared for:</span> <strong>${prepared.map(esc).join(", ")}</strong></div>${fertigated.length?`<div class="vatStatusLine vatDone"><span class="vatLabel">✓ Fertigated:</span> <strong>${fertigated.map(esc).join(", ")}</strong></div>`:""}<button type="button" id="toggleVatPrepareDetails" class="vatDetailsToggle secondary">${vatPrepareExpanded?"Hide vat details":"Show / edit vat details"}</button></div><div class="vatStillHero ${done?"complete":""}"><span>${done?"VAT COMPLETE":"STILL TO FERTIGATE"}</span><strong>${done?"✓":still.map(esc).join(", ")}</strong></div><div class="vatRemainingHero"><strong>${Number(remainingL.toFixed(1)).toLocaleString("en-AU")} L</strong><span>remaining</span></div></div>`;
 }
 function syncVatRequirementUI(){
  const fert=currentPhaseMode()==="fertigation",card=$("vatRequirementCard"),panel=$("vatPreparePanel");
@@ -54,7 +55,7 @@ function syncVatRequirementUI(){
  if(!fert){if(panel)panel.classList.add("hidden");return}
  const existing=preparedVatForFarm($("farm")?.value||"");
  if(existing&&$("vatRequired"))$("vatRequired").value="yes";
- if(panel)panel.classList.toggle("hidden",!vatRequired()||!!existing);
+ if(panel)panel.classList.toggle("hidden",!vatRequired()||!!existing&&!vatPrepareExpanded);
  syncPreparedVatStatus();
 }
 function prepareVatMix(){
@@ -66,7 +67,8 @@ function prepareVatMix(){
  state.activeVatMix[d.farm]={id:uid(),farm:d.farm,product,rate:d.rate,volume:d.volume,batchName:batch,injectorIndex:idx,outlets:[...d.outs],totalArea:d.totalArea,totalKg:d.totalKg,allocations:alloc,preparedAt:new Date().toISOString(),oneSessionVat:true};
  rememberVatRate(d.farm,product,d.rate,d.volume,idx);
  save();
- syncPreparedVatStatus();
+ vatPrepareExpanded=false;
+ syncVatRequirementUI();
  applyPreparedVatToCurrentJob(true);
  alert(`Vat prepared in V2.\n\n${batch}\n${d.totalArea.toFixed(2)} ha\n${d.totalKg.toFixed(1)} kg ${product}\n${d.volume.toFixed(0)} L prepared solution\n\nNow build the fertigation jobs normally. V2 will allocate this vat automatically by hectares and expects 0 L remaining after all selected outlets are completed.`);
 }
