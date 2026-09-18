@@ -252,6 +252,16 @@ function cancelIrrigationProgram(){
  const a=activeProgram();if(!a)return;if(draftShifts().length&&!confirm(`Discard ${draftShifts().length} unsaved draft job${draftShifts().length===1?"":"s"} from ${a.name}?`))return;
  if(state.activeVatMix&&state.activeVatMix[a.farm])delete state.activeVatMix[a.farm];state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;save();resetNewForm();renderProgramBanner()
 }
+function recalcStoredFertigationPreflows(job){
+ if(!job||job.phaseMode!=="fertigation")return;
+ const active=orderedInjectors(job.injectors||[]);if(!active.length)return;
+ const totalMinutes=Math.max(0,Math.round((Number(job.hours)||0)*60));
+ const finishBefore=Math.max(0,Math.round(Number(job.fertigationFinishBefore)||0));
+ const totalRuntime=active.reduce((sum,x)=>sum+Math.max(0,Math.round(Number(x.runtime)||0)),0);
+ const firstPreflow=Math.max(0,totalMinutes-finishBefore-totalRuntime);
+ let cursor=firstPreflow;
+ active.forEach(x=>{x.preflow=Math.max(0,Math.round(cursor));x.preflowManual=false;cursor+=Math.max(0,Math.round(Number(x.runtime)||0))});
+}
 function applyFinalVatRinseToDraftJobs(){
  const a=activeProgram(),v=a?storedPreparedVatForFarm(a.farm):null,jobs=draftShifts();if(!a||!jobs.length)return;
  // Make this calculation idempotent. Remove any rinse that was previewed on an
@@ -275,6 +285,10 @@ function applyFinalVatRinseToDraftJobs(){
  // for the fresh-water rinse period too. Store the adjustment so recalculation
  // can reverse it cleanly if jobs are edited or removed.
  const seq=Number(x.sequenceOrder)||0;(last.injectors||[]).forEach(y=>{if(y!==x&&y&&y.type!=="unused"&&(Number(y.sequenceOrder)||0)>seq){y.preflow=Math.max(0,Math.round(Number(y.preflow)||0)+rinse);y.vatRinsePreflowAdjustment=rinse}});
+ // Runtimes can change when the final prepared-vat rinse is added. Recalculate
+ // every fertigation job backwards from its saved outlet travel/finish time so
+ // the injection sequence still finishes at the intended time before irrigation ends.
+ jobs.forEach(recalcStoredFertigationPreflows);
 }
 function saveNightProgram(){
  const a=activeProgram();if(!a){alert("Start a Night Program first.");return}
@@ -355,7 +369,7 @@ function addOrUpdateDraftShift(){
  const a=activeProgram();if(!a)return false;const data=validatePlan();if(!data)return true;
  if(data.farm!==a.farm){alert(`This program is for ${a.farm}.`);return true}if(data.nightDate!==a.nightDate){alert(`This program is for the night of ${a.nightDate}.`);return true}
  data.phaseMode=currentPhaseMode();data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;data.individualValveRuntimes=getIndividualValveRuntimes();data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
- if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm);data.fertigationFinishBefore=0}else data.irrigationOnly=false;
+ if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm);data.fertigationFinishBefore=0}else{data.irrigationOnly=false;recalcStoredFertigationPreflows(data)}
  if(!data.shiftPumps.length&&!confirm("No pumps have been entered for this job.\n\nAdd the job anyway?"))return true;
  const jobs=draftShifts();data.programSequence=editingDraftShiftIndex>=0?(jobs[editingDraftShiftIndex].programSequence||editingDraftShiftIndex+1):jobs.length+1;
  if(editingDraftShiftIndex>=0)jobs[editingDraftShiftIndex]={...jobs[editingDraftShiftIndex],...data,updated:new Date().toISOString()};else jobs.push({id:"draft-"+uid(),...data,created:new Date().toISOString()});
