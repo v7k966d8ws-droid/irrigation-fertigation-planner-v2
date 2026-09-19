@@ -594,3 +594,37 @@
 }
 .jobOutletHelp{margin:-5px 0 9px;font-size:12px}
 @media(max-width:900px){.jobOutletHelp{font-size:13px;margin:-5px 0 10px}}
+
+/* UI Build 2.1 — orientation-aware iPad layout correction.
+   iPad landscape: spread dates and Farm across the full row.
+   iPad portrait: keep dates side-by-side and Farm full width.
+   Phones remain stacked. */
+@media (min-width: 700px) and (orientation: landscape){
+  .jobBasicsGrid{
+    display:grid;
+    grid-template-columns:minmax(180px,1fr) minmax(180px,1fr) minmax(90px,.35fr) minmax(90px,.35fr) minmax(260px,1.15fr);
+    column-gap:16px;
+    row-gap:9px;
+    align-items:end;
+  }
+  .jobBasicsGrid>div:nth-child(1){grid-column:1}
+  .jobBasicsGrid>div:nth-child(2){grid-column:2}
+  .jobBasicsGrid>div:nth-child(3){grid-column:5}
+  .jobBasicsGrid>div.durationField{grid-column:1/5}
+  .jobBasicsGrid>div:nth-child(5){grid-column:5}
+  .jobBasicsGrid>.full{grid-column:1/-1}
+  .durationControl{
+    grid-template-columns:minmax(105px,.72fr) minmax(105px,.72fr) minmax(250px,1.75fr) minmax(105px,.72fr) minmax(105px,.72fr);
+    gap:14px;
+  }
+}
+
+@media (min-width: 700px) and (orientation: portrait){
+  .jobBasicsGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;align-items:end}
+  .jobBasicsGrid>div:nth-child(1){grid-column:1}
+  .jobBasicsGrid>div:nth-child(2){grid-column:2}
+  .jobBasicsGrid>div:nth-child(3){grid-column:1/-1}
+  .jobBasicsGrid>div.durationField,
+  .jobBasicsGrid>div:nth-child(5),
+  .jobBasicsGrid>.full{grid-column:1/-1}
+}
