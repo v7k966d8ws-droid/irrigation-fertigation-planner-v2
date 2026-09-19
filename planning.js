@@ -176,6 +176,9 @@ function renderIndividualValveRuntimes(existing=null){
 }
 function syncShiftMode(){
  const mode=currentPhaseMode(),water=mode==="water",timingCard=$("fertigationTimingCard"),injCard=$("injectionProgrammingCard"),waterNote=$("waterOnlyInjectionNote");
+ const outletHeading=$("jobOutletHeading"),outletHelp=$("jobOutletHelp");
+ if(outletHeading)outletHeading.textContent=water?"Choose outlets to irrigate":"Choose outlets to fertigate";
+ if(outletHelp)outletHelp.textContent=water?"Select the outlets to include in this irrigation job.":"Select the outlets to include in this fertigation job.";
  if(timingCard)timingCard.classList.toggle("hidden",water);
  if(injCard)injCard.classList.toggle("hidden",water);
  if(waterNote)waterNote.classList.toggle("hidden",!water);
