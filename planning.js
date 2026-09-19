@@ -252,7 +252,10 @@ function cancelIrrigationProgram(){
  const a=activeProgram();if(!a)return;if(draftShifts().length&&!confirm(`Discard ${draftShifts().length} unsaved draft job${draftShifts().length===1?"":"s"} from ${a.name}?`))return;
  if(state.activeVatMix&&state.activeVatMix[a.farm])delete state.activeVatMix[a.farm];state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;save();resetNewForm();renderProgramBanner()
 }
-function recalcStoredFertigationPreflows(job){
+function recalcDraftFertigationPreflows(job){
+ // Calculation-only pass for saved draft jobs. Do not recalculate or replace
+ // injector runtimes here: they are authoritative values already produced by
+ // the job form (including prepared-vat allocation and any final vat rinse).
  if(!job||job.phaseMode!=="fertigation")return;
  const active=orderedInjectors(job.injectors||[]);if(!active.length)return;
  const totalMinutes=Math.max(0,Math.round((Number(job.hours)||0)*60));
@@ -260,7 +263,11 @@ function recalcStoredFertigationPreflows(job){
  const totalRuntime=active.reduce((sum,x)=>sum+Math.max(0,Math.round(Number(x.runtime)||0)),0);
  const firstPreflow=Math.max(0,totalMinutes-finishBefore-totalRuntime);
  let cursor=firstPreflow;
- active.forEach(x=>{x.preflow=Math.max(0,Math.round(cursor));x.preflowManual=false;cursor+=Math.max(0,Math.round(Number(x.runtime)||0))});
+ active.forEach(x=>{
+   x.preflow=Math.max(0,Math.round(cursor));
+   x.preflowManual=false;
+   cursor+=Math.max(0,Math.round(Number(x.runtime)||0));
+ });
 }
 function applyFinalVatRinseToDraftJobs(){
  const a=activeProgram(),v=a?storedPreparedVatForFarm(a.farm):null,jobs=draftShifts();if(!a||!jobs.length)return;
@@ -272,23 +279,23 @@ function applyFinalVatRinseToDraftJobs(){
    const preAdj=Math.max(0,Number(x?.vatRinsePreflowAdjustment)||0);
    if(preAdj){x.preflow=Math.max(0,(Number(x.preflow)||0)-preAdj);x.vatRinsePreflowAdjustment=0}
  }));
- if(!v)return;
+ if(!v){jobs.forEach(recalcDraftFertigationPreflows);return;}
  // Rinse belongs only to the job that completes every outlet assigned to this
  // prepared vat. A partially allocated vat must not receive the rinse yet.
- const coverage=preparedVatCoverage();if(coverage.missing.length)return;
+ const coverage=preparedVatCoverage();if(coverage.missing.length){jobs.forEach(recalcDraftFertigationPreflows);return;}
  const candidates=jobs.map((j,i)=>({j,i})).filter(({j})=>j.phaseMode==="fertigation"&&(j.outlets||[]).some(o=>(v.outlets||[]).includes(o)));
- if(!candidates.length)return;
- const last=candidates[candidates.length-1].j,idx=Number(v.injectorIndex)||0,x=last.injectors?.[idx];if(!x||x.type!=="product"||!x.vatBuilder)return;
- const cfg=state.injectorConfig?.[a.farm]?.[idx]||{},rinse=Math.max(0,Math.round(Number(cfg.finalVatRinseMinutes)||0));if(!rinse)return;
+ if(!candidates.length){jobs.forEach(recalcDraftFertigationPreflows);return;}
+ const last=candidates[candidates.length-1].j,idx=Number(v.injectorIndex)||0,x=last.injectors?.[idx];if(!x||x.type!=="product"||!x.vatBuilder){jobs.forEach(recalcDraftFertigationPreflows);return;}
+ const cfg=state.injectorConfig?.[a.farm]?.[idx]||{},rinse=Math.max(0,Math.round(Number(cfg.finalVatRinseMinutes)||0));if(!rinse){jobs.forEach(recalcDraftFertigationPreflows);return;}
  const oldRuntime=Math.max(0,Math.round(Number(x.runtime)||0));x.productRuntime=oldRuntime;x.vatRinseTime=rinse;x.runtime=oldRuntime+rinse;
  // Later injector actions must begin later because this vat injector now runs
  // for the fresh-water rinse period too. Store the adjustment so recalculation
  // can reverse it cleanly if jobs are edited or removed.
  const seq=Number(x.sequenceOrder)||0;(last.injectors||[]).forEach(y=>{if(y!==x&&y&&y.type!=="unused"&&(Number(y.sequenceOrder)||0)>seq){y.preflow=Math.max(0,Math.round(Number(y.preflow)||0)+rinse);y.vatRinsePreflowAdjustment=rinse}});
- // Runtimes can change when the final prepared-vat rinse is added. Recalculate
- // every fertigation job backwards from its saved outlet travel/finish time so
- // the injection sequence still finishes at the intended time before irrigation ends.
- jobs.forEach(recalcStoredFertigationPreflows);
+ // Rinse is now final. Position every saved fertigation sequence backwards
+ // from irrigation finish using that job's Setup travel/finish-before time.
+ // This deliberately changes preflow only; runtimes are never touched here.
+ jobs.forEach(recalcDraftFertigationPreflows);
 }
 function saveNightProgram(){
  const a=activeProgram();if(!a){alert("Start a Night Program first.");return}
@@ -369,7 +376,7 @@ function addOrUpdateDraftShift(){
  const a=activeProgram();if(!a)return false;const data=validatePlan();if(!data)return true;
  if(data.farm!==a.farm){alert(`This program is for ${a.farm}.`);return true}if(data.nightDate!==a.nightDate){alert(`This program is for the night of ${a.nightDate}.`);return true}
  data.phaseMode=currentPhaseMode();data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;data.individualValveRuntimes=getIndividualValveRuntimes();data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
- if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm);data.fertigationFinishBefore=0}else{data.irrigationOnly=false;recalcStoredFertigationPreflows(data)}
+ if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm);data.fertigationFinishBefore=0}else data.irrigationOnly=false;
  if(!data.shiftPumps.length&&!confirm("No pumps have been entered for this job.\n\nAdd the job anyway?"))return true;
  const jobs=draftShifts();data.programSequence=editingDraftShiftIndex>=0?(jobs[editingDraftShiftIndex].programSequence||editingDraftShiftIndex+1):jobs.length+1;
  if(editingDraftShiftIndex>=0)jobs[editingDraftShiftIndex]={...jobs[editingDraftShiftIndex],...data,updated:new Date().toISOString()};else jobs.push({id:"draft-"+uid(),...data,created:new Date().toISOString()});
