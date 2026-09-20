@@ -1,4 +1,3 @@
-// Setup-Injector-Source Build 1 VERIFIED — 2026-09-20
 
 let editingDraftShiftIndex=-1;
 let vatPrepareExpanded=false;
@@ -304,6 +303,24 @@ function recalcDraftFertigationPreflows(job){
 }
 function applyFinalVatRinseToDraftJobs(){
  const a=activeProgram(),v=a?storedPreparedVatForFarm(a.farm):null,jobs=draftShifts();if(!a||!jobs.length)return;
+ // Prepared-vat runtime is automatic and must survive across every draft job.
+ // Rebuild it from the saved solution allocation + injector flow before rinse/preflow
+ // passes, so a continued vat job can never collapse to 0 min after Add Job.
+ if(v){
+   const idx=Number(v.injectorIndex)||0,cfg=state.injectorConfig?.[a.farm]?.[idx]||{};
+   jobs.forEach(j=>{
+     const x=j?.injectors?.[idx];
+     if(!x||x.type!=="product"||x.vatBuilder!==true||x.name!==v.product||x.batchName!==v.batchName)return;
+     const solution=Math.max(0,Number(x.solutionVolume)||0),flow=Math.max(0,Number(cfg.flow)||Number(x.flow)||0);
+     const exact=flow>0?runtimeMinutes(flow,cfg.flowUnit||x.flowUnit||"L/min",solution):0;
+     const productRuntime=exact>0?Math.ceil(exact):0;
+     x.calculatedRuntime=exact;
+     x.runtime=productRuntime;
+     x.productRuntime=productRuntime;
+     x.vatRinseTime=0;
+     x.runtimeManual=false;
+   });
+ }
  // Make this calculation idempotent. Remove any rinse that was previewed on an
  // earlier draft state, including the matching preflow shift on later injectors.
  jobs.forEach(j=>(j.injectors||[]).forEach(x=>{
