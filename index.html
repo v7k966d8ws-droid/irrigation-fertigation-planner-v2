@@ -1,20 +1,20 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- UI Build 2.3.3 -->
+<!-- UI Branding Polish — Pass 1 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#244B35">
-<title>Irrigation & Fertigation Planner V2</title>
-<link rel="stylesheet" href="styles.css?v=no-shuttle-b3">
+<title>Irrigation & Fertigation Planner</title>
+<link rel="stylesheet" href="styles.css?v=ui-branding-p1">
 
 </head>
 <body>
 <div class="app">
-<section class="hero"><h1>Irrigation & Fertigation Planner V2</h1><p>Plan irrigation, calculate whole-minute injector runtimes and linked preflows, handle direct or mixed products with L/min injector flows, carry batches across jobs, then enter the program into AquaLink.</p><div class="status"><span id="network" class="pill on">● Online</span><span class="pill local">Plans and records save locally first</span></div></section>
+<section class="hero"><div class="heroBrand"><div class="brandLogoSlot" aria-label="DD Produce branding"><span>DD Produce</span></div><div class="heroCopy"><h1>Irrigation & Fertigation Planner</h1><p>Plan irrigation and fertigation, calculate whole-minute injector runtimes and linked preflows, prepare mixed fertilizer vats, then enter the program into AquaLink.</p></div></div><div class="status"><span id="network" class="pill on">● Online</span><span class="pill local">Plans and records save locally first</span></div></section>
 <nav class="tabs"><button class="active" data-page="dashboard">Dashboard</button><button data-page="tonight">Tonight's Plan</button><button data-page="new">New Plan</button><button data-page="history">History</button><button data-page="setup">Setup</button></nav>
 
-<section id="dashboard" class="page active"><div class="card"><h2>Irrigation Rotation</h2><div id="stats" class="stats"></div></div><div class="card"><h2>Outlet Status</h2><div class="muted" style="margin-bottom:10px">Only completed irrigations update the rotation. Planned jobs do not change last-irrigated dates.</div><div class="statusFilters" id="statusFilters"><button data-filter="all" class="active">All</button><button data-filter="due">Due</button><button data-filter="overdue">Overdue</button><button data-filter="last">Last Irrigation</button><button data-filter="none">No History</button></div><div class="compactWrap"><table class="compactTable"><thead id="statusHead"><tr><th>Farm</th><th>Outlet</th><th>Ha</th><th>Last Irrigated</th><th>Next Due</th><th>Days</th><th>Status</th></tr></thead><tbody id="statusBody"></tbody></table></div></div></section>
+<section id="dashboard" class="page active"><div class="card"><h2>Irrigation Rotation</h2><div id="stats" class="stats"></div></div><div class="card"><h2>Outlet Status</h2><div class="muted" style="margin-bottom:10px">Only completed irrigations update the rotation. Planned jobs do not change last-irrigated dates.</div><div class="statusFilterBar"><div class="statusFilters" id="statusFilters"><button data-filter="all" class="active">All</button><button data-filter="due">Due</button><button data-filter="overdue">Overdue</button><button data-filter="last">Last Irrigation</button><button data-filter="none">No History</button></div><div class="farmFilter"><label for="statusFarmFilter">Farm</label><select id="statusFarmFilter"><option value="all">All Farms</option></select></div></div><div class="compactWrap"><table class="compactTable"><thead id="statusHead"><tr><th>Farm</th><th>Outlet</th><th>Ha</th><th>Last Irrigated</th><th>Next Due</th><th>Days</th><th>Status</th></tr></thead><tbody id="statusBody"></tbody></table></div></div></section>
 
 <section id="tonight" class="page"><div class="card"><div class="planHeader"><div><h2>Night Irrigation Plan</h2><div class="muted">The first job defaults to 6:00 PM. Later jobs on the same pump system are suggested after the previous job finishes.</div></div><div><label>Night plan date</label><input id="planViewDate" type="date"></div></div></div>
 <div class="card">
@@ -24,21 +24,21 @@
 </div>
 <div class="card">
   <div class="vatBuilderHead">
-    <div><h2>Shared Vat Batch Builder <span class="testBadge">TEST</span></h2><div class="muted">Build one mixed fertilizer vat across selected fertigation sets. Water-only sets are excluded. Product is allocated by hectares, not by irrigation hours.</div></div>
+    <div><h2>Shared Vat Builder <span class="testBadge">TEST</span></h2><div class="muted">Build one mixed fertilizer vat across selected fertigation sets. Water-only sets are excluded. Product is allocated by hectares, not by irrigation hours.</div></div>
   </div>
   <div class="vatGrid">
     <div><label>Farm</label><select id="vatFarm"></select></div>
     <div><label>Mixed product</label><select id="vatProduct"></select></div>
     <div><label>Injection point</label><select id="vatInjector"></select></div>
-    <div><label>Vat / batch name</label><input id="vatBatchName" value="Calcium Vat 1500L" placeholder="Example: Jacks Calcium Vat"></div>
+    <div><label>Vat name</label><input id="vatBatchName" value="Calcium Vat 1500L" placeholder="Example: Jacks Calcium Vat"></div>
     <div><label>Target product rate (kg/ha)</label><input id="vatRate" type="number" min="0" step="0.1" value="25"></div>
     <div><label>Prepared vat volume (L)</label><input id="vatVolume" type="number" min="1" step="1" value="1500"></div>
     <div><label>First Preflow (minutes)</label><input id="vatPreflow" type="number" min="0" step="1" value="0"></div>
   </div>
   <div style="margin-top:12px"><label>Planned jobs using this vat</label><div id="vatJobs" class="vatJobs"></div></div>
   <div id="vatSummary" class="vatCalc"></div>
-  <div class="btns" style="margin-top:12px"><button id="applyVatBatch" type="button">Apply Vat Batch to Selected Jobs</button></div>
-  <div class="muted" style="margin-top:8px">This test builder changes only jobs already on Tonight's Plan. The first selected job starts the vat batch; later selected jobs continue it. Batch inventory is still permanently deducted only when jobs are marked Complete.</div>
+  <div class="btns" style="margin-top:12px"><button id="applyVatBatch" type="button">Apply Vat to Selected Jobs</button></div>
+  <div class="muted" style="margin-top:8px">This builder applies one prepared mixed vat across selected fertigation jobs. Product is allocated by hectares and the final selected job includes the configured fresh-water vat rinse.</div>
 </div>
 <div class="card"><h2>Injection Product / Vat Summary</h2><div id="fertSummary" class="fertSummary"></div></div><div class="card"><h2>AquaLink Programming View</h2><p class="muted">Copy each job into AquaLink. Injectors are shown in the sequence selected for that job, with the final whole-minute Runtime and Preflow values.</p><div class="btns"><button id="copyProgram" class="secondary">Copy Programming Summary</button><button id="viewProgramTime" class="primary">View by Time</button><button id="viewProgramFarm" class="secondary">View by Farm</button></div><div id="programBody"></div></div><div class="card"><h2>Planned Jobs</h2><div id="planCards" class="planCards"></div></div></section>
 
@@ -100,22 +100,22 @@
 <details class="injectionEditDetails"><summary>Edit injection programming</summary><div class="irrigationModeBar"><div><div id="injectionModeText" class="modeText">Fertigation</div><div id="injectionMemoryText" class="muted">Last saved fertigation setup will be remembered for this farm.</div></div><button id="irrigationOnlyBtn" type="button" class="irrigationOnlyBtn">Irrigation Only</button></div><div id="irrigationOnlyNote" class="irrigationOnlyNote hidden">Irrigation only for this job — no fertilizer or injector programming will be saved. Your last saved fertigation setup remains remembered for the next irrigation.</div><div id="injectors" class="injectors"></div></details></div>
 <div class="card"><label>Notes</label><textarea id="notes" placeholder="Optional notes — for example an AquaLink shift reference, product mixing note or irrigation detail."></textarea><div class="btns"><button id="savePlan" class="primary">Add Job to Program</button><button id="cancelEdit" class="secondary hidden">Cancel Edit</button><button id="clearForm" class="secondary">Clear Job</button></div></div></section>
 
-<section id="history" class="page"><div class="card"><h2>Completed Irrigation History</h2><div class="btns"><button id="exportCsv" class="secondary">Export Spreadsheet CSV</button><button id="clearHistory" class="danger">Clear History</button></div><div class="history"><table><thead><tr><th>Date</th><th>Start</th><th>Finish</th><th>Farm</th><th>Outlets</th><th>Ha</th><th>Set Runtime</th><th>Pump System</th><th>Required Pumps</th><th>Type</th><th>Injection 1</th><th>Injection 2</th><th>Injection 3</th><th>Injection 4</th><th>Notes</th></tr></thead><tbody id="historyBody"></tbody></table></div></div></section>
+<section id="history" class="page"><div class="card"><div class="historyHeader"><div><h2>Completed Irrigation History</h2></div><div class="farmFilter"><label for="historyFarmFilter">Farm</label><select id="historyFarmFilter"><option value="all">All Farms</option></select></div></div><div class="btns"><button id="exportCsv" class="secondary">Export Spreadsheet CSV</button><button id="clearHistory" class="danger">Clear History</button></div><div class="history"><table><thead><tr><th>Date</th><th>Start</th><th>Finish</th><th>Farm</th><th>Outlets</th><th>Ha</th><th>Set Runtime</th><th>Pump System</th><th>Required Pumps</th><th>Type</th><th>Injection 1</th><th>Injection 2</th><th>Injection 3</th><th>Injection 4</th><th>Notes</th></tr></thead><tbody id="historyBody"></tbody></table></div></div></section>
 
 <section id="setup" class="page">
-<div class="card"><h2>Injection Product Library</h2><p class="muted">Save how each product is applied. Direct-injection products are calculated by litres required, Runtime and Preflow; physical shuttle stock is checked at the pump site. Mixed kg/ha products can also have a bag size so the prepared-vat mixing amount rounds up to whole bags.</p><div class="libraryAdd"><div><label>Product name</label><input id="newProduct" placeholder="Example: Cal 40"></div><div><label>Injection method</label><select id="newProductMethod"><option value="mixed">Mixed / Diluted in Water</option><option value="direct">Direct Injection</option></select></div><div><label>Preferred unit</label><select id="newProductUnit"><option value="kg/ha">kg/ha</option><option value="L/ha">L/ha</option></select></div><button id="addProduct" class="secondary">Add Product</button></div><div id="productList" class="libraryList"></div></div>
+<div class="card"><h2>Injection Product Library</h2><p class="muted">Save how each product is applied. Direct-injection products are calculated by litres required, Runtime and Preflow; physical product stock is checked at the pump site. Mixed kg/ha products can also have a bag size so the prepared-vat mixing amount rounds up to whole bags.</p><div class="libraryAdd"><div><label>Product name</label><input id="newProduct" placeholder="Example: Cal 40"></div><div><label>Injection method</label><select id="newProductMethod"><option value="mixed">Mixed / Diluted in Water</option><option value="direct">Direct Injection</option></select></div><div><label>Preferred unit</label><select id="newProductUnit"><option value="kg/ha">kg/ha</option><option value="L/ha">L/ha</option></select></div><button id="addProduct" class="secondary">Add Product</button></div><div id="productList" class="libraryList"></div></div>
 <div class="card"><h2>Injector / Injection Point Setup</h2><p class="muted">Each site has four editable injection points. Keep the names that match AquaLink and enter the calibrated flow rate.</p><div id="injectorSetup"></div></div>
-<div class="card"><h2>Pump Setup</h2><p class="muted">Save the pumps available at each farm. Mark the pump that has the fertilizer injection vats or shuttles. Fertigation jobs will automatically use the available pump marked for fertigation.</p><div class="ruleAdd"><div><label>Farm</label><select id="pumpSetupFarm"></select></div><div><label>Pump name</label><input id="newPumpName" placeholder="Example: Jacks Shed Pump"></div><div><label><input id="newPumpFertigation" type="checkbox"> Has fertilizer injection equipment</label></div><button id="addPump" class="secondary">Add Pump</button></div><div id="pumpSetupList"></div></div>
+<div class="card"><h2>Pump Setup</h2><p class="muted">Save the pumps available at each farm. Mark the pump that has the fertilizer injection equipment. Fertigation jobs will automatically use the available pump marked for fertigation.</p><div class="ruleAdd"><div><label>Farm</label><select id="pumpSetupFarm"></select></div><div><label>Pump name</label><input id="newPumpName" placeholder="Example: Jacks Shed Pump"></div><div><label><input id="newPumpFertigation" type="checkbox"> Has fertilizer injection equipment</label></div><button id="addPump" class="secondary">Add Pump</button></div><div id="pumpSetupList"></div></div>
 <div class="card"><h2>Pump Rules</h2><p class="muted">Save the pump combination used for an exact outlet group. The planner will show the matching pumps in the AquaLink Programming View. These rules remain editable.</p><div class="ruleAdd"><div><label>Farm</label><select id="ruleFarm"></select></div><div><label>Outlets</label><input id="ruleOutlets" placeholder="Example: 1, 2, 3, 4"></div><div><label>Required pumps</label><input id="rulePumps" placeholder="Comma-separated pump names"></div><button id="addPumpRule" class="secondary">Add Rule</button></div><div id="pumpRuleList"></div></div>
 <div class="card"><h2>Rotation Setup</h2><p class="muted">Set each outlet to Active Rotation, Temporarily Paused or Finished, and set its normal cycle in days.</p><div id="setupFarms"></div></div>
 <div class="card"><h2>Shared Pump Systems</h2><p><strong>Rays / Zanetti / Tavasci</strong> — one interconnected shared pumping system.</p><p><strong>Norris Back / Norris School / Norris Gully</strong> — one shared pumping system.</p><p class="muted">Automatic start-time suggestions currently sequence jobs by these shared pump systems. Detailed pump-resource conflicts can be refined as more rules are collected.</p></div>
 </section></div>
 
-<script src="app-core.js?v=no-shuttle-b3"></script>
-<script src="planning.js?v=no-shuttle-b3"></script>
-<script src="app-ui.js?v=no-shuttle-b3"></script>
-<script src="app-init.js?v=no-shuttle-b3"></script>
+<script src="app-core.js?v=ui-branding-p1"></script>
+<script src="planning.js?v=ui-branding-p1"></script>
+<script src="app-ui.js?v=ui-branding-p1"></script>
+<script src="app-init.js?v=ui-branding-p1"></script>
 
-<!-- No Shuttle Tracking Build 3 -->
+<!-- UI Branding Polish — Pass 1 -->
 </body>
 </html>
