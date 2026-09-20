@@ -647,3 +647,41 @@
   .pumpRuleRow button,.shiftPumpRow button{width:100%;max-width:100%}
   .currentJobOutletSummary{align-items:flex-start}.currentJobOutletSummary button{width:100%;margin-left:0}
 }
+
+/* UI Build 2.3 — compact phone outlet selector.
+   Keep tablet/iPad layouts unchanged; phones use three compact columns. */
+@media (max-width:600px){
+  .outlets{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+    width:100%;
+  }
+  .outlet{
+    min-width:0;
+    min-height:64px;
+    padding:7px 8px;
+    gap:7px;
+    border-radius:10px;
+    align-items:center;
+  }
+  .outlet input{
+    width:28px;
+    height:28px;
+    min-width:28px;
+    flex:0 0 28px;
+    margin:0;
+  }
+  .outlet strong,.outlet>span:first-of-type{
+    font-size:19px;
+    line-height:1;
+    font-weight:900;
+  }
+  .outlet small{
+    font-size:13px;
+    line-height:1.05;
+    margin-top:3px;
+    font-weight:800;
+    white-space:nowrap;
+  }
+}
