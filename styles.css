@@ -685,3 +685,37 @@
     white-space:nowrap;
   }
 }
+
+
+/* UI Build 2.3 — phone outlet compaction, Safari date containment,
+   and removal of the unused Individual Valve Runtimes control from the UI. */
+.shiftOptionBox{display:none!important}
+@media (max-width:600px){
+  .jobBasicsGrid input[type="date"]{
+    display:block;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  .jobOutletSection .outlets{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  .jobOutletSection .outlet{
+    min-width:0!important;
+    min-height:68px!important;
+    padding:7px 8px!important;
+    gap:7px!important;
+    border-radius:10px!important;
+  }
+  .jobOutletSection .outlet input{
+    width:28px!important;
+    height:28px!important;
+    min-width:28px!important;
+  }
+  .jobOutletSection .outlet strong,
+  .jobOutletSection .outlet>span:first-of-type{font-size:20px!important;line-height:1!important}
+  .jobOutletSection .outlet small{font-size:14px!important;line-height:1.05!important;margin-top:3px!important}
+}
