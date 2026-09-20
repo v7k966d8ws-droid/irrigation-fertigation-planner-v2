@@ -628,3 +628,22 @@
   .jobBasicsGrid>div:nth-child(5),
   .jobBasicsGrid>.full{grid-column:1/-1}
 }
+
+/* UI Build 2.2 — narrow-phone containment + live prepared-vat outlet choices. */
+.currentJobOutletSummary{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:9px 11px;border:1px solid #cbd9cf;border-radius:10px;background:#f7faf8;font-size:13px}
+.currentJobOutletSummary strong{color:var(--g);font-size:15px}.currentJobOutletSummary button{margin-left:auto;width:auto}
+.vatOutletEmpty{grid-column:1/-1;padding:10px 0}
+@media (max-width:600px){
+  html,body{max-width:100%;overflow-x:hidden}
+  *,*::before,*::after{box-sizing:border-box}
+  .app,.page,.card,.newPlanCard,.grid,.jobBasicsGrid,.jobBasicsGrid>div,.full,.durationField{min-width:0;max-width:100%}
+  .newPlanCard input,.newPlanCard select,.newPlanCard textarea{max-width:100%;min-width:0;width:100%}
+  .durationControl,.compactTimePicker{width:100%;max-width:100%;min-width:0;grid-template-columns:minmax(38px,.65fr) minmax(38px,.65fr) minmax(92px,1.55fr) minmax(38px,.65fr) minmax(38px,.65fr);gap:4px}
+  .durationControl>* ,.compactTimePicker>*{min-width:0;max-width:100%}
+  .durationStep,.compactTimePicker>button{padding-left:2px;padding-right:2px;font-size:13px}
+  .durationPicker{font-size:18px;padding-left:4px;padding-right:18px}
+  .compactTimePicker .timeDisplay{font-size:22px}
+  .pumpRuleRow,.shiftPumpRow{min-width:0;max-width:100%;grid-template-columns:1fr!important}
+  .pumpRuleRow button,.shiftPumpRow button{width:100%;max-width:100%}
+  .currentJobOutletSummary{align-items:flex-start}.currentJobOutletSummary button{width:100%;margin-left:0}
+}

@@ -20,7 +20,7 @@ $("preparedVatStatus").addEventListener("click",e=>{
 $("farm").addEventListener("change",()=>setTimeout(()=>{syncShiftMode();renderInlineVatMix();updateDefaultProgramName()},0));
 $("usePumpRule").addEventListener("click",useSavedPumpRule);
 $("useIndividualValveRuntimes").addEventListener("change",()=>renderIndividualValveRuntimes());
-$("outlets").addEventListener("change",()=>{renderIndividualValveRuntimes();renderInlineVatSummary();applyPreparedVatToCurrentJob(true);syncPreparedVatStatus()});
+$("outlets").addEventListener("change",()=>{renderIndividualValveRuntimes();renderInlineVatSummary();applyPreparedVatToCurrentJob(true);syncPreparedVatStatus();syncPreparedVatOutletChoices()});
 $("duration").addEventListener("input",()=>renderIndividualValveRuntimes(getIndividualValveRuntimes()));
 if($("fertFinishBefore"))$("fertFinishBefore").addEventListener("change",()=>{$("fertFinishCustomWrap")?.classList.toggle("hidden",$("fertFinishBefore").value!=="custom")});
 $("calculateFertTiming").addEventListener("click",autoFertigationPreflow);
