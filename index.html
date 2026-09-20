@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#244B35">
 <title>Irrigation & Fertigation Planner V2</title>
-<link rel="stylesheet" href="styles.css?v=shuttle-b1">
+<link rel="stylesheet" href="styles.css?v=no-shuttle-b1">
 
 </head>
 <body>
@@ -73,7 +73,7 @@
 <div class="full"><label>Pump start time</label><div class="timePicker compactTimePicker"><input id="startTime" type="hidden"><button type="button" data-min="-60">−1 hr</button><button type="button" data-min="-15">−15</button><button type="button" id="useSuggested" class="suggest timeCentre"><span id="timeDisplay" class="timeDisplay">6:00 PM</span><span id="timeHint" class="timeHint">Suggested start</span></button><button type="button" data-min="15">+15</button><button type="button" data-min="60">+1 hr</button></div></div><div class="full card hidden compactVatWorkflow" id="vatRequirementCard">
   <div class="vatQuestionRow">
     <div><h2>Prepared Vat</h2><div class="fieldHelp">Prepare the vat first, then choose the outlets for each fertigation job below.</div></div>
-    <div><label>Prepare a vat?</label><select id="vatRequired"><option value="no">No — direct injection / shuttle</option><option value="yes">Yes — prepare a mixed vat</option></select></div>
+    <div><label>Prepare a vat?</label><select id="vatRequired"><option value="no">No — direct injection</option><option value="yes">Yes — prepare a mixed vat</option></select></div>
   </div>
   <div id="preparedVatStatus" class="summary preparedVatCompact">No prepared vat selected.</div>
   <div id="vatPreparePanel" class="inlineVatMix hidden"><div class="inlineVatHead"><h3>Prepare Vat Mix</h3><div class="muted">Choose the product and every outlet this vat is being prepared for.</div></div>
@@ -103,7 +103,7 @@
 <section id="history" class="page"><div class="card"><h2>Completed Irrigation History</h2><div class="btns"><button id="exportCsv" class="secondary">Export Spreadsheet CSV</button><button id="clearHistory" class="danger">Clear History</button></div><div class="history"><table><thead><tr><th>Date</th><th>Start</th><th>Finish</th><th>Farm</th><th>Outlets</th><th>Ha</th><th>Set Runtime</th><th>Pump System</th><th>Required Pumps</th><th>Type</th><th>Injection 1</th><th>Injection 2</th><th>Injection 3</th><th>Injection 4</th><th>Notes</th></tr></thead><tbody id="historyBody"></tbody></table></div></div></section>
 
 <section id="setup" class="page">
-<div class="card"><h2>Injection Product Library</h2><p class="muted">Save how each product is applied. For direct-injection products, enter the full shuttle volume so V2 can track remaining litres and warn before a planned job exceeds the predicted balance.</p><div class="libraryAdd"><div><label>Product name</label><input id="newProduct" placeholder="Example: Cal 40"></div><div><label>Injection method</label><select id="newProductMethod"><option value="mixed">Mixed / Diluted in Water</option><option value="direct">Direct Injection</option></select></div><div><label>Preferred unit</label><select id="newProductUnit"><option value="kg/ha">kg/ha</option><option value="L/ha">L/ha</option></select></div><div><label>Shuttle volume (L)</label><input id="newProductShuttle" type="number" min="0" step="1" placeholder="Example: 1000"></div><button id="addProduct" class="secondary">Add Product</button></div><div id="productList" class="libraryList"></div></div>
+<div class="card"><h2>Injection Product Library</h2><p class="muted">Save how each product is applied. Direct-injection products are calculated by litres required, Runtime and Preflow; physical shuttle stock is checked at the pump site. Mixed kg/ha products can also have a bag size so the prepared-vat mixing amount rounds up to whole bags.</p><div class="libraryAdd"><div><label>Product name</label><input id="newProduct" placeholder="Example: Cal 40"></div><div><label>Injection method</label><select id="newProductMethod"><option value="mixed">Mixed / Diluted in Water</option><option value="direct">Direct Injection</option></select></div><div><label>Preferred unit</label><select id="newProductUnit"><option value="kg/ha">kg/ha</option><option value="L/ha">L/ha</option></select></div><button id="addProduct" class="secondary">Add Product</button></div><div id="productList" class="libraryList"></div></div>
 <div class="card"><h2>Injector / Injection Point Setup</h2><p class="muted">Each site has four editable injection points. Keep the names that match AquaLink and enter the calibrated flow rate.</p><div id="injectorSetup"></div></div>
 <div class="card"><h2>Pump Setup</h2><p class="muted">Save the pumps available at each farm. Mark the pump that has the fertilizer injection vats or shuttles. Fertigation jobs will automatically use the available pump marked for fertigation.</p><div class="ruleAdd"><div><label>Farm</label><select id="pumpSetupFarm"></select></div><div><label>Pump name</label><input id="newPumpName" placeholder="Example: Jacks Shed Pump"></div><div><label><input id="newPumpFertigation" type="checkbox"> Has fertilizer injection equipment</label></div><button id="addPump" class="secondary">Add Pump</button></div><div id="pumpSetupList"></div></div>
 <div class="card"><h2>Pump Rules</h2><p class="muted">Save the pump combination used for an exact outlet group. The planner will show the matching pumps in the AquaLink Programming View. These rules remain editable.</p><div class="ruleAdd"><div><label>Farm</label><select id="ruleFarm"></select></div><div><label>Outlets</label><input id="ruleOutlets" placeholder="Example: 1, 2, 3, 4"></div><div><label>Required pumps</label><input id="rulePumps" placeholder="Comma-separated pump names"></div><button id="addPumpRule" class="secondary">Add Rule</button></div><div id="pumpRuleList"></div></div>
@@ -111,11 +111,11 @@
 <div class="card"><h2>Shared Pump Systems</h2><p><strong>Rays / Zanetti / Tavasci</strong> — one interconnected shared pumping system.</p><p><strong>Norris Back / Norris School / Norris Gully</strong> — one shared pumping system.</p><p class="muted">Automatic start-time suggestions currently sequence jobs by these shared pump systems. Detailed pump-resource conflicts can be refined as more rules are collected.</p></div>
 </section></div>
 
-<script src="app-core.js?v=shuttle-b1"></script>
-<script src="planning.js?v=shuttle-b1"></script>
-<script src="app-ui.js?v=shuttle-b1"></script>
-<script src="app-init.js?v=shuttle-b1"></script>
+<script src="app-core.js?v=no-shuttle-b1"></script>
+<script src="planning.js?v=no-shuttle-b1"></script>
+<script src="app-ui.js?v=no-shuttle-b1"></script>
+<script src="app-init.js?v=no-shuttle-b1"></script>
 
-<!-- Shuttle Tracking Build 1 -->
+<!-- No Shuttle Tracking Build 1 -->
 </body>
 </html>
