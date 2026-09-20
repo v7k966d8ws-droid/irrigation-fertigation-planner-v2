@@ -822,3 +822,9 @@
 .vatStillHero strong .vatStillOutlet{color:inherit;font:inherit}
 .vatStillHero strong .vatStillOutlet.selectedNow{color:#b33a3a!important}
 .vatStillHero strong .vatStillSep{color:inherit;font:inherit}
+/* Shuttle Tracking Build 1 */
+.directShuttlePanel{border:1px solid #cfd8d2;border-radius:10px;padding:10px 12px;background:#f7faf8}
+.shuttleCheckLabel{display:flex;align-items:center;gap:9px;font-weight:700;margin:0}
+.shuttleCheckLabel input{width:22px;height:22px;flex:0 0 auto}
+.newShuttleAmount{margin-top:10px;max-width:360px}
+.batchBalanceBox.shortage{border-left:5px solid #b54708;padding-left:12px}
