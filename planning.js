@@ -102,6 +102,9 @@ function prepareVatMix(){
  alert(`Vat prepared in V2.\n\n${batch}\n${d.totalArea.toFixed(2)} ha\n${d.totalKg.toFixed(1)} kg ${product}\n${d.volume.toFixed(0)} L prepared solution\n\nNow build the fertigation jobs normally. V2 will allocate this vat automatically by hectares and expects 0 L remaining after all selected outlets are completed.`);
 }
 function applyPreparedVatToCurrentJob(silent=true){
+ // While editing an existing job, respect the saved/manual injector choices.
+ // In particular, do not silently re-attach a prepared vat after the user sets it to Unused.
+ if(editingPlanId||editingDraftShiftIndex>=0)return false;
  if(currentPhaseMode()!=="fertigation"||!vatRequired())return false;
  const farm=$("farm")?.value||"",v=preparedVatForFarm(farm);if(!v)return false;
  const current=selected().filter(o=>(v.outlets||[]).includes(o));
