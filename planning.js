@@ -1,3 +1,4 @@
+// Setup-Injector-Source Build 1 VERIFIED — 2026-09-20
 
 let editingDraftShiftIndex=-1;
 let vatPrepareExpanded=false;
