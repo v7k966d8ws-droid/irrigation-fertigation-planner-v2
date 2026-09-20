@@ -804,3 +804,21 @@
   }
   .preparedVatLiveChoices label.outlet.vatChosenNow small{font-size:13px!important}
 }
+
+
+/* UI Build 2.3.4 — prepared-vat selection indicator refinement.
+   Keep outlet tiles visually normal. In the yellow Still to fertigate list,
+   current-job selections stay listed at the same size and turn red. */
+.preparedVatLiveChoices label.outlet.vatChosenNow{
+  border-color:inherit!important;
+  background:inherit!important;
+}
+.preparedVatLiveChoices label.outlet.vatChosenNow strong,
+.preparedVatLiveChoices label.outlet.vatChosenNow small,
+.preparedVatLiveChoices label.outlet.vatChosenNow span{
+  color:inherit!important;
+  font-size:inherit!important;
+}
+.vatStillHero strong .vatStillOutlet{color:inherit;font:inherit}
+.vatStillHero strong .vatStillOutlet.selectedNow{color:#b33a3a!important}
+.vatStillHero strong .vatStillSep{color:inherit;font:inherit}
