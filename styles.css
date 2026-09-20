@@ -838,3 +838,11 @@
 .farmFilter{display:flex;align-items:center;gap:8px}.farmFilter label{margin:0;font-weight:700;white-space:nowrap}.farmFilter select{width:auto;min-width:180px;padding:9px 34px 9px 12px}
 .historyHeader{margin-bottom:8px}.historyHeader h2{margin-bottom:0}
 @media(max-width:700px){.heroBrand{align-items:flex-start;flex-direction:column;gap:10px}.brandLogoSlot{min-width:0}.statusFilterBar{align-items:stretch}.farmFilter{width:100%}.farmFilter select{flex:1;min-width:0}}
+
+/* UI Branding Polish — Pass 3 */
+.fieldInstructionsHead{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.fieldInstructionsHead h2{margin-bottom:3px}.fieldInstructionsHead p{margin:0}
+.fieldInstructionsText{white-space:pre-wrap;font:inherit;font-size:17px;line-height:1.55;background:#f3f8f4;border:1px solid #cfddd2;border-radius:12px;padding:14px 16px;margin:14px 0 0;color:#173d28}
+.statusFilterBar{align-items:center}.farmFilter{margin-left:auto}
+@media(max-width:900px){.fieldInstructionsHead{align-items:stretch}.fieldInstructionsHead button{min-height:48px}.statusFilterBar{align-items:stretch}.farmFilter{margin-left:0}}
+@media(max-width:700px){.fieldInstructionsHead{display:block}.fieldInstructionsHead button{width:100%;margin-top:10px}.fieldInstructionsText{font-size:16px;padding:12px}.statusFilters{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px}.statusFilters button{flex:0 0 auto}.farmFilter{display:grid;grid-template-columns:auto 1fr;align-items:center}.farmFilter select{width:100%}}
