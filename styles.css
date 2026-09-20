@@ -747,3 +747,81 @@
   .vatStillHero{order:3!important}
   .vatStatusLine{overflow-wrap:anywhere}
 }
+
+/* UI Build 2.3.2 — phone-only polish.
+   1) Keep Safari date controls fully inside the same visual width as Farm.
+   2) Give prepared-vat remaining litres a true in-flow row (no overlap).
+   3) Keep current-job vat outlets in place; mark selected ones red/smaller. */
+@media (max-width:600px){
+  .jobBasicsGrid>div:nth-child(1),
+  .jobBasicsGrid>div:nth-child(2){overflow:visible!important;padding-right:0!important}
+  .jobBasicsGrid input[type="date"]{
+    position:relative!important;
+    inline-size:calc(100% - 2px)!important;
+    width:calc(100% - 2px)!important;
+    max-inline-size:calc(100% - 2px)!important;
+    max-width:calc(100% - 2px)!important;
+    margin-right:2px!important;
+    border:1px solid #cbd6cd!important;
+    border-radius:12px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+
+  .vatStatusDashboard{position:static!important;display:flex!important;flex-direction:column!important;gap:10px!important}
+  .preparedVatCompact{position:static!important}
+  .vatRemainingHero{
+    position:static!important;
+    inset:auto!important;
+    order:2!important;
+    width:100%!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:baseline!important;
+    justify-content:flex-start!important;
+    gap:7px!important;
+    padding:6px 2px 2px!important;
+    margin:0!important;
+    text-align:left!important;
+    white-space:normal!important;
+  }
+  .vatRemainingHero strong{font-size:23px!important;line-height:1.05!important}
+  .vatRemainingHero span{font-size:13px!important;line-height:1.1!important;margin:0!important}
+  .vatStillHero{order:3!important}
+
+  .preparedVatLiveChoices label.outlet.vatChosenNow{
+    border-color:#d9a3a3!important;
+    background:#fff7f7!important;
+  }
+  .preparedVatLiveChoices label.outlet.vatChosenNow strong,
+  .preparedVatLiveChoices label.outlet.vatChosenNow small,
+  .preparedVatLiveChoices label.outlet.vatChosenNow span{
+    color:#b33a3a!important;
+  }
+  .preparedVatLiveChoices label.outlet.vatChosenNow strong,
+  .preparedVatLiveChoices label.outlet.vatChosenNow>span:first-of-type{
+    font-size:18px!important;
+  }
+  .preparedVatLiveChoices label.outlet.vatChosenNow small{font-size:13px!important}
+}
+
+
+/* UI Build 2.3.3 — corrected prepared-vat status treatment.
+   Selection tiles keep their normal styling. In the yellow status box, all
+   prepared outlets remain visible; allocated/current-job outlets turn red and
+   slightly smaller so the whole vat allocation remains readable at a glance. */
+.preparedVatLiveChoices label.outlet.vatChosenNow,
+.preparedVatLiveChoices label.outlet.vatChosenNow strong,
+.preparedVatLiveChoices label.outlet.vatChosenNow small,
+.preparedVatLiveChoices label.outlet.vatChosenNow span{
+  color:inherit!important;
+  background:inherit!important;
+  border-color:inherit!important;
+}
+.preparedVatLiveChoices label.outlet.vatChosenNow strong,
+.preparedVatLiveChoices label.outlet.vatChosenNow>span:first-of-type{font-size:inherit!important}
+.preparedVatLiveChoices label.outlet.vatChosenNow small{font-size:inherit!important}
+.vatStillHero strong{display:block}
+.vatStillOutlet{display:inline;color:var(--g);font-size:1em;font-weight:900;line-height:1}
+.vatStillOutletMarked{color:#b33a3a;font-size:.78em}
+.vatStillComma{display:inline;color:var(--g);font-size:1em}
