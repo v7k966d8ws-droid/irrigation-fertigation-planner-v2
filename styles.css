@@ -804,24 +804,3 @@
   }
   .preparedVatLiveChoices label.outlet.vatChosenNow small{font-size:13px!important}
 }
-
-
-/* UI Build 2.3.3 — corrected prepared-vat status treatment.
-   Selection tiles keep their normal styling. In the yellow status box, all
-   prepared outlets remain visible; allocated/current-job outlets turn red and
-   slightly smaller so the whole vat allocation remains readable at a glance. */
-.preparedVatLiveChoices label.outlet.vatChosenNow,
-.preparedVatLiveChoices label.outlet.vatChosenNow strong,
-.preparedVatLiveChoices label.outlet.vatChosenNow small,
-.preparedVatLiveChoices label.outlet.vatChosenNow span{
-  color:inherit!important;
-  background:inherit!important;
-  border-color:inherit!important;
-}
-.preparedVatLiveChoices label.outlet.vatChosenNow strong,
-.preparedVatLiveChoices label.outlet.vatChosenNow>span:first-of-type{font-size:inherit!important}
-.preparedVatLiveChoices label.outlet.vatChosenNow small{font-size:inherit!important}
-.vatStillHero strong{display:block}
-.vatStillOutlet{display:inline;color:var(--g);font-size:1em;font-weight:900;line-height:1}
-.vatStillOutletMarked{color:#b33a3a;font-size:.78em}
-.vatStillComma{display:inline;color:var(--g);font-size:1em}
