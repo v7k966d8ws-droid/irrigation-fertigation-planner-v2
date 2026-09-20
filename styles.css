@@ -719,3 +719,31 @@
   .jobOutletSection .outlet>span:first-of-type{font-size:20px!important;line-height:1!important}
   .jobOutletSection .outlet small{font-size:14px!important;line-height:1.05!important;margin-top:3px!important}
 }
+
+/* UI Build 2.3.1 — phone polish only. */
+@media (max-width:600px){
+  /* Safari date inputs can retain an intrinsic inline size. Constrain both the
+     grid item and native control to the same inner width as Farm. */
+  .jobBasicsGrid>div:nth-child(1),
+  .jobBasicsGrid>div:nth-child(2){min-width:0!important;width:100%!important;max-width:100%!important;overflow:hidden}
+  .jobBasicsGrid input[type="date"]{
+    inline-size:100%!important;
+    width:100%!important;
+    max-inline-size:100%!important;
+    max-width:100%!important;
+    min-inline-size:0!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Prepared-vat summary: stack details, litres and yellow status so no text
+     can collide on narrow phone screens. */
+  .vatStatusDashboard{display:flex!important;flex-direction:column!important;gap:10px!important}
+  .vatStatusDetails,.vatStillHero,.vatRemainingHero{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+  .vatStatusDetails{order:1!important}
+  .vatRemainingHero{order:2!important;display:flex!important;flex-direction:row!important;align-items:baseline!important;justify-content:flex-start!important;gap:8px!important;text-align:left!important;padding:0 2px!important}
+  .vatRemainingHero strong{font-size:26px!important;line-height:1!important}
+  .vatRemainingHero span{font-size:13px!important}
+  .vatStillHero{order:3!important}
+  .vatStatusLine{overflow-wrap:anywhere}
+}

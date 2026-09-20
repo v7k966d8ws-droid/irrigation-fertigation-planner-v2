@@ -46,7 +46,14 @@ function syncPreparedVatStatus(){
  const usedArea=[...used].reduce((s,o)=>s+(Number(FARMS[farm]?.[o])||0),0);
  const remainingArea=Math.max(0,(Number(v.totalArea)||0)-usedArea);
  const remainingL=(Number(v.totalArea)||0)>0?(Number(v.volume)||0)*(remainingArea/Number(v.totalArea)):0;
- const done=remainingL<0.05,prepared=(v.outlets||[]),fertigated=prepared.filter(o=>used.has(o)),still=prepared.filter(o=>!used.has(o));
+ const prepared=(v.outlets||[]),fertigated=prepared.filter(o=>used.has(o));
+ // While building a fertigation job, reflect the current checked outlets immediately
+ // in the yellow "Still to fertigate" indicator. Draft jobs remain the committed source
+ // for vat litres/area calculations until the job is actually added.
+ const chosenNow=new Set(currentPhaseMode()==="fertigation"?selected().filter(o=>prepared.includes(o)):[]);
+ const liveUsed=new Set([...used,...chosenNow]);
+ const still=prepared.filter(o=>!liveUsed.has(o));
+ const done=remainingL<0.05;
  box.innerHTML=`<div class="vatStatusDashboard"><div class="vatStatusDetails"><div class="vatStatusTitle"><strong>${esc(v.batchName)}${done?" — COMPLETE":""}</strong></div><div class="vatStatusLine">${esc(v.product)} · ${Number(v.volume||0).toLocaleString("en-AU")} L · ${Number(v.rate)} kg/ha · ${Number(v.totalKg).toFixed(1)} kg · ${esc(state.injectorConfig?.[farm]?.[Number(v.injectorIndex)||0]?.name||`Injector ${(Number(v.injectorIndex)||0)+1}`)}</div><div class="vatStatusLine"><span class="vatLabel">Prepared for:</span> <strong>${prepared.map(esc).join(", ")}</strong></div>${fertigated.length?`<div class="vatStatusLine vatDone"><span class="vatLabel">✓ Fertigated:</span> <strong>${fertigated.map(esc).join(", ")}</strong></div>`:""}<button type="button" id="toggleVatPrepareDetails" class="vatDetailsToggle secondary">${vatPrepareExpanded?"Hide vat details":"Show / edit vat details"}</button></div><div class="vatStillHero ${done?"complete":""}"><span>${done?"VAT COMPLETE":"STILL TO FERTIGATE"}</span><strong>${done?"✓":still.map(esc).join(", ")}</strong></div><div class="vatRemainingHero"><strong>${Number(remainingL.toFixed(1)).toLocaleString("en-AU")} L</strong><span>remaining</span></div></div>`;
 }
 
@@ -59,21 +66,16 @@ function syncPreparedVatOutletChoices(){
  const farm=$("farm")?.value||"",v=preparedVatForFarm(farm);if(!v)return;
  const prepared=new Set(v.outlets||[]),already=new Set();
  draftShifts().filter(j=>j.phaseMode==="fertigation").forEach(j=>(j.outlets||[]).forEach(o=>{if(prepared.has(o))already.add(o)}));
- const chosen=[];
  box.classList.add("preparedVatLiveChoices");
  box.querySelectorAll("label.outlet").forEach(l=>{
    const cb=l.querySelector("input"),o=cb?.value;if(!cb||!prepared.has(o)){l.style.display="none";return}
+   // Outlets already committed to an earlier job stay unavailable. Current-job
+   // selections remain visible and checked so they can be toggled normally.
    if(already.has(o)&&!cb.checked){l.style.display="none";l.classList.add("vatUnavailable");return}
-   if(cb.checked){chosen.push(o);l.style.display="none";l.classList.add("vatChosenNow")}
+   if(cb.checked)l.classList.add("vatChosenNow");
  });
- const wrap=box.parentElement;if(wrap&&chosen.length){
-   const s=document.createElement("div");s.className="currentJobOutletSummary";
-   s.innerHTML=`<span>Selected for this job:</span><strong>${chosen.map(esc).join(", ")}</strong><button type="button" class="secondary smallbtn">Change selection</button>`;
-   s.querySelector("button").addEventListener("click",()=>{box.querySelectorAll("input:checked").forEach(cb=>{cb.checked=false});recalc();renderIndividualValveRuntimes();renderInlineVatSummary();applyPreparedVatToCurrentJob(true);syncPreparedVatStatus();syncPreparedVatOutletChoices()});
-   wrap.insertBefore(s,box);
- }
  const visible=[...box.querySelectorAll("label.outlet")].some(l=>l.style.display!=="none");
- if(!visible&&!chosen.length){const e=document.createElement("div");e.className="vatOutletEmpty muted";e.textContent="All prepared-vat outlets have already been allocated to jobs.";box.appendChild(e)}
+ if(!visible){const e=document.createElement("div");e.className="vatOutletEmpty muted";e.textContent="All prepared-vat outlets have already been allocated to jobs.";box.appendChild(e)}
 }
 
 function syncVatRequirementUI(){
