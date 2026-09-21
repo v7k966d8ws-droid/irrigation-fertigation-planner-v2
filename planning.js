@@ -244,13 +244,20 @@ function autoFertigationPreflow(){
  result.innerHTML=`Outlet travel time used: <strong>${finishBefore} min</strong>. First AquaLink Preflow: <strong>${Math.round(firstPreflow)} min</strong>. Injection sequence: <strong>${totalRuntime} min</strong>. Fertigation/rinse finishes at about <strong>${finalFinish} min</strong> into the ${Math.round(hours*60)}-minute job, leaving <strong>${finishBefore} min</strong> clean-water travel time.`
 }
 function renderDraftShiftList(){
- const host=$("draftShiftList");if(!host)return;const a=activeProgram(),jobs=draftShifts();
+ const host=$("draftShiftList"),bottom=$("currentNightProgramList"),bottomMeta=$("currentNightMeta"),bottomSave=$("saveNightProgramBottom");const a=activeProgram(),jobs=draftShifts();
+ if(bottomSave) bottomSave.disabled=!a||jobs.length===0;
+ if(bottomMeta) bottomMeta.textContent=a?`${a.name} · ${jobs.length} job${jobs.length===1?"":"s"} added`:`Start a program to build tonight’s job list.`;
  if(!a){host.innerHTML="";return}
  if(!jobs.length){host.innerHTML='<div class="empty">No jobs added yet. Build Job 1 below.</div>';return}
  host.innerHTML=jobs.map((s,i)=>{
    const pumps=(s.shiftPumps||s.requiredPumps||[]).map(esc).join(", ")||"No pumps entered",valve=s.useIndividualValveRuntimes?" · Individual valve runtimes":"";
    return `<div class="draftShiftCard"><div class="draftShiftTop"><div class="draftShiftNumber">Job ${i+1}</div><div><strong>${esc(s.farm)} — ${(s.outlets||[]).map(esc).join(", ")}</strong><div class="muted">${pumps}</div></div><div><strong>${fmtTime(s.startTime)}</strong><div class="muted">${s.setRuntime||setRuntime(s.hours)}</div></div><div>${s.phaseMode==="fertigation"?'<span class="phaseBadge fert">Fertigation</span>':'<span class="phaseBadge water">Water Only</span>'}<div class="muted">${s.phaseMode==="fertigation"?`${Number(s.fertigationFinishBefore)||60} min fresh-water finish`:""}${valve}</div></div></div><div class="draftShiftActions"><button type="button" class="smallbtn" data-edit-draft="${i}">Edit Job</button><button type="button" class="smallbtn" data-remove-draft="${i}">Remove</button></div></div>`
  }).join("");
+ if(bottom){
+   if(!a) bottom.innerHTML='<div class="empty">No active program.</div>';
+   else if(!jobs.length) bottom.innerHTML='<div class="empty">No jobs added yet. Build Job 1 above.</div>';
+   else bottom.innerHTML=jobs.map((s,i)=>`<div class="currentNightRow"><div><strong>Job ${i+1} — ${(s.outlets||[]).map(esc).join(", ")}</strong><span>${fmtTime(s.startTime)} → ${fmtTime(s.finishTime)} · ${s.setRuntime||setRuntime(s.hours)} · ${s.phaseMode==="fertigation"?"Fertigation":"Water Only"}</span></div>${s.phaseMode==="fertigation"?'<span class="miniFert">FERT</span>':'<span class="miniWater">WATER</span>'}</div>`).join("");
+ }
  host.querySelectorAll("[data-edit-draft]").forEach(b=>b.addEventListener("click",()=>editDraftShift(Number(b.dataset.editDraft))));
  host.querySelectorAll("[data-remove-draft]").forEach(b=>b.addEventListener("click",()=>removeDraftShift(Number(b.dataset.removeDraft))))
 }

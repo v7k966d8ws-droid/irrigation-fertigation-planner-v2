@@ -98,7 +98,11 @@
 
 <div class="card" id="injectionProgrammingCard"><div class="injectionHeadingRow"><div><h2>Injection Programming</h2><div class="muted">AquaLink format — copy Runtime and Pre/FL directly.</div></div><button type="button" id="calculateFertTiming" class="secondary compactPreflowButton">Recalculate Pre/FL</button></div><div id="currentAquaSummary" class="currentAquaSummary"></div>
 <details class="injectionEditDetails"><summary>Edit injection programming</summary><div class="irrigationModeBar"><div><div id="injectionModeText" class="modeText">Fertigation</div><div id="injectionMemoryText" class="muted">Last saved fertigation setup will be remembered for this farm.</div></div><button id="irrigationOnlyBtn" type="button" class="irrigationOnlyBtn">Irrigation Only</button></div><div id="irrigationOnlyNote" class="irrigationOnlyNote hidden">Irrigation only for this job — no fertilizer or injector programming will be saved. Your last saved fertigation setup remains remembered for the next irrigation.</div><div id="injectors" class="injectors"></div></details></div>
-<div class="card"><label>Notes</label><textarea id="notes" placeholder="Optional notes — for example an AquaLink shift reference, product mixing note or irrigation detail."></textarea><div class="btns"><button id="savePlan" class="primary">Add Job to Program</button><button id="cancelEdit" class="secondary hidden">Cancel Edit</button><button id="clearForm" class="secondary">Clear Job</button></div></div></section>
+<div class="card compactJobActions"><label>Notes</label><textarea id="notes" placeholder="Optional notes — for example an AquaLink shift reference, product mixing note or irrigation detail."></textarea><div class="btns"><button id="savePlan" class="primary">Add Job to Program</button><button id="cancelEdit" class="secondary hidden">Cancel Edit</button><button id="clearForm" class="secondary">Clear Job</button></div></div>
+<div class="card currentNightPanel" id="currentNightPanel">
+  <div class="currentNightHead"><div><h2>Current Night Program</h2><div class="muted" id="currentNightMeta">Start a program to build tonight’s job list.</div></div><button type="button" id="saveNightProgramBottom" class="primary">Finish &amp; Save Whole Program</button></div>
+  <div id="currentNightProgramList" class="currentNightProgramList"><div class="empty">No jobs added yet.</div></div>
+</div></section>
 
 <section id="history" class="page"><div class="card"><div class="historyHeader"><div><h2>Completed Irrigation History</h2></div><div class="farmFilter"><label for="historyFarmFilter">Farm</label><select id="historyFarmFilter"><option value="all">All Farms</option></select></div></div><div class="btns"><button id="exportCsv" class="secondary">Export Spreadsheet CSV</button><button id="clearHistory" class="danger">Clear History</button></div><div class="history"><table><thead><tr><th>Date</th><th>Start</th><th>Finish</th><th>Farm</th><th>Outlets</th><th>Ha</th><th>Set Runtime</th><th>Pump System</th><th>Required Pumps</th><th>Type</th><th>Injection 1</th><th>Injection 2</th><th>Injection 3</th><th>Injection 4</th><th>Notes</th></tr></thead><tbody id="historyBody"></tbody></table></div></div></section>
 
@@ -111,10 +115,10 @@
 <div class="card"><h2>Shared Pump Systems</h2><p><strong>Rays / Zanetti / Tavasci</strong> — one interconnected shared pumping system.</p><p><strong>Norris Back / Norris School / Norris Gully</strong> — one shared pumping system.</p><p class="muted">Automatic start-time suggestions currently sequence jobs by these shared pump systems. Detailed pump-resource conflicts can be refined as more rules are collected.</p></div>
 </section></div>
 
-<script src="app-core.js?v=ui-branding-p1"></script>
-<script src="planning.js?v=ui-branding-p1"></script>
-<script src="app-ui.js?v=ui-branding-p1"></script>
-<script src="app-init.js?v=ui-branding-p1"></script>
+<script src="app-core.js?v=compact-exp-1"></script>
+<script src="planning.js?v=compact-exp-1"></script>
+<script src="app-ui.js?v=compact-exp-1"></script>
+<script src="app-init.js?v=compact-exp-1"></script>
 
 <!-- UI Branding Polish — Pass 1 -->
 </body>

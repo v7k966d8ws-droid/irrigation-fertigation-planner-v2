@@ -846,3 +846,60 @@
 .statusFilterBar{align-items:center}.farmFilter{margin-left:auto}
 @media(max-width:900px){.fieldInstructionsHead{align-items:stretch}.fieldInstructionsHead button{min-height:48px}.statusFilterBar{align-items:stretch}.farmFilter{margin-left:0}}
 @media(max-width:700px){.fieldInstructionsHead{display:block}.fieldInstructionsHead button{width:100%;margin-top:10px}.fieldInstructionsText{font-size:16px;padding:12px}.statusFilters{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px}.statusFilters button{flex:0 0 auto}.farmFilter{display:grid;grid-template-columns:auto 1fr;align-items:center}.farmFilter select{width:100%}}
+
+/* Compact UI Experiment — Build 1
+   Purposefully dense field-work layout. No calculation logic changes. */
+.currentNightPanel{border:2px solid #a9c9b2;background:#f4faf5}
+.currentNightHead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.currentNightHead h2{margin:0 0 2px;font-size:19px}
+.currentNightProgramList{margin-top:7px;border-top:1px solid #d6e3d9}
+.currentNightRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 2px;border-bottom:1px solid #dce7df}
+.currentNightRow>div{min-width:0}.currentNightRow strong{font-size:15px}.currentNightRow span{margin-left:10px;font-size:13px;color:#617066}
+.currentNightRow>.miniFert,.currentNightRow>.miniWater{margin:0;padding:3px 7px;border-radius:999px;font-size:10px;font-weight:900;white-space:nowrap}
+.miniFert{background:#dcefe1;color:#245536!important}.miniWater{background:#e7eef7;color:#34516f!important}
+
+@media (min-width:901px){
+  /* Flatten the page into tight information bands rather than tall cards. */
+  #new .card{margin-bottom:6px;padding:8px 11px}
+  #new .newPlanCard{padding:8px 11px}
+  #new .newPlanCard>h2{font-size:18px;margin-bottom:5px}
+  #new label{font-size:11px;margin-bottom:2px}
+  #new input,#new select{height:34px;padding:4px 8px;font-size:13px}
+  #new textarea{min-height:40px;padding:7px 9px;font-size:13px}
+  #new .fieldHelp,#new .muted{font-size:10px;line-height:1.15}
+  #new .btns{margin-top:6px}
+  #new .btns button{padding:7px 10px}
+  #new .programBanner{padding:6px 9px}
+  #new .programBanner>.grid input{height:34px}
+  #new .programBanner>.btns button{padding:6px 9px}
+  #new .compactTimePicker{height:39px}
+  #new .compactTimePicker>button{height:31px;min-height:31px}
+  #new .compactTimePicker .timeDisplay{font-size:16px}
+  #new .jobOutletSection{margin-top:0}
+  #new .jobOutletHeading{font-size:17px;margin-bottom:1px}
+  #new .outlets{gap:4px}
+  #new .outlet{min-height:42px;padding:4px 6px}
+  #new .outlet input{width:25px;height:25px;min-width:25px}
+  #new .outlet strong,#new .outlet>span:first-of-type{font-size:17px}
+  #new .outlet small{font-size:12px;margin-top:1px}
+  #new .note,#new .summary{padding:5px 8px}
+  #new #injectionProgrammingCard{padding:7px 10px}
+  #new .injectionHeadingRow h2{font-size:18px;margin:0}
+  #new .currentAquaSummary{margin-top:4px}
+  #new details.injectionEditDetails{margin-top:5px}
+  #new details.injectionEditDetails>summary{padding:6px 8px}
+  #new .compactJobActions{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+  #new .compactJobActions>label{grid-column:1/-1;margin-bottom:-6px}
+  #new .compactJobActions textarea{grid-column:1}
+  #new .compactJobActions .btns{grid-column:2;margin:0;white-space:nowrap}
+  #new .currentNightPanel{padding:8px 11px;margin-bottom:10px}
+  #new .currentNightHead h2{font-size:18px}
+}
+
+@media (max-width:900px){
+  .currentNightHead{align-items:stretch;flex-direction:column}
+  .currentNightHead button{width:100%;min-height:46px}
+  .currentNightRow{align-items:flex-start}
+  .currentNightRow>div{display:flex;flex-direction:column;gap:2px}
+  .currentNightRow span{margin-left:0}
+}

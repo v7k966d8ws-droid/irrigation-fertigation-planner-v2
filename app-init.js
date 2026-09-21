@@ -2,6 +2,7 @@ function network(){const online=navigator.onLine;$("network").className="pill "+
 
 $("startProgram").addEventListener("click",startIrrigationProgram);
 $("saveNightProgram").addEventListener("click",saveNightProgram);
+if($("saveNightProgramBottom")) $("saveNightProgramBottom").addEventListener("click",saveNightProgram);
 $("cancelProgram").addEventListener("click",cancelIrrigationProgram);
 $("programName").addEventListener("input",()=>{const a=activeProgram();if(a){a.name=$("programName").value.trim()||a.name;save();renderProgramBanner()}else $("programName").dataset.autoName="0"});
 $("shiftMode").addEventListener("change",syncShiftMode);$("vatRequired").addEventListener("change",()=>{syncVatRequirementUI();if(vatRequired())renderInlineVatMix()});
