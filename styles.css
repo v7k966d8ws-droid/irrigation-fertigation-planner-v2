@@ -987,3 +987,35 @@
   #new .currentNightRow{padding:5px 3px!important;min-height:34px}
   #new .currentNightRow strong{font-size:12px!important}#new .currentNightRow span{font-size:11px!important}
 }
+
+
+/* Compact UI Experiment — Build 3 repair pass */
+@media (min-width:901px){
+  /* Keep the DD Produce mark fully visible beside the navigation. */
+  .hero{min-height:62px;padding-right:0}
+  .heroBrand{min-width:285px;overflow:visible}
+  .brandLogoSlot{min-width:285px!important;overflow:visible}
+  .brandLogoSlot:before{white-space:nowrap;font-size:25px!important}
+  .tabs{max-width:930px!important;margin-left:250px!important;margin-right:10px!important;transform:translateY(-54px)!important;margin-bottom:-45px!important}
+
+  /* Restore the complete pump-start selector in the timing column. */
+  #new .compactTiming .startCompact{display:block!important;margin:8px 0 7px!important}
+  #new .compactTiming .startCompact>label{display:block!important;margin-bottom:4px!important}
+  #new .compactTiming .compactTimePicker{display:grid!important;grid-template-columns:.72fr .72fr 1.45fr .72fr .72fr!important;gap:4px!important;height:auto!important;margin:0!important}
+  #new .compactTiming .compactTimePicker button{display:flex!important;min-width:0!important;height:40px!important;min-height:40px!important;padding:3px 4px!important;align-items:center!important;justify-content:center!important;font-size:12px!important;border-radius:5px!important}
+  #new .compactTiming .compactTimePicker #useSuggested{display:flex!important;grid-column:auto!important;height:40px!important;background:#24563a!important;color:#fff!important;border-color:#24563a!important}
+  #new .compactTiming .compactTimePicker .timeDisplay{font-size:16px!important;white-space:nowrap!important}
+  #new .compactTiming .compactTimePicker .timeHint{font-size:8px!important;white-space:nowrap!important}
+  #new .compactTiming .finishCompact{margin-top:7px!important}
+
+  /* Prepared-vat outlet choices: compact but readable, no clipped labels. */
+  #new .compactVatColumn .mixOutlets{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:4px!important;max-height:none!important;overflow:visible!important;margin-top:3px!important}
+  #new .compactVatColumn .mixOutlet{min-width:0!important;min-height:49px!important;padding:4px 3px!important;gap:3px!important;display:flex!important;align-items:flex-start!important;overflow:hidden!important}
+  #new .compactVatColumn .mixOutlet input{width:19px!important;height:19px!important;min-width:19px!important;margin:1px 1px 0 0!important}
+  #new .compactVatColumn .mixOutlet strong{font-size:14px!important;line-height:1!important;white-space:nowrap!important}
+  #new .compactVatColumn .mixOutlet small{font-size:10px!important;line-height:1.05!important;white-space:nowrap!important}
+  #new .compactVatColumn .vatOutletRow>label{font-size:11px!important;margin:4px 0 2px!important}
+  #new .compactVatColumn .vatCalc{font-size:10px!important;line-height:1.2!important}
+  #new .compactVatColumn .inlineVatMix .btns{margin-top:5px!important}
+  #new .compactVatColumn #applyMixToShift{min-height:34px!important;padding:5px 9px!important;font-size:13px!important}
+}
