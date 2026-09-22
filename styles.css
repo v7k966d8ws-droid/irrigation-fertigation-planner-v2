@@ -1066,3 +1066,54 @@
 @media (min-width:901px) and (max-width:1180px){
   #new .injectionEditDetails.injectionEditorWide .injectors{grid-template-columns:1fr}
 }
+
+/* Compact UI Glitch Fix 3 — current-job outlet selector only.
+   Use three compact outlet tiles across on iPad in both orientations.
+   Prepared-vat outlet selectors are intentionally unchanged. */
+#new .compactOutlets .outlets{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:6px!important;
+}
+#new .compactOutlets .outlet{
+  min-height:58px!important;
+  padding:7px 9px!important;
+  gap:9px!important;
+  align-items:center!important;
+  border-radius:7px!important;
+}
+#new .compactOutlets .outlet input{
+  width:26px!important;
+  height:26px!important;
+  min-width:26px!important;
+  margin:0!important;
+}
+#new .compactOutlets .outlet strong,
+#new .compactOutlets .outlet>span:first-of-type{
+  font-size:19px!important;
+  line-height:1!important;
+  font-weight:900!important;
+}
+#new .compactOutlets .outlet small{
+  font-size:14px!important;
+  line-height:1.05!important;
+  margin-top:3px!important;
+  font-weight:800!important;
+}
+@media (min-width:901px){
+  #new .compactOutlets #areaSummary{margin-top:18px!important;}
+}
+@media (max-width:900px){
+  #new .compactOutlets .outlets{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  #new .compactOutlets .outlet{
+    min-height:56px!important;
+    padding:6px 8px!important;
+  }
+  #new .compactOutlets #areaSummary{margin-top:8px!important;}
+}
+@media (max-width:480px){
+  #new .compactOutlets .outlets{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
