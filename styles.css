@@ -1117,3 +1117,23 @@
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
   }
 }
+
+/* Glitch Fix 4: compact Notes-style AquaLink programming report */
+.aquaJobCompact{padding:10px 12px;margin:8px 0;border-radius:12px}
+.aquaCompactHead{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:16px;padding:2px 2px 9px;border-bottom:1px solid var(--line);align-items:start}
+.aquaCompactHead>div:first-child>strong{font-size:17px;color:#1f2d25}
+.aquaCompactMeta{display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:1.35}
+.aquaCompactTable{margin-top:4px}
+.aquaCompactLabels,.aquaCompactRow{display:grid;grid-template-columns:minmax(250px,1.6fr) minmax(90px,.45fr) minmax(90px,.45fr) minmax(190px,1fr);column-gap:18px;align-items:start}
+.aquaCompactLabels{padding:7px 8px 5px;font-size:12px;font-weight:900;color:var(--g);background:#f7faf7;border-bottom:1px solid var(--line)}
+.aquaCompactRow{padding:7px 8px;border-bottom:1px solid var(--line);font-size:14px;line-height:1.25}
+.aquaCompactRow:last-child{border-bottom:0}
+.aquaCompactInjector{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.aquaCompactNumber{font-size:18px;font-weight:900;color:var(--g)}
+.aquaCompactNumber small{display:block;font-size:11px;line-height:1.15;color:var(--muted);font-weight:800;white-space:nowrap}
+.aquaCompactProduct{font-size:13px;color:#38473e}
+.aquaCompactEmpty{padding:10px 8px}
+@media(max-width:760px){
+  .aquaCompactHead{grid-template-columns:1fr;gap:4px}
+  .aquaCompactLabels,.aquaCompactRow{grid-template-columns:minmax(150px,1.35fr) 72px 72px minmax(130px,1fr);column-gap:10px}
+}
