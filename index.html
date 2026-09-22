@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#244B35">
 <title>Irrigation & Fertigation Planner</title>
-<link rel="stylesheet" href="styles.css?v=compact-exp-3">
+<link rel="stylesheet" href="styles.css?v=compact-exp-2">
 
 </head>
 <body>
@@ -100,7 +100,7 @@
 <details class="injectionEditDetails"><summary>Edit injection programming</summary><div class="irrigationModeBar"><div><div id="injectionModeText" class="modeText">Fertigation</div><div id="injectionMemoryText" class="muted">Last saved fertigation setup will be remembered for this farm.</div></div><button id="irrigationOnlyBtn" type="button" class="irrigationOnlyBtn">Irrigation Only</button></div><div id="irrigationOnlyNote" class="irrigationOnlyNote hidden">Irrigation only for this job — no fertilizer or injector programming will be saved. Your last saved fertigation setup remains remembered for the next irrigation.</div><div id="injectors" class="injectors"></div></details></div>
 <div class="card compactJobActions"><label>Notes</label><textarea id="notes" placeholder="Optional notes — for example an AquaLink shift reference, product mixing note or irrigation detail."></textarea><div class="btns"><button id="savePlan" class="primary">Add Job to Program</button><button id="cancelEdit" class="secondary hidden">Cancel Edit</button><button id="clearForm" class="secondary">Clear Job</button></div></div>
 <div class="card currentNightPanel" id="currentNightPanel">
-  <div class="currentNightHead"><div><h2>Current Night Program</h2><div class="muted" id="currentNightMeta">Start a program to build tonight’s job list.</div></div><button type="button" id="saveNightProgramBottom" class="primary">Finish &amp; Save Whole Program</button></div>
+  <div class="currentNightHead"><div><h2>Current Night Program</h2><div class="muted" id="currentNightMeta">Start a program to build tonight’s job list.</div></div><div class="currentNightProgramActions"><button type="button" id="cancelProgramBottom" class="secondary">Cancel Whole Program</button><button type="button" id="saveNightProgramBottom" class="primary">Finish &amp; Save Whole Program</button></div></div>
   <div id="currentNightProgramList" class="currentNightProgramList"><div class="empty">No jobs added yet.</div></div>
 </div></section>
 
@@ -136,18 +136,17 @@
   left.appendChild(kids[8]); left.appendChild(kids[10]);
   mid.insertAdjacentHTML('afterbegin','<h2>Irrigation timing</h2>');
   mid.appendChild(kids[3]);
-  kids[6].classList.add('startCompact'); mid.appendChild(kids[6]);
   kids[13].classList.add('finishCompact'); mid.appendChild(kids[13]);
   kids[5].classList.add('pumpCompact'); mid.appendChild(kids[5]);
   right.appendChild(kids[7]);
   const inj=document.getElementById('injectionProgrammingCard'); if(inj) right.appendChild(inj);
-  [kids[9],kids[11],kids[12],kids[14],kids[15]].forEach(x=>{if(x){x.classList.add('compactHiddenMeta');grid.appendChild(x)}});
+  [kids[6],kids[9],kids[11],kids[12],kids[14],kids[15]].forEach(x=>{if(x){x.classList.add('compactHiddenMeta');grid.appendChild(x)}});
 })();
 </script>
-<script src="app-core.js?v=compact-exp-3"></script>
-<script src="planning.js?v=compact-exp-3"></script>
-<script src="app-ui.js?v=compact-exp-3"></script>
-<script src="app-init.js?v=compact-exp-3"></script>
+<script src="app-core.js?v=compact-exp-2"></script>
+<script src="planning.js?v=compact-exp-2"></script>
+<script src="app-ui.js?v=compact-exp-2"></script>
+<script src="app-init.js?v=compact-exp-2"></script>
 
 <!-- UI Branding Polish — Pass 1 -->
 </body>

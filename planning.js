@@ -256,10 +256,11 @@ function renderDraftShiftList(){
  if(bottom){
    if(!a) bottom.innerHTML='<div class="empty">No active program.</div>';
    else if(!jobs.length) bottom.innerHTML='<div class="empty">No jobs added yet. Build Job 1 above.</div>';
-   else bottom.innerHTML=jobs.map((s,i)=>`<div class="currentNightRow"><div><strong>Job ${i+1} — ${(s.outlets||[]).map(esc).join(", ")}</strong><span>${fmtTime(s.startTime)} → ${fmtTime(s.finishTime)} · ${s.setRuntime||setRuntime(s.hours)} · ${s.phaseMode==="fertigation"?"Fertigation":"Water Only"}</span></div>${s.phaseMode==="fertigation"?'<span class="miniFert">FERT</span>':'<span class="miniWater">WATER</span>'}</div>`).join("");
+   else bottom.innerHTML=jobs.map((s,i)=>`<div class="currentNightRow"><div><strong>Job ${i+1} — ${(s.outlets||[]).map(esc).join(", ")}</strong><span>${fmtTime(s.startTime)} → ${fmtTime(s.finishTime)} · ${s.setRuntime||setRuntime(s.hours)} · ${s.phaseMode==="fertigation"?"Fertigation":"Water Only"}</span></div><div class="currentNightRowActions">${s.phaseMode==="fertigation"?'<span class="miniFert">FERT</span>':'<span class="miniWater">WATER</span>'}<button type="button" class="currentNightRemove" data-remove-bottom="${i}" aria-label="Remove Job ${i+1}">Remove</button></div></div>`).join("");
  }
  host.querySelectorAll("[data-edit-draft]").forEach(b=>b.addEventListener("click",()=>editDraftShift(Number(b.dataset.editDraft))));
- host.querySelectorAll("[data-remove-draft]").forEach(b=>b.addEventListener("click",()=>removeDraftShift(Number(b.dataset.removeDraft))))
+ host.querySelectorAll("[data-remove-draft]").forEach(b=>b.addEventListener("click",()=>removeDraftShift(Number(b.dataset.removeDraft))));
+ if(bottom) bottom.querySelectorAll("[data-remove-bottom]").forEach(b=>b.addEventListener("click",()=>removeDraftShift(Number(b.dataset.removeBottom))))
 }
 function totalSavedProgramWaterByOutlet(programId){
  const totals={};state.plans.filter(p=>p.programId===programId).forEach(p=>(p.outlets||[]).forEach(o=>{const hrs=p.useIndividualValveRuntimes&&p.individualValveRuntimes&&p.individualValveRuntimes[o]!==undefined?Number(p.individualValveRuntimes[o])||0:Number(p.hours)||0;const k=p.farm+"|"+o;totals[k]=(totals[k]||0)+hrs}));return totals
