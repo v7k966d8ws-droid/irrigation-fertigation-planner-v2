@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#244B35">
 <title>Irrigation & Fertigation Planner</title>
-<link rel="stylesheet" href="styles.css?v=compact-exp-2">
+<link rel="stylesheet" href="styles.css?v=compact-glitch-fix-2">
 
 </head>
 <body>
@@ -140,13 +140,20 @@
   kids[5].classList.add('pumpCompact'); mid.appendChild(kids[5]);
   right.appendChild(kids[7]);
   const inj=document.getElementById('injectionProgrammingCard'); if(inj) right.appendChild(inj);
+  // Keep the compact AquaLink summary in the right column, but move the
+  // expandable editor itself to a full-width row beneath the workbench.
+  const injectionEditor=inj&&inj.querySelector('.injectionEditDetails');
+  if(injectionEditor){
+    injectionEditor.classList.add('injectionEditorWide');
+    work.insertAdjacentElement('afterend',injectionEditor);
+  }
   [kids[6],kids[9],kids[11],kids[12],kids[14],kids[15]].forEach(x=>{if(x){x.classList.add('compactHiddenMeta');grid.appendChild(x)}});
 })();
 </script>
-<script src="app-core.js?v=compact-exp-2"></script>
-<script src="planning.js?v=compact-exp-2"></script>
-<script src="app-ui.js?v=compact-exp-2"></script>
-<script src="app-init.js?v=compact-exp-2"></script>
+<script src="app-core.js?v=compact-glitch-fix-2"></script>
+<script src="planning.js?v=compact-glitch-fix-2"></script>
+<script src="app-ui.js?v=compact-glitch-fix-2"></script>
+<script src="app-init.js?v=compact-glitch-fix-2"></script>
 
 <!-- UI Branding Polish — Pass 1 -->
 </body>

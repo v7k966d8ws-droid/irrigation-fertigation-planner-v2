@@ -1021,3 +1021,48 @@
   #new .currentNightProgramActions{width:100%;display:grid;grid-template-columns:1fr 1fr}
   #new #cancelProgramBottom,#new #saveNightProgramBottom{width:100%!important}
 }
+
+/* Compact UI Glitch Fix 2 — full-width injector editor on iPad/desktop.
+   Keep the AquaLink summary in the right column; when editing, let the
+   controls use the otherwise-empty width beneath all three work columns. */
+@media (min-width:901px){
+  #new .injectionEditDetails.injectionEditorWide{
+    grid-column:1 / -1;
+    width:100%;
+    margin:0!important;
+    padding:8px 10px 10px!important;
+    border:1px solid #cad9ce;
+    border-radius:8px;
+    background:#f7fbf8;
+    min-width:0;
+  }
+  #new .injectionEditDetails.injectionEditorWide>summary{
+    font-size:14px!important;
+    padding:7px 10px!important;
+  }
+  #new .injectionEditDetails.injectionEditorWide[open]{
+    margin-top:8px!important;
+  }
+  #new .injectionEditDetails.injectionEditorWide[open]>summary{margin-bottom:6px}
+  #new .injectionEditDetails.injectionEditorWide .irrigationModeBar{
+    margin:4px 0 8px;
+    padding:7px 9px;
+  }
+  #new .injectionEditDetails.injectionEditorWide .injectors{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+    align-items:start;
+  }
+  #new .injectionEditDetails.injectionEditorWide .inj{
+    min-width:0;
+    padding:9px;
+    border-radius:8px;
+  }
+  #new .injectionEditDetails.injectionEditorWide .injFields{gap:6px}
+  #new .injectionEditDetails.injectionEditorWide .inj h3{font-size:16px}
+  #new .injectionEditDetails.injectionEditorWide .injMeta{font-size:11px;margin-bottom:5px}
+}
+@media (min-width:901px) and (max-width:1180px){
+  #new .injectionEditDetails.injectionEditorWide .injectors{grid-template-columns:1fr}
+}
