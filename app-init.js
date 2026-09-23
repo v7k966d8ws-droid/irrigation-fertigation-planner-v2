@@ -26,7 +26,7 @@ $("outlets").addEventListener("change",()=>{renderIndividualValveRuntimes();rend
 $("duration").addEventListener("input",()=>renderIndividualValveRuntimes(getIndividualValveRuntimes()));
 if($("fertFinishBefore"))$("fertFinishBefore").addEventListener("change",()=>{$("fertFinishCustomWrap")?.classList.toggle("hidden",$("fertFinishBefore").value!=="custom")});
 $("calculateFertTiming").addEventListener("click",autoFertigationPreflow);
-$("savePlan").addEventListener("click",savePlan);$("irrigationOnlyBtn").addEventListener("click",toggleIrrigationOnly);$("clearForm").addEventListener("click",resetNewForm);$("cancelEdit").addEventListener("click",()=>{resetNewForm();showPage("tonight")});$("exportCsv").addEventListener("click",exportCsv);$("clearHistory").addEventListener("click",clearHistory);$("vatFarm").addEventListener("change",renderVatBuilder);
+$("savePlan").addEventListener("click",savePlan);$("savePlanNearOutlets").addEventListener("click",()=>$("savePlan").click());$("irrigationOnlyBtn").addEventListener("click",toggleIrrigationOnly);$("clearForm").addEventListener("click",resetNewForm);$("cancelEdit").addEventListener("click",()=>{resetNewForm();showPage("tonight")});$("exportCsv").addEventListener("click",exportCsv);$("clearHistory").addEventListener("click",clearHistory);$("vatFarm").addEventListener("change",renderVatBuilder);
 $("vatProduct").addEventListener("change",renderVatSummary);
 $("vatInjector").addEventListener("change",renderVatSummary);
 ["vatBatchName","vatRate","vatVolume","vatPreflow"].forEach(id=>$(id).addEventListener("input",renderVatSummary));
