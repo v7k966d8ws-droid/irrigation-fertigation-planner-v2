@@ -1137,3 +1137,19 @@
   .aquaCompactHead{grid-template-columns:1fr;gap:4px}
   .aquaCompactLabels,.aquaCompactRow{grid-template-columns:minmax(150px,1.35fr) 72px 72px minmax(130px,1fr);column-gap:10px}
 }
+
+
+/* Glitch Fix 5 — restore landscape start time and make prepared-vat restrictions explicit. */
+@media (min-width:901px){
+  #new .compactTiming .compactTimePicker{
+    display:grid!important;grid-template-columns:.82fr .82fr 1.3fr .82fr .82fr!important;
+    gap:5px!important;height:auto!important;border:0!important;padding:0!important;background:transparent!important;margin:2px 0 9px!important;
+  }
+  #new .compactTiming .compactTimePicker button{display:flex!important;min-width:0!important;height:42px!important;padding:4px 5px!important;align-items:center;justify-content:center}
+  #new .compactTiming .compactTimePicker #useSuggested{display:flex!important;grid-column:auto!important;height:42px!important}
+  #new .compactTiming .compactTimePicker .timeDisplay{font-size:15px!important}
+  #new .compactTiming .compactTimePicker .timeHint{font-size:9px!important}
+}
+#new .outlet.vatUnavailable{opacity:.55;background:#f1f3f1!important;border-style:dashed!important;cursor:not-allowed}
+#new .outlet.vatUnavailable input{cursor:not-allowed}
+#new .vatChoiceReason{display:block!important;color:#7a5b31!important;font-size:9px!important;line-height:1.05!important;margin-top:3px!important;font-weight:800!important}

@@ -68,14 +68,21 @@ function syncPreparedVatOutletChoices(){
  draftShifts().filter(j=>j.phaseMode==="fertigation").forEach(j=>(j.outlets||[]).forEach(o=>{if(prepared.has(o))already.add(o)}));
  box.classList.add("preparedVatLiveChoices");
  box.querySelectorAll("label.outlet").forEach(l=>{
-   const cb=l.querySelector("input"),o=cb?.value;if(!cb||!prepared.has(o)){l.style.display="none";return}
-   // Outlets already committed to an earlier job stay unavailable. Current-job
-   // selections remain visible and checked so they can be toggled normally.
-   if(already.has(o)&&!cb.checked){l.style.display="none";l.classList.add("vatUnavailable");return}
-   if(cb.checked)l.classList.add("vatChosenNow");
+   const cb=l.querySelector("input"),o=cb?.value;if(!cb)return;
+   l.querySelector(".vatChoiceReason")?.remove();
+   const notPrepared=!prepared.has(o),usedEarlier=already.has(o)&&!cb.checked;
+   // Keep every active farm outlet visible. Anything that cannot use this
+   // prepared vat is clearly disabled instead of mysteriously disappearing.
+   if(notPrepared||usedEarlier){
+     cb.checked=false;cb.disabled=true;l.classList.add("vatUnavailable");
+     const note=document.createElement("small");note.className="vatChoiceReason";
+     note.textContent=notPrepared?"Not in prepared vat":"Already allocated";
+     l.querySelector("span")?.appendChild(note);
+   }else{
+     cb.disabled=false;
+     if(cb.checked)l.classList.add("vatChosenNow");
+   }
  });
- const visible=[...box.querySelectorAll("label.outlet")].some(l=>l.style.display!=="none");
- if(!visible){const e=document.createElement("div");e.className="vatOutletEmpty muted";e.textContent="All prepared-vat outlets have already been allocated to jobs.";box.appendChild(e)}
 }
 
 function syncVatRequirementUI(){
@@ -292,8 +299,13 @@ function startIrrigationProgram(){
  alert(`${name} started.\n\nBuild Job 1, then tap Add Job to Program. Nothing is added to Tonight's Plan until you finish and save the whole program.`)
 }
 function cancelIrrigationProgram(){
- const a=activeProgram();if(!a)return;if(draftShifts().length&&!confirm(`Discard ${draftShifts().length} unsaved draft job${draftShifts().length===1?"":"s"} from ${a.name}?`))return;
- if(state.activeVatMix&&state.activeVatMix[a.farm])delete state.activeVatMix[a.farm];state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;save();resetNewForm();renderProgramBanner()
+ const a=activeProgram();
+ if(!a){alert("There is no unsaved Night Program to cancel.");return}
+ const count=draftShifts().length;
+ if(!confirm(`Cancel ${a.name}?\n\n${count?`${count} unsaved draft job${count===1?"":"s"} will be discarded.`:"The current unsaved program will be discarded."}\nSaved Tonight's Plans and History will not be changed.`))return;
+ if(state.activeVatMix&&state.activeVatMix[a.farm])delete state.activeVatMix[a.farm];
+ state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;save();resetNewForm();renderProgramBanner();
+ alert("Unsaved Night Program cancelled.")
 }
 function recalcDraftFertigationPreflows(job){
  // Calculation-only pass for saved draft jobs. Do not recalculate or replace

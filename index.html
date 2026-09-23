@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#244B35">
 <title>Irrigation & Fertigation Planner</title>
-<link rel="stylesheet" href="styles.css?v=compact-glitch-fix-2">
+<link rel="stylesheet" href="styles.css?v=compact-glitch-fix-5">
 
 </head>
 <body>
@@ -136,6 +136,8 @@
   left.appendChild(kids[8]); left.appendChild(kids[10]);
   mid.insertAdjacentHTML('afterbegin','<h2>Irrigation timing</h2>');
   mid.appendChild(kids[3]);
+  // Keep the existing working Pump start time control in the compact landscape timing column.
+  mid.appendChild(kids[6]);
   kids[13].classList.add('finishCompact'); mid.appendChild(kids[13]);
   kids[5].classList.add('pumpCompact'); mid.appendChild(kids[5]);
   right.appendChild(kids[7]);
@@ -147,13 +149,13 @@
     injectionEditor.classList.add('injectionEditorWide');
     work.insertAdjacentElement('afterend',injectionEditor);
   }
-  [kids[6],kids[9],kids[11],kids[12],kids[14],kids[15]].forEach(x=>{if(x){x.classList.add('compactHiddenMeta');grid.appendChild(x)}});
+  [kids[9],kids[11],kids[12],kids[14],kids[15]].forEach(x=>{if(x){x.classList.add('compactHiddenMeta');grid.appendChild(x)}});
 })();
 </script>
-<script src="app-core.js?v=compact-glitch-fix-2"></script>
-<script src="planning.js?v=compact-glitch-fix-2"></script>
-<script src="app-ui.js?v=compact-glitch-fix-2"></script>
-<script src="app-init.js?v=compact-glitch-fix-2"></script>
+<script src="app-core.js?v=compact-glitch-fix-5"></script>
+<script src="planning.js?v=compact-glitch-fix-5"></script>
+<script src="app-ui.js?v=compact-glitch-fix-5"></script>
+<script src="app-init.js?v=compact-glitch-fix-5"></script>
 
 <!-- UI Branding Polish — Pass 1 -->
 </body>
