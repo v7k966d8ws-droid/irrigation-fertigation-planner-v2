@@ -22,24 +22,6 @@
   <div class="muted">Jobs saved as part of the same farm program are grouped here in the order you planned them.</div>
   <div id="programList" class="programList"></div>
 </div>
-<div class="card">
-  <div class="vatBuilderHead">
-    <div><h2>Shared Vat Builder <span class="testBadge">TEST</span></h2><div class="muted">Build one mixed fertilizer vat across selected fertigation sets. Water-only sets are excluded. Product is allocated by hectares, not by irrigation hours.</div></div>
-  </div>
-  <div class="vatGrid">
-    <div><label>Farm</label><select id="vatFarm"></select></div>
-    <div><label>Mixed product</label><select id="vatProduct"></select></div>
-    <div><label>Injection point</label><select id="vatInjector"></select></div>
-    <div><label>Vat name</label><input id="vatBatchName" value="Calcium Vat 1500L" placeholder="Example: Jacks Calcium Vat"></div>
-    <div><label>Target product rate (kg/ha)</label><input id="vatRate" type="number" min="0" step="0.1" value="25"></div>
-    <div><label>Prepared vat volume (L)</label><input id="vatVolume" type="number" min="1" step="1" value="1500"></div>
-    <div><label>First Preflow (minutes)</label><input id="vatPreflow" type="number" min="0" step="1" value="0"></div>
-  </div>
-  <div style="margin-top:12px"><label>Planned jobs using this vat</label><div id="vatJobs" class="vatJobs"></div></div>
-  <div id="vatSummary" class="vatCalc"></div>
-  <div class="btns" style="margin-top:12px"><button id="applyVatBatch" type="button">Apply Vat to Selected Jobs</button></div>
-  <div class="muted" style="margin-top:8px">This builder applies one prepared mixed vat across selected fertigation jobs. Product is allocated by hectares and the final selected job includes the configured fresh-water vat rinse.</div>
-</div>
 <div class="card"><h2>Injection Product / Vat Summary</h2><div id="fertSummary" class="fertSummary"></div></div><div class="card fieldInstructionsCard"><div class="fieldInstructionsHead"><div><h2>Field Staff Fertilizer Instructions</h2><p class="muted">Simple product quantities for mixing and pump-site preparation. Copy and paste into a text message.</p></div><button id="copyFieldInstructions" class="primary">Copy Fertilizer Instructions</button></div><pre id="fieldInstructionsText" class="fieldInstructionsText"></pre></div><div class="card"><h2>AquaLink Programming View</h2><p class="muted">Copy each job into AquaLink. Injectors are shown in the sequence selected for that job, with the final whole-minute Runtime and Preflow values.</p><div class="btns"><button id="copyProgram" class="secondary">Copy Programming Summary</button><button id="viewProgramTime" class="primary">View by Time</button><button id="viewProgramFarm" class="secondary">View by Farm</button></div><div id="programBody"></div></div><div class="card"><h2>Planned Jobs</h2><div id="planCards" class="planCards"></div></div></section>
 
 <section id="new" class="page">
