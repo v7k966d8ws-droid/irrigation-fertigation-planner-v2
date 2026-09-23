@@ -1153,3 +1153,25 @@
 #new .outlet.vatUnavailable{opacity:.55;background:#f1f3f1!important;border-style:dashed!important;cursor:not-allowed}
 #new .outlet.vatUnavailable input{cursor:not-allowed}
 #new .vatChoiceReason{display:block!important;color:#7a5b31!important;font-size:9px!important;line-height:1.05!important;margin-top:3px!important;font-weight:800!important}
+
+/* Glitch Fix 6 — AquaLink-entry layout, modelled on the real Injector screen. */
+#programBody .aquaLinkEntry{padding:0;margin:7px 0 10px;border-radius:8px;overflow:hidden;background:#fff}
+#programBody .aquaJobTitle{display:flex;align-items:baseline;gap:10px;padding:8px 10px 4px;background:#fff}
+#programBody .aquaJobTitle strong{font-size:17px;color:#1f2d25}
+#programBody .aquaJobTitle span{font-size:12px;color:var(--muted)}
+#programBody .aquaJobStrip{display:flex;align-items:center;flex-wrap:wrap;gap:5px 18px;padding:2px 10px 7px;border-bottom:1px solid var(--line);font-size:12px;line-height:1.25;color:#38473e}
+#programBody .aquaJobStrip span{white-space:nowrap}
+#programBody .aquaJobStrip .aquaPump{white-space:normal}
+#programBody .aquaJobStrip b{color:#1f2d25;margin-right:3px}
+#programBody .aquaCompactTable{margin:0}
+#programBody .aquaCompactLabels,#programBody .aquaCompactRow{grid-template-columns:minmax(250px,1.55fr) 105px 105px minmax(220px,1fr);column-gap:12px}
+#programBody .aquaCompactLabels{padding:6px 10px 5px;background:#f2f5f2;font-size:12px}
+#programBody .aquaCompactRow{padding:6px 10px;font-size:14px;min-height:31px;align-items:center}
+#programBody .aquaCompactNumber{font-size:18px;line-height:1.05}
+#programBody .aquaCompactProduct{font-size:13px}
+#programBody .aquaCompactInjector{gap:6px}
+#programBody .vatRinseTag{font-size:10px}
+@media(max-width:760px){
+ #programBody .aquaJobStrip{gap:4px 10px}
+ #programBody .aquaCompactLabels,#programBody .aquaCompactRow{grid-template-columns:minmax(145px,1.35fr) 68px 68px minmax(125px,1fr);column-gap:8px;padding-left:7px;padding-right:7px}
+}
