@@ -475,6 +475,23 @@ function loadPlanToForm(p,isEdit){
  const fb=Number(p.fertigationFinishBefore)||selectedOutletTravelMinutes();if($("fertFinishBefore")){if([30,45,60].includes(fb))$("fertFinishBefore").value=String(fb);else{$("fertFinishBefore").value="custom";if($("fertFinishCustom"))$("fertFinishCustom").value=fb;$("fertFinishCustomWrap")?.classList.remove("hidden")}}
  timeManuallyAdjusted=true;renderInlineVatMix();syncShiftMode();recalc();showPage("new")
 }
+function completePlan(id){
+ const idx=state.plans.findIndex(x=>x.id===id);if(idx<0){alert("That planned job could not be found.");return}
+ const p=state.plans[idx];
+ if(!confirm(`Mark Job ${Number(p.programSequence)||"?"} · ${p.farm} — ${(p.outlets||[]).join(", ")} as complete?\n\nThis will update Last Irrigated and add the job to History.`))return;
+ const completed={...p,completed:new Date().toISOString()};
+ state.records.unshift(completed);
+ (p.outlets||[]).forEach(o=>{const k=p.farm+"|"+o;if(!state.rotation[k])state.rotation[k]={status:"active",cycle:3,last:null};state.rotation[k].last=p.date});
+ const warnings=typeof applyCompletedBatchUsage==="function"?applyCompletedBatchUsage(completed):[];
+ state.plans.splice(idx,1);sortPlans();save();renderPlan();history();dashboard();setup();
+ if(warnings&&warnings.length)alert(`Job marked complete.\n\nBatch tracking warning:\n${warnings.join("\n")}`);
+}
+function deletePlan(id){
+ const idx=state.plans.findIndex(x=>x.id===id);if(idx<0){alert("That planned job could not be found.");return}
+ const p=state.plans[idx];
+ if(!confirm(`Remove Job ${Number(p.programSequence)||"?"} · ${p.farm} — ${(p.outlets||[]).join(", ")} from Tonight's Plan?\n\nThis will NOT mark the job complete or add it to History.`))return;
+ state.plans.splice(idx,1);sortPlans();save();renderPlan();dashboard();
+}
 function editPlan(id){const p=state.plans.find(x=>x.id===id);if(p)loadPlanToForm(p,true)}
 function duplicatePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;loadPlanToForm(p,false);editingPlanId=null;timeManuallyAdjusted=false;applySuggestedStart();alert("Copy loaded. Adjust the job details, then save it as a new job.")}
 
