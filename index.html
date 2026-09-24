@@ -6,13 +6,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#244B35">
 <title>Irrigation & Fertigation Planner</title>
-<link rel="stylesheet" href="styles.css?v=build11">
+<link rel="stylesheet" href="styles.css?v=build12">
 
 </head>
 <body>
 <div class="app">
 <section class="hero"><div class="heroBrand"><div class="brandLogoSlot" aria-label="DD Produce branding"><span>DD Produce</span></div><div class="heroCopy"><h1>Irrigation & Fertigation Planner</h1><p>Plan irrigation and fertigation, calculate whole-minute injector runtimes and linked preflows, prepare mixed fertilizer vats, then enter the program into AquaLink.</p></div></div><div class="status"><span id="network" class="pill on">● Online</span><span class="pill local">Plans and records save locally first</span></div></section>
-<nav class="tabs"><button class="active" data-page="dashboard">Dashboard</button><button data-page="tonight">Tonight's Plan</button><button data-page="new">New Plan</button><button data-page="history">History</button><button data-page="setup">Setup</button></nav>
+<nav class="tabs"><button class="active" data-page="dashboard">Dashboard</button><button data-page="tonight">Tonight's Program</button><button data-page="new">Plan Irrigation</button><button data-page="history">History</button><button data-page="setup">Setup</button></nav>
 
 <section id="dashboard" class="page active"><div class="card"><h2>Irrigation Rotation</h2><div id="stats" class="stats"></div></div><div class="card"><h2>Outlet Status</h2><div class="muted" style="margin-bottom:10px">Only completed irrigations update the rotation. Planned jobs do not change last-irrigated dates.</div><div class="statusFilterBar"><div class="statusFilters" id="statusFilters"><button data-filter="all" class="active">All</button><button data-filter="due">Due</button><button data-filter="overdue">Overdue</button><button data-filter="last">Last Irrigation</button><button data-filter="none">No History</button></div><div class="farmFilter"><label for="statusFarmFilter">Farm</label><select id="statusFarmFilter"><option value="all">All Farms</option></select></div></div><div class="compactWrap"><table class="compactTable"><thead id="statusHead"><tr><th>Farm</th><th>Outlet</th><th>Ha</th><th>Last Irrigated</th><th>Next Due</th><th>Days</th><th>Status</th></tr></thead><tbody id="statusBody"></tbody></table></div></div></section>
 
@@ -29,7 +29,7 @@
   <div class="programTop">
     <div>
       <div class="programTitle">Night Irrigation & Fertigation Program <span class="testBadge">TEST</span></div>
-      <div class="programMeta" id="programStatusText">Build the irrigation and fertigation jobs first, then save the whole program to Tonight's Plan.</div>
+      <div class="programMeta" id="programStatusText">Build the irrigation and fertigation jobs first, then save the whole program to Tonight's Program.</div>
     </div>
     <span class="programPill" id="programStepPill">No active program</span>
   </div>
@@ -134,10 +134,10 @@
   [kids[9],kids[11],kids[12],kids[14],kids[15]].forEach(x=>{if(x){x.classList.add('compactHiddenMeta');grid.appendChild(x)}});
 })();
 </script>
-<script src="app-core.js?v=build11"></script>
-<script src="planning.js?v=build11"></script>
-<script src="app-ui.js?v=build11"></script>
-<script src="app-init.js?v=build11"></script>
+<script src="app-core.js?v=build12"></script>
+<script src="planning.js?v=build12"></script>
+<script src="app-ui.js?v=build12"></script>
+<script src="app-init.js?v=build12"></script>
 
 <!-- UI Branding Polish — Pass 1 -->
 </body>

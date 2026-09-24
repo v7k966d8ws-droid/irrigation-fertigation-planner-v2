@@ -285,10 +285,10 @@ function renderProgramList(){
 }
 function renderProgramBanner(){
  const a=activeProgram(),banner=$("programBanner"),txt=$("programStatusText"),pill=$("programStepPill"),name=$("programName");if(!banner||!txt||!pill||!name)return;
- if(!a){banner.classList.remove("active");pill.textContent="No active program";txt.textContent="Build the irrigation and fertigation jobs first, then save the whole program to Tonight's Plan.";$("farm").disabled=false;if($("saveNightProgram")){$("saveNightProgram").disabled=true;$("saveNightProgram").textContent="Save Whole Night Program"}renderDraftShiftList();syncShiftMode();return}
+ if(!a){banner.classList.remove("active");pill.textContent="No active program";txt.textContent="Build the irrigation and fertigation jobs first, then save the whole program to Tonight's Program.";$("farm").disabled=false;if($("saveNightProgram")){$("saveNightProgram").disabled=true;$("saveNightProgram").textContent="Save Whole Night Program"}renderDraftShiftList();syncShiftMode();return}
  banner.classList.add("active");name.value=a.name;$("farm").disabled=true;if($("saveNightProgram")){$("saveNightProgram").disabled=draftShifts().length===0;$("saveNightProgram").textContent="Finish & Save Whole Program"}
  const jobs=draftShifts();pill.textContent=`Next: Job ${jobs.length+1}`;
- txt.innerHTML=`<strong>${esc(a.name)}</strong> · ${esc(a.farm)} · night of ${esc(a.nightDate)} · ${jobs.length} draft job${jobs.length===1?"":"s"} · <strong>not saved to Tonight's Plan yet</strong>`;renderDraftShiftList();syncShiftMode()
+ txt.innerHTML=`<strong>${esc(a.name)}</strong> · ${esc(a.farm)} · night of ${esc(a.nightDate)} · ${jobs.length} draft job${jobs.length===1?"":"s"} · <strong>not saved to Tonight's Program yet</strong>`;renderDraftShiftList();syncShiftMode()
 }
 function startIrrigationProgram(){
  const existing=activeProgram();if(existing&&!confirm(`A program is already being built: ${existing.name}. Discard its unsaved draft jobs and start again?`))return;
@@ -296,13 +296,13 @@ function startIrrigationProgram(){
  // A genuinely new program must never inherit a prepared vat from an earlier or abandoned program.
  if(state.activeVatMix&&state.activeVatMix[farm])delete state.activeVatMix[farm];
  state.activeProgram={id:uid(),name,farm,nightDate,draftShifts:[],created:new Date().toISOString()};editingDraftShiftIndex=-1;save();prepareNextShiftForm();renderProgramBanner();
- alert(`${name} started.\n\nBuild Job 1, then tap Add Job to Program. Nothing is added to Tonight's Plan until you finish and save the whole program.`)
+ alert(`${name} started.\n\nBuild Job 1, then tap Add Job to Program. Nothing is added to Tonight's Program until you finish and save the whole program.`)
 }
 function cancelIrrigationProgram(){
  const a=activeProgram();
  if(!a){alert("There is no unsaved Night Program to cancel.");return}
  const count=draftShifts().length;
- if(!confirm(`Cancel ${a.name}?\n\n${count?`${count} unsaved draft job${count===1?"":"s"} will be discarded.`:"The current unsaved program will be discarded."}\nSaved Tonight's Plans and History will not be changed.`))return;
+ if(!confirm(`Cancel ${a.name}?\n\n${count?`${count} unsaved draft job${count===1?"":"s"} will be discarded.`:"The current unsaved program will be discarded."}\nSaved Tonight's Programs and History will not be changed.`))return;
  if(state.activeVatMix&&state.activeVatMix[a.farm])delete state.activeVatMix[a.farm];
  state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;save();resetNewForm();renderProgramBanner();
  alert("Unsaved Night Program cancelled.")
@@ -376,12 +376,12 @@ function saveNightProgram(){
  const coverage=preparedVatCoverage();
  if(coverage.vat&&coverage.missing.length){alert(`The prepared vat cannot be finished yet.\n\n${coverage.vat.batchName} was prepared for: ${coverage.vat.outlets.join(", ")}\nStill not allocated to a fertigation job: ${coverage.missing.join(", ")}\n\nAdd those outlet(s) to the fertigation program so the planned vat balance finishes at 0 L.`);return}
  applyFinalVatRinseToDraftJobs();
- if(!confirm(`Save ${a.name} to Tonight's Plan?\n\n${jobs.length} job${jobs.length===1?"":"s"} will be saved together.`))return;
+ if(!confirm(`Save ${a.name} to Tonight's Program?\n\n${jobs.length} job${jobs.length===1?"":"s"} will be saved together.`))return;
  jobs.forEach((s,i)=>state.plans.push({...s,id:uid(),programId:a.id,programName:a.name,programSequence:i+1,created:new Date().toISOString()}));
  const fert=[...jobs].reverse().find(s=>s.phaseMode==="fertigation"&&hasProductInjection(s.injectors));if(fert){const mem=copyInjectionSetup(fert.injectors);mem.forEach(x=>{if(x&&x.type==="product"&&x.batchName&&(x.batchMode==="new"||x.batchMode==="continue")){x.batchMode="continue";x.batchStartAmount=0}});state.fertigationMemory[a.farm]=mem}
  const date=a.nightDate;
  if(state.activeVatMix&&state.activeVatMix[a.farm])delete state.activeVatMix[a.farm];
- state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;sortPlans();save();$("planViewDate").value=date;resetNewForm();renderProgramBanner();renderPlan();showPage("tonight");alert(`${a.name} saved to Tonight's Plan with ${jobs.length} jobs.`)
+ state.activeProgram=null;editingDraftShiftIndex=-1;$("farm").disabled=false;sortPlans();save();$("planViewDate").value=date;resetNewForm();renderProgramBanner();renderPlan();showPage("tonight");alert(`${a.name} saved to Tonight's Program with ${jobs.length} jobs.`)
 }
 function prepareNextShiftForm(){
  const a=activeProgram();if(!a)return;const jobs=draftShifts(),last=jobs[jobs.length-1];
@@ -489,7 +489,7 @@ function completePlan(id){
 function deletePlan(id){
  const idx=state.plans.findIndex(x=>x.id===id);if(idx<0){alert("That planned job could not be found.");return}
  const p=state.plans[idx];
- if(!confirm(`Remove Job ${Number(p.programSequence)||"?"} · ${p.farm} — ${(p.outlets||[]).join(", ")} from Tonight's Plan?\n\nThis will NOT mark the job complete or add it to History.`))return;
+ if(!confirm(`Remove Job ${Number(p.programSequence)||"?"} · ${p.farm} — ${(p.outlets||[]).join(", ")} from Tonight's Program?\n\nThis will NOT mark the job complete or add it to History.`))return;
  state.plans.splice(idx,1);sortPlans();save();renderPlan();dashboard();
 }
 function editPlan(id){const p=state.plans.find(x=>x.id===id);if(p)loadPlanToForm(p,true)}
@@ -566,7 +566,7 @@ function renderVatBuilder(){
  const farmSel=$("vatFarm"),prodSel=$("vatProduct"),injSel=$("vatInjector"),jobsBox=$("vatJobs"),summary=$("vatSummary");if(!farmSel||!prodSel||!injSel||!jobsBox||!summary)return;
  const date=$("planViewDate").value||today(),nightPlans=plansForDate(date),currentFarm=farmSel.value;
  const farms=[...new Set(nightPlans.map(p=>p.farm))];
- if(!farms.length){farmSel.innerHTML='<option value="">No planned farms</option>';prodSel.innerHTML='<option value="">No products</option>';injSel.innerHTML='<option value="">No injector</option>';jobsBox.innerHTML='<div class="empty" style="grid-column:1/-1">Add irrigation jobs to Tonight’s Plan first, then build the shared vat.</div>';summary.innerHTML='<div class="muted">No planned jobs available for this night.</div>';return}
+ if(!farms.length){farmSel.innerHTML='<option value="">No planned farms</option>';prodSel.innerHTML='<option value="">No products</option>';injSel.innerHTML='<option value="">No injector</option>';jobsBox.innerHTML='<div class="empty" style="grid-column:1/-1">Add irrigation jobs to Tonight’s Program first, then build the shared vat.</div>';summary.innerHTML='<div class="muted">No planned jobs available for this night.</div>';return}
  farmSel.innerHTML=farms.map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join("");
  if(currentFarm&&farms.includes(currentFarm))farmSel.value=currentFarm;
  const products=vatMixedProducts(),currentProduct=prodSel.value;
@@ -601,7 +601,7 @@ function applyVatBatchToPlans(){
  if(!(d.volume>0)){alert("Enter the prepared vat volume in litres.");return}
  if(!batchName){alert("Enter a vat / batch name.");return}
  if(!(d.flow>0)){alert(`Enter the flow rate for ${d.cfg.name||"this injector"} in Setup before building the vat.`);return}
- if(!confirm(`Build ${batchName} across ${d.plans.length} planned job${d.plans.length===1?"":"s"}?\n\nMix ${d.totalKg.toFixed(2)} kg of ${product} into ${d.volume.toFixed(1)} L prepared solution.\n\nThis will update the selected jobs on Tonight's Plan.`))return;
+ if(!confirm(`Build ${batchName} across ${d.plans.length} planned job${d.plans.length===1?"":"s"}?\n\nMix ${d.totalKg.toFixed(2)} kg of ${product} into ${d.volume.toFixed(1)} L prepared solution.\n\nThis will update the selected jobs on Tonight's Program.`))return;
  d.rows.forEach((r,rowIndex)=>{
    const p=state.plans.find(x=>x.id===r.p.id);if(!p)return;
    migratePlan(p);

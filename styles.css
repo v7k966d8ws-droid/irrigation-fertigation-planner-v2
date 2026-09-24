@@ -564,7 +564,7 @@
   .compactTimePicker .timeHint{font-size:9px}
 }
 
-/* UI Build 2 — responsive New Plan layout only. Calculation logic unchanged. */
+/* UI Build 2 — responsive Plan Irrigation layout only. Calculation logic unchanged. */
 /* iPad portrait / medium widths: dates share one row, farm stays full width. */
 @media (min-width: 601px) and (max-width: 900px){
   .jobBasicsGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;align-items:end}
