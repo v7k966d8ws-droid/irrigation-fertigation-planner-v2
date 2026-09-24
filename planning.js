@@ -21,7 +21,7 @@ function preparedVatSeedInjectors(farm){
  if(!v)return items;
  const idx=Math.max(0,Math.min(3,Number(v.injectorIndex)||0));
  while(items.length<4)items.push({type:"unused",sequenceOrder:items.length});
- items[idx]={...(items[idx]||{}),type:"product",name:v.product,rate:Number(v.rate)||0,unit:"kg/ha",qty:0,solutionVolume:0,preflow:0,preflowManual:false,runtime:0,calculatedRuntime:0,runtimeManual:false,batchMode:"continue",batchName:v.batchName||"",batchStartAmount:0,vatBuilder:true,outletAllocations:[],productRuntime:0,vatRinseTime:0};
+ items[idx]={...(items[idx]||{}),type:"product",name:v.product,rate:Number(v.rate)||0,unit:v.unit||productMetaFor(v.product).unit,qty:0,solutionVolume:0,preflow:0,preflowManual:false,runtime:0,calculatedRuntime:0,runtimeManual:false,batchMode:"continue",batchName:v.batchName||"",batchStartAmount:0,vatBuilder:true,outletAllocations:[],productRuntime:0,vatRinseTime:0};
  return items
 }
 function vatRequired(){return $("vatRequired")?.value==="yes"}
@@ -54,7 +54,7 @@ function syncPreparedVatStatus(){
  const still=prepared.filter(o=>!used.has(o));
  const stillMarkup=still.map(o=>`<span class="vatStillOutlet${chosenNow.has(o)?" selectedNow":""}">${esc(o)}</span>`).join(`<span class="vatStillSep">, </span>`);
  const done=remainingL<0.05;
- box.innerHTML=`<div class="vatStatusDashboard"><div class="vatStatusDetails"><div class="vatStatusTitle"><strong>${esc(v.batchName)}${done?" — COMPLETE":""}</strong></div><div class="vatStatusLine">${esc(v.product)} · ${Number(v.volume||0).toLocaleString("en-AU")} L · ${Number(v.rate)} kg/ha · ${Number(v.totalKg).toFixed(1)} kg allocated${Number(v.actualMixedKg)>Number(v.totalKg)?` · ${Number(v.actualMixedKg).toFixed(1)} kg mixed`:""} · ${esc(state.injectorConfig?.[farm]?.[Number(v.injectorIndex)||0]?.name||`Injector ${(Number(v.injectorIndex)||0)+1}`)}</div><div class="vatStatusLine"><span class="vatLabel">Prepared for:</span> <strong>${prepared.map(esc).join(", ")}</strong></div>${fertigated.length?`<div class="vatStatusLine vatDone"><span class="vatLabel">✓ Fertigated:</span> <strong>${fertigated.map(esc).join(", ")}</strong></div>`:""}<button type="button" id="toggleVatPrepareDetails" class="vatDetailsToggle secondary">${vatPrepareExpanded?"Hide vat details":"Show / edit vat details"}</button></div><div class="vatStillHero ${done?"complete":""}"><span>${done?"VAT COMPLETE":"STILL TO FERTIGATE"}</span><strong>${done?"✓":stillMarkup}</strong></div><div class="vatRemainingHero"><strong>${Number(remainingL.toFixed(1)).toLocaleString("en-AU")} L</strong><span>remaining</span></div></div>`;
+ box.innerHTML=`<div class="vatStatusDashboard"><div class="vatStatusDetails"><div class="vatStatusTitle"><strong>${esc(v.batchName)}${done?" — COMPLETE":""}</strong></div><div class="vatStatusLine">${esc(v.product)} · ${Number(v.volume||0).toLocaleString("en-AU")} L · ${Number(v.rate)} ${esc(v.unit||productMetaFor(v.product).unit)} · ${Number(v.totalAmount??v.totalKg).toFixed(1)} ${(v.unit||productMetaFor(v.product).unit)==="L/ha"?"L":"kg"} allocated${(v.unit||productMetaFor(v.product).unit)==="kg/ha"&&Number(v.actualMixedKg)>Number(v.totalKg)?` · ${Number(v.actualMixedKg).toFixed(1)} kg mixed`:""} · ${esc(state.injectorConfig?.[farm]?.[Number(v.injectorIndex)||0]?.name||`Injector ${(Number(v.injectorIndex)||0)+1}`)}</div><div class="vatStatusLine"><span class="vatLabel">Prepared for:</span> <strong>${prepared.map(esc).join(", ")}</strong></div>${fertigated.length?`<div class="vatStatusLine vatDone"><span class="vatLabel">✓ Fertigated:</span> <strong>${fertigated.map(esc).join(", ")}</strong></div>`:""}<button type="button" id="toggleVatPrepareDetails" class="vatDetailsToggle secondary">${vatPrepareExpanded?"Hide vat details":"Show / edit vat details"}</button></div><div class="vatStillHero ${done?"complete":""}"><span>${done?"VAT COMPLETE":"STILL TO FERTIGATE"}</span><strong>${done?"✓":stillMarkup}</strong></div><div class="vatRemainingHero"><strong>${Number(remainingL.toFixed(1)).toLocaleString("en-AU")} L</strong><span>remaining</span></div></div>`;
 }
 
 function syncPreparedVatOutletChoices(){
@@ -99,14 +99,14 @@ function prepareVatMix(){
  if(!product||!d.outs.length||!(d.rate>0)||!(d.volume>0)){alert("Choose the mixed product, every outlet this vat is being prepared for, the rate per hectare and the prepared vat volume.");return}
  if(!activeProgram()){const farm=d.farm,nightDate=$("nightDate").value||today(),name=$("programName").value.trim()||defaultProgramName(farm,nightDate);state.activeProgram={id:uid(),name,farm,nightDate,draftShifts:[],created:new Date().toISOString()};editingDraftShiftIndex=-1;save();renderProgramBanner()}
  if(!batch){alert("Enter a vat name.");return}
- const alloc=d.outs.map(o=>{const ha=Number(FARMS[d.farm]?.[o])||0;return{outlet:o,ha,productKg:Number((ha*d.rate).toFixed(4)),solutionL:Number((d.totalArea>0?d.volume*ha/d.totalArea:0).toFixed(4)),rateKgHa:d.rate}}),mix=bagMixInfo(product,d.totalKg);
- state.activeVatMix[d.farm]={id:uid(),farm:d.farm,product,rate:d.rate,volume:d.volume,batchName:batch,injectorIndex:idx,outlets:[...d.outs],totalArea:d.totalArea,totalKg:d.totalKg,actualMixedKg:mix.actualKg,bagSize:mix.bagSize,bagCount:mix.bags,bagRoundingKg:mix.roundingKg,allocations:alloc,preparedAt:new Date().toISOString(),oneSessionVat:true};
+ const unit=productMetaFor(product).unit,alloc=d.outs.map(o=>{const ha=Number(FARMS[d.farm]?.[o])||0,amount=Number((ha*d.rate).toFixed(4));return{outlet:o,ha,productAmount:amount,productKg:unit==="kg/ha"?amount:0,productL:unit==="L/ha"?amount:0,solutionL:Number((d.totalArea>0?d.volume*ha/d.totalArea:0).toFixed(4)),rateUnit:unit,rateKgHa:unit==="kg/ha"?d.rate:0}}),mix=unit==="kg/ha"?bagMixInfo(product,d.totalAmount):{bagSize:0,bags:0,actualKg:d.totalAmount,roundingKg:0};
+ state.activeVatMix[d.farm]={id:uid(),farm:d.farm,product,rate:d.rate,volume:d.volume,batchName:batch,injectorIndex:idx,outlets:[...d.outs],totalArea:d.totalArea,totalKg:d.totalAmount,totalAmount:d.totalAmount,unit,actualMixedKg:unit==="kg/ha"?mix.actualKg:0,bagSize:mix.bagSize,bagCount:mix.bags,bagRoundingKg:mix.roundingKg,allocations:alloc,preparedAt:new Date().toISOString(),oneSessionVat:true};
  rememberVatRate(d.farm,product,d.rate,d.volume,idx);
  save();
  vatPrepareExpanded=false;
  syncVatRequirementUI();
  applyPreparedVatToCurrentJob(true);
- alert(`Vat prepared in V2.\n\n${batch}\n${d.totalArea.toFixed(2)} ha\n${d.totalKg.toFixed(1)} kg calculated requirement${mix.bagSize>0?`\n${mix.bags} × ${mix.bagSize.toFixed(1)} kg bags = ${mix.actualKg.toFixed(1)} kg actually mixed`:""}\n${d.volume.toFixed(0)} L prepared solution\n\nNow build the fertigation jobs normally. V2 will allocate this vat automatically by hectares and expects 0 L remaining after all selected outlets are completed.`);
+ alert(`Vat prepared in V2.\n\n${batch}\n${d.totalArea.toFixed(2)} ha\n${d.totalAmount.toFixed(1)} ${unit==="L/ha"?"L":"kg"} calculated requirement${mix.bagSize>0?`\n${mix.bags} × ${mix.bagSize.toFixed(1)} kg bags = ${mix.actualKg.toFixed(1)} kg actually mixed`:""}\n${d.volume.toFixed(0)} L prepared solution\n\nNow build the fertigation jobs normally. V2 will allocate this vat automatically by hectares and expects 0 L remaining after all selected outlets are completed.`);
 }
 function applyPreparedVatToCurrentJob(silent=true){
  // While editing an existing job, respect the saved/manual injector choices.
@@ -157,7 +157,7 @@ function applyPreparedVatToCurrentJob(silent=true){
  const prior=earlierVatUse>0;
  const jobAlloc=(v.allocations||[]).filter(a=>current.includes(a.outlet));
  card.dataset.vatBuilder="1";card.dataset.vatAllocations=JSON.stringify(jobAlloc);
- card.querySelector(".itype").value="product";card.querySelector(".iname").value=v.product;card.querySelector(".irate").value=v.rate;card.querySelector(".iunit").value="kg/ha";
+ card.querySelector(".itype").value="product";card.querySelector(".iname").value=v.product;card.querySelector(".irate").value=v.rate;card.querySelector(".iunit").value=v.unit||productMetaFor(v.product).unit;
  card.querySelector(".ibatch").value=v.batchName;card.querySelector(".isolution").value=Number(solution.toFixed(1));card.querySelector(".ibatchmode").value=prior?"continue":"new";card.querySelector(".ibatchstart").value=prior?0:v.volume;
  const modeWrap=card.querySelector(".ibatchmode")?.parentElement;if(modeWrap)modeWrap.style.display="none";
  const startWrap=card.querySelector(".batchStartField");if(startWrap)startWrap.style.display="none";
@@ -495,10 +495,10 @@ function deletePlan(id){
 function editPlan(id){const p=state.plans.find(x=>x.id===id);if(p)loadPlanToForm(p,true)}
 function duplicatePlan(id){const p=state.plans.find(x=>x.id===id);if(!p)return;loadPlanToForm(p,false);editingPlanId=null;timeManuallyAdjusted=false;applySuggestedStart();alert("Copy loaded. Adjust the job details, then save it as a new job.")}
 
-function inlineMixedProducts(){return state.fertilizers.filter(n=>{const m=productMetaFor(n);return m.method==="mixed"&&m.unit==="kg/ha"}).sort((a,b)=>a.localeCompare(b))}
+function inlineMixedProducts(){return state.fertilizers.filter(n=>productMetaFor(n).method==="mixed").sort((a,b)=>a.localeCompare(b))}
 function renderInlineVatMix(){
  const product=$("mixProduct"),injector=$("mixInjector"),box=$("mixOutlets"),batch=$("mixBatchName");if(!product||!injector||!box||!batch)return;
- const oldProduct=product.value,products=inlineMixedProducts();product.innerHTML=products.length?products.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(""):'<option value="">No mixed kg/ha products</option>';
+ const oldProduct=product.value,products=inlineMixedProducts();product.innerHTML=products.length?products.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(""):'<option value="">No prepared-vat products</option>';
  if(products.includes(oldProduct))product.value=oldProduct;else if(products.includes("Calcium Nitrate"))product.value="Calcium Nitrate";
  const active=preparedVatForFarm($("farm").value);
  if(active&&products.includes(active.product))product.value=active.product;
@@ -513,8 +513,8 @@ function renderInlineVatMix(){
 }
 function inlineVatSelectedOutlets(){return [...document.querySelectorAll("#mixOutlets input:checked")].map(x=>x.value)}
 function bagMixInfo(product,totalKg){const bagSize=Math.max(0,Number(productMetaFor(product).bagSize)||0),bags=bagSize>0&&totalKg>0?Math.ceil(totalKg/bagSize):0,actualKg=bags>0?bags*bagSize:totalKg;return{bagSize,bags,actualKg,roundingKg:Math.max(0,actualKg-totalKg)}}
-function inlineVatData(){const farm=$("farm").value,outs=inlineVatSelectedOutlets(),rate=Math.max(0,Number($("mixRate").value)||0),volume=Math.max(0,Number($("mixVolume").value)||0),totalArea=outs.reduce((s,o)=>s+(Number(FARMS[farm]?.[o])||0),0),totalKg=totalArea*rate,concentration=volume>0?totalKg/volume:0,current=selected().filter(o=>outs.includes(o)),currentArea=current.reduce((s,o)=>s+(Number(FARMS[farm]?.[o])||0),0),currentKg=currentArea*rate,currentSolution=totalArea>0?volume*(currentArea/totalArea):0;return{farm,outs,rate,volume,totalArea,totalKg,concentration,current,currentArea,currentKg,currentSolution}}
-function renderInlineVatSummary(){const b=$("mixSummary");if(!b)return;const d=inlineVatData();if(!d.outs.length){b.innerHTML='<div class="muted">Select the outlets that will receive fertilizer from this vat.</div>';return}const mix=bagMixInfo($("mixProduct").value,d.totalKg),alloc=d.outs.map(o=>{const ha=Number(FARMS[d.farm]?.[o])||0;return `${esc(o)}: ${(ha*d.rate).toFixed(1)} kg · ${(d.totalArea>0?d.volume*ha/d.totalArea:0).toFixed(1)} L`}).join("<br>");b.innerHTML=`<div class="vatCalcTop"><div class="vatMetric"><span>Selected area</span><strong>${d.totalArea.toFixed(2)} ha</strong></div><div class="vatMetric"><span>Calculated requirement</span><strong>${d.totalKg.toFixed(1)} kg</strong></div>${mix.bagSize>0?`<div class="vatMetric"><span>Whole bags to mix</span><strong>${mix.bags} × ${mix.bagSize.toLocaleString("en-AU",{maximumFractionDigits:1})} kg = ${mix.actualKg.toLocaleString("en-AU",{maximumFractionDigits:1})} kg</strong></div>`:""}<div class="vatMetric"><span>Prepared vat</span><strong>${d.volume.toFixed(0)} L</strong></div><div class="vatMetric"><span>Concentration</span><strong>${d.concentration.toFixed(4)} kg/L</strong></div></div><div class="vatAllocation" style="margin-top:8px">${alloc}</div>${`<div class="note blue" style="margin-top:8px"><strong>Whole vat plan:</strong> ${d.totalKg.toFixed(1)} kg is allocated across the selected outlets by hectares.${mix.bagSize>0?` Physically mix <strong>${mix.actualKg.toFixed(1)} kg</strong> (${mix.bags} whole ${mix.bagSize.toFixed(1)} kg bags; bag rounding +${mix.roundingKg.toFixed(1)} kg).`:""} Planned prepared-solution balance after all selected outlets: <strong>0 L</strong>. Float-switch rinse water is not included.</div>`}`}
+function inlineVatData(){const farm=$("farm").value,outs=inlineVatSelectedOutlets(),product=$("mixProduct")?.value||"",unit=productMetaFor(product).unit,rate=Math.max(0,Number($("mixRate").value)||0),volume=Math.max(0,Number($("mixVolume").value)||0),totalArea=outs.reduce((s,o)=>s+(Number(FARMS[farm]?.[o])||0),0),totalAmount=totalArea*rate,concentration=volume>0?totalAmount/volume:0,current=selected().filter(o=>outs.includes(o)),currentArea=current.reduce((s,o)=>s+(Number(FARMS[farm]?.[o])||0),0),currentAmount=currentArea*rate,currentSolution=totalArea>0?volume*(currentArea/totalArea):0;return{farm,outs,product,unit,rate,volume,totalArea,totalAmount,totalKg:totalAmount,concentration,current,currentArea,currentAmount,currentKg:currentAmount,currentSolution}}
+function renderInlineVatSummary(){const b=$("mixSummary");if(!b)return;const d=inlineVatData(),unit=d.unit==="L/ha"?"L":"kg",rateLabel=$("mixRateLabel");if(rateLabel)rateLabel.textContent=`Rate (${d.unit})`;if(!d.outs.length){b.innerHTML='<div class="muted">Select the outlets that will receive fertilizer from this vat.</div>';return}const mix=d.unit==="kg/ha"?bagMixInfo($("mixProduct").value,d.totalAmount):{bagSize:0,bags:0,actualKg:d.totalAmount,roundingKg:0},alloc=d.outs.map(o=>{const ha=Number(FARMS[d.farm]?.[o])||0;return `${esc(o)}: ${(ha*d.rate).toFixed(1)} ${unit} · ${(d.totalArea>0?d.volume*ha/d.totalArea:0).toFixed(1)} L prepared solution`}).join("<br>");b.innerHTML=`<div class="vatCalcTop"><div class="vatMetric"><span>Selected area</span><strong>${d.totalArea.toFixed(2)} ha</strong></div><div class="vatMetric"><span>Calculated requirement</span><strong>${d.totalAmount.toFixed(1)} ${unit}</strong></div>${mix.bagSize>0?`<div class="vatMetric"><span>Whole bags to mix</span><strong>${mix.bags} × ${mix.bagSize.toLocaleString("en-AU",{maximumFractionDigits:1})} kg = ${mix.actualKg.toLocaleString("en-AU",{maximumFractionDigits:1})} kg</strong></div>`:""}<div class="vatMetric"><span>Prepared vat</span><strong>${d.volume.toFixed(0)} L</strong></div><div class="vatMetric"><span>Concentration</span><strong>${d.concentration.toFixed(4)} ${unit}/L</strong></div></div><div class="vatAllocation" style="margin-top:8px">${alloc}</div><div class="note blue" style="margin-top:8px"><strong>Whole vat plan:</strong> ${d.totalAmount.toFixed(1)} ${unit} is allocated across the selected outlets by hectares.${mix.bagSize>0?` Physically mix <strong>${mix.actualKg.toFixed(1)} kg</strong> (${mix.bags} whole ${mix.bagSize.toFixed(1)} kg bags; bag rounding +${mix.roundingKg.toFixed(1)} kg).`:""} Planned prepared-solution balance after all selected outlets: <strong>0 L</strong>. Float-switch rinse water is not included.</div>`}
 function applyInlineVatToShift(){
  const d=inlineVatData(),product=$("mixProduct").value,batch=$("mixBatchName").value.trim(),idx=Number($("mixInjector").value);
  if(!product||!d.outs.length||!(d.rate>0)||!(d.volume>0)){alert("Choose the mixed product, fertilizer outlets, target rate and vat volume first.");return}
@@ -533,7 +533,7 @@ function applyInlineVatToShift(){
    }
  });
  card.dataset.vatBuilder="1";
- card.querySelector(".itype").value="product";card.querySelector(".iname").value=product;card.querySelector(".irate").value=d.rate;card.querySelector(".iunit").value="kg/ha";card.querySelector(".ibatch").value=batch;card.querySelector(".isolution").value=Number(d.currentSolution.toFixed(1));
+ card.querySelector(".itype").value="product";card.querySelector(".iname").value=product;card.querySelector(".irate").value=d.rate;card.querySelector(".iunit").value=d.unit;card.querySelector(".ibatch").value=batch;card.querySelector(".isolution").value=Number(d.currentSolution.toFixed(1));
  const prior=draftShifts().some(p=>(p.injectors||[]).some(x=>x&&x.type==="product"&&x.name===product&&x.batchName===batch));
  card.querySelector(".ibatchmode").value=prior?"continue":"new";card.querySelector(".ibatchstart").value=prior?0:d.volume;
  card.querySelector(".itype").dispatchEvent(new Event("change",{bubbles:true}));recalc();
@@ -545,9 +545,9 @@ function applyInlineVatToShift(){
  state.fertigationMemory[d.farm]=remembered;
  save();
 
- alert(`Applied this vat share to the current job.\n\n${d.current.join(", ")}\n${d.currentArea.toFixed(2)} ha\n${d.currentKg.toFixed(1)} kg target\n${d.currentSolution.toFixed(1)} L prepared solution`)
+ alert(`Applied this vat share to the current job.\n\n${d.current.join(", ")}\n${d.currentArea.toFixed(2)} ha\n${d.currentAmount.toFixed(1)} ${d.unit==="L/ha"?"L":"kg"} target\n${d.currentSolution.toFixed(1)} L prepared solution`)
 }
-function vatMixedProducts(){return state.fertilizers.filter(n=>{const m=productMetaFor(n);return m.method==="mixed"&&m.unit==="kg/ha"}).sort((a,b)=>a.localeCompare(b))}
+function vatMixedProducts(){return state.fertilizers.filter(n=>productMetaFor(n).method==="mixed").sort((a,b)=>a.localeCompare(b))}
 function vatSelectedPlanIds(){return [...document.querySelectorAll("#vatJobs input:checked")].map(x=>x.value)}
 function vatSelectedPlans(){const ids=new Set(vatSelectedPlanIds());return plansForDate($("planViewDate").value||today()).filter(p=>ids.has(p.id)).sort((a,b)=>dtValue(a.date,a.startTime)-dtValue(b.date,b.startTime))}
 function vatFarmPlans(){const date=$("planViewDate").value||today(),farm=$("vatFarm")?.value||"";return plansForDate(date).filter(p=>p.farm===farm)}
@@ -570,7 +570,7 @@ function renderVatBuilder(){
  farmSel.innerHTML=farms.map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join("");
  if(currentFarm&&farms.includes(currentFarm))farmSel.value=currentFarm;
  const products=vatMixedProducts(),currentProduct=prodSel.value;
- prodSel.innerHTML=products.length?products.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(""):'<option value="">No mixed kg/ha products in Setup</option>';
+ prodSel.innerHTML=products.length?products.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(""):'<option value="">No prepared-vat products in Setup</option>';
  if(products.includes("Calcium Nitrate"))prodSel.value="Calcium Nitrate";else if(currentProduct&&products.includes(currentProduct))prodSel.value=currentProduct;
  const cfg=state.injectorConfig[farmSel.value]||[],currentInjector=injSel.value;
  injSel.innerHTML=cfg.map((x,i)=>`<option value="${i}">${esc(x.name||`Injector ${i+1}`)} — ${Number(x.flow)||0} L/min</option>`).join("");

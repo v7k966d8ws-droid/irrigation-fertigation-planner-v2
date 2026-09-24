@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#244B35">
 <title>Irrigation & Fertigation Planner</title>
-<link rel="stylesheet" href="styles.css?v=compact-action-fix-10">
+<link rel="stylesheet" href="styles.css?v=build11">
 
 </head>
 <body>
@@ -59,7 +59,7 @@
   </div>
   <div id="preparedVatStatus" class="summary preparedVatCompact">No prepared vat selected.</div>
   <div id="vatPreparePanel" class="inlineVatMix hidden"><div class="inlineVatHead"><h3>Prepare Vat Mix</h3><div class="muted">Choose the product and every outlet this vat is being prepared for.</div></div>
-    <div class="vatPrepareGrid"><div><label>Mixed product</label><select id="mixProduct"></select></div><div><label>Rate (kg/ha)</label><input id="mixRate" type="number" min="0" step="0.1" value="40"></div><div><label>Vat volume (L)</label><input id="mixVolume" type="number" min="1" step="1" value="1500"></div><div><label>Vat name</label><input id="mixBatchName" placeholder="Example: Jacks Calcium Nitrate Vat"></div><div><label>Injector</label><select id="mixInjector"></select></div></div>
+    <div class="vatPrepareGrid"><div><label>Mixed product</label><select id="mixProduct"></select></div><div><label id="mixRateLabel">Rate (kg/ha)</label><input id="mixRate" type="number" min="0" step="0.1" value="40"></div><div><label>Vat volume (L)</label><input id="mixVolume" type="number" min="1" step="1" value="1500"></div><div><label>Vat name</label><input id="mixBatchName" placeholder="Example: Jacks Calcium Nitrate Vat"></div><div><label>Injector</label><select id="mixInjector"></select></div></div>
     <div class="vatOutletRow"><label>Outlets this vat is prepared for</label><div id="mixOutlets" class="mixOutlets"></div></div><div id="mixSummary" class="vatCalc"></div>
     <div class="btns"><button type="button" id="applyMixToShift" class="primary">Prepare This Vat</button></div>
   </div>
@@ -89,7 +89,7 @@
 <section id="history" class="page"><div class="card"><div class="historyHeader"><div><h2>Completed Irrigation History</h2></div><div class="farmFilter"><label for="historyFarmFilter">Farm</label><select id="historyFarmFilter"><option value="all">All Farms</option></select></div></div><div class="btns"><button id="exportCsv" class="secondary">Export Spreadsheet CSV</button><button id="clearHistory" class="danger">Clear History</button></div><div class="history"><table><thead><tr><th>Date</th><th>Start</th><th>Finish</th><th>Farm</th><th>Outlets</th><th>Ha</th><th>Set Runtime</th><th>Pump System</th><th>Required Pumps</th><th>Type</th><th>Injection 1</th><th>Injection 2</th><th>Injection 3</th><th>Injection 4</th><th>Notes</th></tr></thead><tbody id="historyBody"></tbody></table></div></div></section>
 
 <section id="setup" class="page">
-<div class="card"><h2>Injection Product Library</h2><p class="muted">Save how each product is applied. Direct-injection products are calculated by litres required, Runtime and Preflow; physical product stock is checked at the pump site. Mixed kg/ha products can also have a bag size so the prepared-vat mixing amount rounds up to whole bags.</p><div class="libraryAdd"><div><label>Product name</label><input id="newProduct" placeholder="Example: Cal 40"></div><div><label>Injection method</label><select id="newProductMethod"><option value="mixed">Mixed / Diluted in Water</option><option value="direct">Direct Injection</option></select></div><div><label>Preferred unit</label><select id="newProductUnit"><option value="kg/ha">kg/ha</option><option value="L/ha">L/ha</option></select></div><button id="addProduct" class="secondary">Add Product</button></div><div id="productList" class="libraryList"></div></div>
+<div class="card"><h2>Injection Product Library</h2><p class="muted">Save how each product is applied. Products marked Prepared vat mix automatically appear in the Prepare Vat Mix product list. The preferred unit can be kg/ha or L/ha. Bag size is optional for kg/ha products such as Calcium Nitrate.</p><div class="libraryAdd"><div><label>Product name</label><input id="newProduct" placeholder="Example: Cal 40"></div><div><label>Application method</label><select id="newProductMethod"><option value="mixed">Prepared vat mix</option><option value="direct">Direct injection</option></select></div><div><label>Preferred unit</label><select id="newProductUnit"><option value="kg/ha">kg/ha</option><option value="L/ha">L/ha</option></select></div><button id="addProduct" class="secondary">Add Product</button></div><div id="productList" class="libraryList"></div></div>
 <div class="card"><h2>Injector / Injection Point Setup</h2><p class="muted">Each site has four editable injection points. Keep the names that match AquaLink and enter the calibrated flow rate.</p><div id="injectorSetup"></div></div>
 <div class="card"><h2>Pump Setup</h2><p class="muted">Save the pumps available at each farm. Mark the pump that has the fertilizer injection equipment. Fertigation jobs will automatically use the available pump marked for fertigation.</p><div class="ruleAdd"><div><label>Farm</label><select id="pumpSetupFarm"></select></div><div><label>Pump name</label><input id="newPumpName" placeholder="Example: Jacks Shed Pump"></div><div><label><input id="newPumpFertigation" type="checkbox"> Has fertilizer injection equipment</label></div><button id="addPump" class="secondary">Add Pump</button></div><div id="pumpSetupList"></div></div>
 <div class="card"><h2>Pump Rules</h2><p class="muted">Save the pump combination used for an exact outlet group. The planner will show the matching pumps in the AquaLink Programming View. These rules remain editable.</p><div class="ruleAdd"><div><label>Farm</label><select id="ruleFarm"></select></div><div><label>Outlets</label><input id="ruleOutlets" placeholder="Example: 1, 2, 3, 4"></div><div><label>Required pumps</label><input id="rulePumps" placeholder="Comma-separated pump names"></div><button id="addPumpRule" class="secondary">Add Rule</button></div><div id="pumpRuleList"></div></div>
@@ -134,10 +134,10 @@
   [kids[9],kids[11],kids[12],kids[14],kids[15]].forEach(x=>{if(x){x.classList.add('compactHiddenMeta');grid.appendChild(x)}});
 })();
 </script>
-<script src="app-core.js?v=compact-action-fix-10"></script>
-<script src="planning.js?v=compact-action-fix-10"></script>
-<script src="app-ui.js?v=compact-action-fix-10"></script>
-<script src="app-init.js?v=compact-action-fix-10"></script>
+<script src="app-core.js?v=build11"></script>
+<script src="planning.js?v=build11"></script>
+<script src="app-ui.js?v=build11"></script>
+<script src="app-init.js?v=build11"></script>
 
 <!-- UI Branding Polish — Pass 1 -->
 </body>
