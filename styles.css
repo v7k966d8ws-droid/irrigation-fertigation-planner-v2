@@ -1278,3 +1278,47 @@
 #new .rapidFinishSaveMoved{margin:0!important;align-self:stretch}
 #new .rapidActionPair{display:flex;gap:8px;align-items:stretch;justify-content:flex-end;flex-wrap:wrap}
 @media(max-width:900px){#new .rapidActionPair{width:100%}}
+
+/* Rapid Planning — Build 3.1
+   Lock current-job outlet geometry in every state. A warning may wrap inside
+   its tile, but it must never change the row height or stretch neighbours. */
+#new .compactOutlets .outlets,
+#new .jobOutletSection .outlets{
+  align-items:start!important;
+  grid-auto-rows:72px!important;
+}
+#new .compactOutlets label.outlet,
+#new .jobOutletSection label.outlet,
+#new .jobOutletSection label.outlet:has(input:checked),
+#new .jobOutletSection label.outlet.vatUnavailable,
+#new .jobOutletSection label.outlet.vatChosenNow,
+#new .jobOutletSection label.outlet.selected,
+#new .jobOutletSection label.outlet.is-selected{
+  box-sizing:border-box!important;
+  height:72px!important;
+  min-height:72px!important;
+  max-height:72px!important;
+  padding:6px 8px!important;
+  margin:0!important;
+  transform:none!important;
+  align-self:start!important;
+  overflow:hidden!important;
+}
+#new .jobOutletSection label.outlet > span{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+#new .jobOutletSection .vatChoiceReason{
+  display:block!important;
+  margin-top:2px!important;
+  font-size:10px!important;
+  line-height:1.05!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+}
+#new .rapidFinishSaveMoved{margin:0!important;align-self:stretch}
+#new .rapidActionPair{display:flex;gap:8px;align-items:stretch;justify-content:flex-start;flex-wrap:wrap}
+@media(max-width:560px){
+  #new .rapidActionPair{flex-direction:column}
+  #new .rapidActionPair button{width:100%}
+}
