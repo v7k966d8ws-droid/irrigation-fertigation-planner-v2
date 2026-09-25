@@ -234,6 +234,36 @@ function syncShiftMode(){
  if($("savePlan"))$("savePlan").textContent=activeProgram()?(editingDraftShiftIndex>=0?"Update Job":"Add Job to Program"):(editingPlanId?"Save Changes":"Start Program & Add Job");
  if($("fertTimingResult")&&water)$("fertTimingResult").textContent=""
 }
+
+// Rapid Planning Build 1: shortcuts only. Existing calculation/save logic remains authoritative.
+function normalFertigationProducts(){return ["calcium nitrate","cal 40","optical ag"]}
+function isNormalFertigationSetup(items){
+ const names=(items||[]).filter(x=>x&&x.type==="product"&&x.name).map(x=>String(x.name).trim().toLowerCase());
+ return normalFertigationProducts().every(n=>names.includes(n));
+}
+function findNormalFertigationSetup(farm){
+ const candidates=[];
+ if(Array.isArray(state.fertigationMemory?.[farm]))candidates.push(state.fertigationMemory[farm]);
+ [...(state.records||[]),...(state.plans||[])].filter(p=>p&&p.farm===farm&&!p.irrigationOnly&&Array.isArray(p.injectors)).sort((a,b)=>memoryStamp(b)-memoryStamp(a)).forEach(p=>candidates.push(p.injectors));
+ const hit=candidates.find(isNormalFertigationSetup);
+ return hit?copyInjectionSetup(hit):null;
+}
+function setRapidStatus(text,kind=""){const el=$("rapidPlanningStatus");if(!el)return;el.textContent=text;el.className="rapidPlanningStatus"+(kind?` ${kind}`:"")}
+function setRapidChoiceActive(id){document.querySelectorAll(".rapidChoice").forEach(b=>b.classList.toggle("active",b.id===id))}
+function rapidWaterOnly(){
+ $("shiftMode").value="water";syncShiftMode();setRapidChoiceActive("rapidWater");setRapidStatus("Water Only selected — choose outlets, duration and start time.","ok");
+}
+function rapidNormalFertigation(){
+ const farm=$("farm").value,setup=findNormalFertigationSetup(farm);
+ $("shiftMode").value="fertigation";
+ irrigationOnly=false;draftInjectionBeforeIrrigationOnly=null;
+ if(setup){renderInjectors(setup);updateInjectionMode();recalc();syncVatRequirementUI();setTimeout(()=>applyPreparedVatToCurrentJob(true),0);setRapidChoiceActive("rapidNormalFert");setRapidStatus(`Normal Fertigation loaded for ${farm}: Calcium Nitrate + Cal 40 + Optical AG.`,"ok")}
+ else{syncShiftMode();setRapidChoiceActive("rapidNormalFert");setRapidStatus(`No saved normal three-product setup was found for ${farm}. Fertigation mode is open — set it once in Edit injection programming, then Rapid Planning can reuse it.`,"warn")}
+}
+function rapidCustom(){
+ $("shiftMode").value="fertigation";syncShiftMode();setRapidChoiceActive("rapidCustom");setRapidStatus("Custom fertigation selected — use Edit injection programming for products such as KS 32 or Valiant.");
+ const d=document.querySelector(".injectionEditDetails");if(d)d.open=true;
+}
 function useSavedPumpRule(){
  const pumps=requiredPumps();if(!pumps.length){alert("There is no exact saved pump rule for the currently selected outlet group.");return}
  $("shiftPumps").value=pumps.join(", ")
