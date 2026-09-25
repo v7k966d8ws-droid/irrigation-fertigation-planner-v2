@@ -1,9 +1,48 @@
 const FARMS={Strathdee:{"1":4.90,"2":4.80,"3":4.80,"4":4.80,"5":4.70,"6":4.70,"7":4.70,"8":4.70,"9T":2.80,"9B":4.61,"10B":4.65,"School 1":4.07,"School 2":3.73,"Gully 1":5.23},Rays:{"1":5.10,"2":5.10,"3":5.10,"4":5.10,"5":5.10,"6":5.10,"7":3.40,"8":3.40},Tavasci:{"1":4.50,"2":4.50,"3":4.50,"4":4.50,"5":4.50,"6":4.50,"7":4.50,"8":5.12,"9":1.70,"10":0.74},Zanetti:{"1":4.80,"2":4.80,"3":4.80,"4":4.80,"5":4.80,"6":6.15},Menso:{"1":4.14,"2":4.01,"3":3.82,"4":3.42,"5":2.95,"6":4.54,"7":4.14},"Norris Back":{"1":3.75,"2":4.50,"3":4.50,"4":4.50,"School 1":4.20,"School 2":4.20,"School 3":4.80,Gully:2.55},Jacks:{"1":4.30,"2":3.20,"3":4.60,"4":4.60,"5":2.80,"5A":1.50,"6":3.90,"7":4.60,"8":4.60,"9":4.60}};
-const KEY="irrigationFertigationPlannerV1",QKEY="quickRuntimePlannerSetupV1",$=x=>document.getElementById(x);let saved={};try{saved=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){};let qsetup={};try{qsetup=JSON.parse(localStorage.getItem(QKEY)||"{}")||{}}catch(e){};let chosen=new Set();let injectionOrder=[];
+const KEY="irrigationFertigationPlannerV1",QKEY="quickRuntimePlannerSetupV2",$=x=>document.getElementById(x);let saved={};try{saved=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){};let qsetup={};try{qsetup=JSON.parse(localStorage.getItem(QKEY)||"{}")||{}}catch(e){};let chosen=new Set();let injectionOrder=[];
+
+const EXCEL_PRESETS={
+  Jacks:[
+    {name:"Jacks Shed Fertigation 1",type:"vat",flow:10.7,product:"Calcium Nitrate",solution:1500,preflow:5,rinse:30},
+    {name:"Jacks Shed Fertigation 2",type:"direct",flow:10.8,product:"Cal 40",solution:140,preflow:5,rinse:0},
+    {name:"Jacks Shed Fertigation 3",type:"direct",flow:5.3,product:"Optical AG",solution:140,preflow:5,rinse:0},
+    {name:"Jacks Shed Flush",type:"flush",flow:0,product:"",solution:0,preflow:5,rinse:10}
+  ],
+  Tavasci:[
+    {name:"Tavasci Injector 1",type:"vat",flow:9.5,product:"Calcium Nitrate",solution:1500,preflow:5,rinse:30},
+    {name:"Tavasci Injector 2",type:"direct",flow:5.8,product:"",solution:220,preflow:5,rinse:0},
+    {name:"Tavasci Injector 3",type:"direct",flow:1,product:"",solution:300,preflow:5,rinse:0},
+    {name:"Tavasci Flush",type:"flush",flow:0,product:"",solution:0,preflow:5,rinse:10}
+  ],
+  Zanetti:[
+    {name:"Zanetti Injector 1",type:"vat",flow:15.6,product:"Calcium Nitrate",solution:1500,preflow:5,rinse:30},
+    {name:"Zanetti Injector 2",type:"direct",flow:4.6,product:"Optical AG",solution:220,preflow:5,rinse:0},
+    {name:"Zanetti Injector 3",type:"direct",flow:1,product:"",solution:400,preflow:5,rinse:0},
+    {name:"Zanetti Flush",type:"flush",flow:0,product:"",solution:0,preflow:5,rinse:10}
+  ],
+  Menso:[
+    {name:"Menso Agitator",type:"vat",flow:10.5,product:"Calcium Nitrate",solution:1500,preflow:5,rinse:45},
+    {name:"Menso Fertigation 1",type:"direct",flow:11,product:"Cal 40",solution:100,preflow:5,rinse:0},
+    {name:"Menso Fertigation 2",type:"direct",flow:3.7,product:"Optical AG",solution:100,preflow:5,rinse:0},
+    {name:"Menso Flush",type:"flush",flow:0,product:"",solution:0,preflow:5,rinse:10}
+  ],
+  Strathdee:[
+    {name:"Strathdee Injector 1",type:"vat",flow:10,product:"Calcium Nitrate",solution:1500,preflow:5,rinse:30},
+    {name:"Strathdee Agitator 1",type:"direct",flow:5,product:"",solution:420,preflow:5,rinse:0},
+    {name:"Strathdee Injector 2",type:"direct",flow:10,product:"",solution:420,preflow:5,rinse:0},
+    {name:"Strathdee Flush",type:"flush",flow:0,product:"",solution:0,preflow:5,rinse:10}
+  ],
+  "Norris Back":[
+    {name:"Norris Injector 1",type:"vat",flow:10.5,product:"Calcium Nitrate",solution:1000,preflow:5,rinse:30},
+    {name:"Norris Injector 2",type:"direct",flow:6.2,product:"Optical AG",solution:80,preflow:5,rinse:0},
+    {name:"Norris Injector 3",type:"direct",flow:3.8,product:"",solution:0,preflow:5,rinse:0},
+    {name:"Norris Flush",type:"flush",flow:0,product:"",solution:0,preflow:5,rinse:10}
+  ]
+};
 function products(){let a=Array.isArray(saved.fertilizers)?saved.fertilizers.slice():["Calcium Nitrate","Potassium Sulphate"];["Calcium Nitrate","Cal 40","Optical AG","KS 32"].forEach(x=>{if(!a.includes(x))a.push(x)});return a}
 function meta(name){const m=saved.productMeta?.[name]||{},n=name.toLowerCase();if(m.method)return m;return {method:(n==="cal 40"||n==="optical ag")?"direct":"mixed",unit:(n==="cal 40"||n==="optical ag"||n==="ks 32")?"L/ha":"kg/ha",bagSize:n==="calcium nitrate"?25:0}}
 function defaultType(i){return i===0?"vat":"direct"}
-function cfg(){const farm=$("farm").value,base=saved.injectorConfig?.[farm]||[],custom=qsetup[farm]||[];return [0,1,2,3].map(i=>{const b=base[i]||{},c=custom[i]||{};return {name:c.name??b.name??`Injector ${i+1}`,flow:Number(c.flow??b.flow)||0,type:c.type||defaultType(i),product:c.product||(i===0?"Calcium Nitrate":""),solution:Number(c.solution)||1500,preflow:Math.max(5,Number(c.preflow)||5),rinse:Number(c.rinse??b.finalVatRinseMinutes)||0}})}
+function cfg(){const farm=$("farm").value,base=EXCEL_PRESETS[farm]||saved.injectorConfig?.[farm]||[],custom=qsetup[farm]||[];return [0,1,2,3].map(i=>{const b=base[i]||{},c=custom[i]||{};return {name:c.name??b.name??`Injector ${i+1}`,flow:Number(c.flow??b.flow)||0,type:c.type||b.type||defaultType(i),product:c.product??b.product??(i===0?"Calcium Nitrate":""),solution:Number(c.solution??b.solution)||1500,preflow:Math.max(5,Number(c.preflow??b.preflow)||5),rinse:Number(c.rinse??b.rinse??b.finalVatRinseMinutes)||0}})}
 function saveSetup(){localStorage.setItem(QKEY,JSON.stringify(qsetup))}
 function renderSetup(){const farm=$("farm").value,c=cfg();$("setupInjectors").innerHTML=c.map((x,i)=>`<div class="setupInj" data-i="${i}"><strong>Injector ${i+1}</strong><div class="two"><div><label>Name</label><input class="sname" value="${x.name}"></div><div><label>Type</label><select class="stype"><option value="vat" ${x.type==="vat"?"selected":""}>Prepared vat</option><option value="direct" ${x.type==="direct"?"selected":""}>Direct injection</option><option value="flush" ${x.type==="flush"?"selected":""}>Flush / rinse</option></select></div></div><div class="two"><div><label>Flow rate (L/min)</label><input class="sflow" type="number" min="0" step="0.1" value="${x.flow||""}"></div><div><label>Default product</label><select class="sproduct"><option value="">Choose when planning</option>${products().map(p=>`<option ${x.product===p?"selected":""}>${p}</option>`).join("")}</select></div></div><div class="setupVat"><div class="two"><div><label>Default vat volume (L)</label><input class="ssolution" type="number" min="0" value="${x.solution}"></div><div><label>Final rinse (min)</label><input class="srinse" type="number" min="0" value="${x.rinse}"></div></div></div><label>Minimum preflow (min)</label><input class="spreflow" type="number" min="5" value="${x.preflow}"></div>`).join("");document.querySelectorAll(".setupInj").forEach(d=>{const i=Number(d.dataset.i),sync=()=>{qsetup[farm]??=[];qsetup[farm][i]={name:d.querySelector(".sname").value.trim()||`Injector ${i+1}`,type:d.querySelector(".stype").value,flow:Number(d.querySelector(".sflow").value)||0,product:d.querySelector(".sproduct").value,solution:Number(d.querySelector(".ssolution").value)||1500,preflow:Math.max(5,Number(d.querySelector(".spreflow").value)||5),rinse:Number(d.querySelector(".srinse").value)||0};saveSetup();d.querySelector(".setupVat").style.display=d.querySelector(".stype").value==="vat"?"block":"none";renderInjectors();recalc()};d.querySelector(".setupVat").style.display=d.querySelector(".stype").value==="vat"?"block":"none";d.querySelectorAll("input,select").forEach(el=>el.onchange=sync)})}
 function area(){return [...chosen].reduce((s,o)=>s+(FARMS[$("farm").value]?.[o]||0),0)}
