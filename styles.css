@@ -1265,3 +1265,16 @@
     color:#e7efe9!important;
   }
 }
+
+/* Rapid Planning Build 3 */
+#new .jobOutletSection label,
+#new .jobOutletSection label:has(input:checked),
+#new .jobOutletSection .selected,
+#new .jobOutletSection .is-selected{
+ box-sizing:border-box; min-height:0!important; height:auto;
+ padding-top:6px!important; padding-bottom:6px!important;
+ margin-top:0!important; margin-bottom:0!important; transform:none!important;
+}
+#new .rapidFinishSaveMoved{margin:0!important;align-self:stretch}
+#new .rapidActionPair{display:flex;gap:8px;align-items:stretch;justify-content:flex-end;flex-wrap:wrap}
+@media(max-width:900px){#new .rapidActionPair{width:100%}}
