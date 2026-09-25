@@ -75,7 +75,7 @@ function rememberedInjectors(f){
  });
  return items
 }
-let state=initState(),editingPlanId=null,statusFilter="all",statusFarmFilter="all",historyFarmFilter="all",timeManuallyAdjusted=false,irrigationOnly=false,draftInjectionBeforeIrrigationOnly=null;
+let state=initState(),editingPlanId=null,statusFilter="all",statusFarmFilter="all",historyFarmFilter="all",historyOutletFilters=new Set(),historyDateFilter="all",historyTypeFilter="all",historyProductFilter="all",historySort="newest",timeManuallyAdjusted=false,irrigationOnly=false,draftInjectionBeforeIrrigationOnly=null;
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}save();
 function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));if(id==="dashboard")dashboard();if(id==="tonight")renderPlan();if(id==="history")history();if(id==="setup")setup();if(id==="new"){const a=typeof activeProgram==="function"?activeProgram():null;if(a){if($("farm").value!==a.farm){$("farm").value=a.farm;renderOutlets();$("pumpSystem").value=GROUP[a.farm]||""}$("nightDate").value=a.nightDate;$("programName").value=a.name;renderProgramBanner();syncShiftMode();if(typeof renderInlineVatMix==="function")renderInlineVatMix();if(typeof applyPreparedVatToCurrentJob==="function")applyPreparedVatToCurrentJob(true)}else if(!editingPlanId&&!timeManuallyAdjusted)applySuggestedStart()}}
 document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
