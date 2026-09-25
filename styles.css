@@ -1198,3 +1198,70 @@
 .rapidPlanningHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}.rapidPlanningHead>div{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.rapidPlanningHead strong{font-size:20px;color:#214d32}.rapidPlanningHead span{color:#6c756e}.rapidBuildTag{font-size:11px!important;font-weight:800;letter-spacing:.08em;background:#f5e9b8;color:#765f13!important;padding:4px 8px;border-radius:999px}
 .rapidPlanningChoices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.rapidChoice{min-height:68px;text-align:left;border:1px solid #cbd8cd;background:#eaf1eb;border-radius:11px;padding:10px 13px;color:#244e34}.rapidChoice strong,.rapidChoice span{display:block}.rapidChoice strong{font-size:17px;margin-bottom:3px}.rapidChoice span{font-size:13px;font-weight:500;color:#68736b}.rapidChoice.active{background:#28553a;color:#fff;border-color:#28553a}.rapidChoice.active span{color:#e7efe9}.rapidPlanningStatus{margin-top:8px;font-size:13px;color:#667069}.rapidPlanningStatus.ok{color:#28553a;font-weight:700}.rapidPlanningStatus.warn{color:#8a6414;font-weight:700}
 @media(max-width:760px){.rapidPlanningChoices{grid-template-columns:1fr}.rapidChoice{min-height:56px}}
+
+
+/* Rapid Planning — Build 2
+   Keep Rapid Planning full-width and compact. The workbench below follows:
+   outlets -> timing/start -> fertigation. */
+@media (min-width:901px){
+  #new .rapidPlanningBuild2{
+    margin:0 0 8px!important;
+    padding:8px 10px!important;
+    border-width:1px!important;
+  }
+  #new .rapidPlanningBuild2 .rapidPlanningHead{
+    margin-bottom:6px!important;
+  }
+  #new .rapidPlanningBuild2 .rapidPlanningHead strong{
+    font-size:17px!important;
+  }
+  #new .rapidPlanningBuild2 .rapidPlanningHead span{
+    font-size:12px;
+  }
+  #new .rapidPlanningBuild2 .rapidPlanningChoices{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:7px;
+  }
+  #new .rapidPlanningBuild2 .rapidChoice{
+    min-height:48px;
+    padding:7px 10px;
+  }
+  #new .rapidPlanningBuild2 .rapidChoice strong{
+    font-size:14px;
+    margin-bottom:1px;
+  }
+  #new .rapidPlanningBuild2 .rapidChoice span{
+    font-size:11px;
+  }
+  #new .rapidPlanningBuild2 .rapidPlanningStatus{
+    margin-top:5px;
+    font-size:11px;
+  }
+
+  #new .compactWorkbench{
+    grid-template-columns:1.08fr .82fr 1.10fr;
+  }
+  #new .compactOutlets #areaSummary{
+    margin-top:8px!important;
+  }
+  #new .compactTiming .compactTimePicker{
+    display:grid!important;
+    grid-template-columns:.8fr .8fr 1.45fr .8fr .8fr!important;
+    gap:5px!important;
+  }
+  #new .compactTiming .compactTimePicker button{
+    display:flex!important;
+    min-width:0!important;
+    padding:5px!important;
+  }
+  #new .compactTiming .compactTimePicker #useSuggested{
+    display:flex!important;
+    grid-column:auto!important;
+    background:#28553a!important;
+    color:#fff!important;
+    border-color:#28553a!important;
+  }
+  #new .compactTiming .compactTimePicker .timeHint{
+    color:#e7efe9!important;
+  }
+}

@@ -235,7 +235,7 @@ function syncShiftMode(){
  if($("fertTimingResult")&&water)$("fertTimingResult").textContent=""
 }
 
-// Rapid Planning Build 1: shortcuts only. Existing calculation/save logic remains authoritative.
+// Rapid Planning Build 2: faster workflow shortcuts; existing calculation/save logic remains authoritative.
 function normalFertigationProducts(){return ["calcium nitrate","cal 40","optical ag"]}
 function isNormalFertigationSetup(items){
  const names=(items||[]).filter(x=>x&&x.type==="product"&&x.name).map(x=>String(x.name).trim().toLowerCase());

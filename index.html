@@ -51,7 +51,7 @@
 </div>
 <div id="editBanner" class="editBanner">Editing an existing planned job. Save Changes updates the same job and does not affect rotation until Mark Complete.</div><div class="card newPlanCard"><h2 id="formTitle">New Irrigation Plan</h2><div class="grid jobBasicsGrid"><div><label>Night plan date</label><input id="nightDate" type="date"></div><div><label>Actual start date</label><input id="date" type="date"></div><div><label>Farm</label><select id="farm"></select></div><div class="durationField"><label>Irrigation duration</label><input id="duration" type="hidden" value="4"><div class="durationControl" aria-label="Irrigation duration"><button type="button" class="durationStep" data-duration-min="-30">−30</button><button type="button" class="durationStep" data-duration-min="-15">−15</button><select id="durationPicker" class="durationPicker" aria-label="Select irrigation duration"><option value="1">1:00</option><option value="1.25">1:15</option><option value="1.5">1:30</option><option value="1.75">1:45</option><option value="2">2:00</option><option value="2.25">2:15</option><option value="2.5">2:30</option><option value="2.75">2:45</option><option value="3">3:00</option><option value="3.25">3:15</option><option value="3.5">3:30</option><option value="3.75">3:45</option><option value="4" selected>4:00</option><option value="4.25">4:15</option><option value="4.5">4:30</option><option value="4.75">4:45</option><option value="5">5:00</option><option value="5.25">5:15</option><option value="5.5">5:30</option><option value="5.75">5:45</option><option value="6">6:00</option><option value="6.25">6:15</option><option value="6.5">6:30</option><option value="6.75">6:45</option><option value="7">7:00</option><option value="7.25">7:15</option><option value="7.5">7:30</option><option value="7.75">7:45</option><option value="8">8:00</option></select><button type="button" class="durationStep" data-duration-min="15">+15</button><button type="button" class="durationStep" data-duration-min="30">+30</button></div></div>
 <div><label>Job type</label><select id="shiftMode"><option value="water">Water Only</option><option value="fertigation">Fertigation</option></select></div>
-<div class="full rapidPlanningBox" id="rapidPlanningBox"><div class="rapidPlanningHead"><div><strong>Rapid Planning</strong><span>Choose the common job, then select outlets and timing.</span></div><span class="rapidBuildTag">BUILD 1</span></div><div class="rapidPlanningChoices"><button type="button" id="rapidWater" class="rapidChoice"><strong>Water Only</strong><span>No fertilizer injection</span></button><button type="button" id="rapidNormalFert" class="rapidChoice"><strong>Normal Fertigation</strong><span>Calcium Nitrate + Cal 40 + Optical AG</span></button><button type="button" id="rapidCustom" class="rapidChoice"><strong>Other / Custom</strong><span>Use the detailed injection programming below</span></button></div><div id="rapidPlanningStatus" class="rapidPlanningStatus">Choose a rapid option, or continue using the planner normally.</div></div>
+<div class="full rapidPlanningBox" id="rapidPlanningBox"><div class="rapidPlanningHead"><div><strong>Rapid Planning</strong><span>Choose the common job, then select outlets and timing.</span></div><span class="rapidBuildTag">BUILD 2</span></div><div class="rapidPlanningChoices"><button type="button" id="rapidWater" class="rapidChoice"><strong>Water Only</strong><span>No fertilizer injection</span></button><button type="button" id="rapidNormalFert" class="rapidChoice"><strong>Normal Fertigation</strong><span>Calcium Nitrate + Cal 40 + Optical AG</span></button><button type="button" id="rapidCustom" class="rapidChoice"><strong>Other / Custom</strong><span>Use the detailed injection programming below</span></button></div><div id="rapidPlanningStatus" class="rapidPlanningStatus">Choose a rapid option, or continue using the planner normally.</div></div>
 <div class="full"><label>Pumps selected for this job</label><div class="inlineField"><input id="shiftPumps" placeholder="Example: Jacks Field Pump, Jacks Shed Pump"><button type="button" class="secondary smallbtn" id="usePumpRule">Use saved pump rule</button></div><div class="fieldHelp">Enter the pumps exactly as you intend to select them in AquaLink. Water-only jobs may use multiple pumps.</div></div>
 <div class="full"><label>Pump start time</label><div class="timePicker compactTimePicker"><input id="startTime" type="hidden"><button type="button" data-min="-60">−1 hr</button><button type="button" data-min="-15">−15</button><button type="button" id="useSuggested" class="suggest timeCentre"><span id="timeDisplay" class="timeDisplay">6:00 PM</span><span id="timeHint" class="timeHint">Suggested start</span></button><button type="button" data-min="15">+15</button><button type="button" data-min="60">+1 hr</button></div></div><div class="full card hidden compactVatWorkflow" id="vatRequirementCard">
   <div class="vatQuestionRow">
@@ -118,34 +118,76 @@
   const grid=page && page.querySelector('.jobBasicsGrid');
   const banner=page && page.querySelector('.programBanner');
   if(!grid||!banner) return;
-  const kids=Array.from(grid.children);
+
+  // Rapid Planning Build 2:
+  // Build the compact landscape layout by element identity, not child number.
+  // This prevents new controls (such as Rapid Planning) from shifting every
+  // panel into the wrong column.
+  const nightDate=document.getElementById('nightDate')?.closest('div');
+  const actualDate=document.getElementById('date')?.closest('div');
+  const farm=document.getElementById('farm')?.closest('div');
+  const jobType=document.getElementById('shiftMode')?.closest('div');
+  const duration=document.querySelector('.durationField');
+  const rapid=document.getElementById('rapidPlanningBox');
+  const pumps=document.getElementById('shiftPumps')?.closest('.full');
+  const startTime=document.getElementById('startTime')?.closest('.full');
+  const vat=document.getElementById('vatRequirementCard');
+  const outlets=document.querySelector('.jobOutletSection');
+  const valveRuntimes=document.querySelector('.shiftOptionBox');
+  const area=document.getElementById('areaSummary')?.closest('.full');
+  const pumpSystem=document.getElementById('pumpSystem')?.closest('div');
+  const requiredPumps=document.getElementById('requiredPumps')?.closest('div');
+  const finish=document.getElementById('finishDisplay')?.closest('div');
+  const setRuntime=document.getElementById('setRuntimeDisplay')?.closest('div');
+  const plannedNote=grid.querySelector('.note.blue')?.closest('.full');
   const programField=banner.querySelector('.grid > div');
-  const top=document.createElement('div'); top.className='compactTopRow';
-  [kids[0],kids[1],kids[2],kids[4],programField].forEach(x=>x&&top.appendChild(x));
+
+  const top=document.createElement('div');
+  top.className='compactTopRow';
+  [nightDate,actualDate,farm,jobType,programField].forEach(x=>x&&top.appendChild(x));
   grid.parentNode.insertBefore(top,grid);
-  const work=document.createElement('div'); work.className='compactWorkbench';
-  const left=document.createElement('div'); left.className='compactColumn compactOutlets';
-  const mid=document.createElement('div'); mid.className='compactColumn compactTiming';
-  const right=document.createElement('div'); right.className='compactColumn compactVatColumn';
+
+  // Rapid choices sit across the full width above the working panels.
+  if(rapid){
+    rapid.classList.add('rapidPlanningBuild2');
+    grid.parentNode.insertBefore(rapid,grid);
+  }
+
+  const work=document.createElement('div');
+  work.className='compactWorkbench';
+  const left=document.createElement('div');
+  left.className='compactColumn compactOutlets';
+  const mid=document.createElement('div');
+  mid.className='compactColumn compactTiming';
+  const right=document.createElement('div');
+  right.className='compactColumn compactVatColumn';
   work.append(left,mid,right);
   grid.parentNode.insertBefore(work,grid.nextSibling);
-  left.appendChild(kids[8]); left.appendChild(kids[10]);
+
+  // Workflow: outlets -> irrigation timing/start -> fertigation.
+  if(outlets) left.appendChild(outlets);
+  if(valveRuntimes) left.appendChild(valveRuntimes);
+  if(area) left.appendChild(area);
+
   mid.insertAdjacentHTML('afterbegin','<h2>Irrigation timing</h2>');
-  mid.appendChild(kids[3]);
-  // Keep the existing working Pump start time control in the compact landscape timing column.
-  mid.appendChild(kids[6]);
-  kids[13].classList.add('finishCompact'); mid.appendChild(kids[13]);
-  kids[5].classList.add('pumpCompact'); mid.appendChild(kids[5]);
-  right.appendChild(kids[7]);
-  const inj=document.getElementById('injectionProgrammingCard'); if(inj) right.appendChild(inj);
-  // Keep the compact AquaLink summary in the right column, but move the
-  // expandable editor itself to a full-width row beneath the workbench.
+  if(duration) mid.appendChild(duration);
+  if(startTime) mid.appendChild(startTime);
+  if(finish){finish.classList.add('finishCompact');mid.appendChild(finish)}
+  if(pumps){pumps.classList.add('pumpCompact');mid.appendChild(pumps)}
+
+  if(vat) right.appendChild(vat);
+  const inj=document.getElementById('injectionProgrammingCard');
+  if(inj) right.appendChild(inj);
+
   const injectionEditor=inj&&inj.querySelector('.injectionEditDetails');
   if(injectionEditor){
     injectionEditor.classList.add('injectionEditorWide');
     work.insertAdjacentElement('afterend',injectionEditor);
   }
-  [kids[9],kids[11],kids[12],kids[14],kids[15]].forEach(x=>{if(x){x.classList.add('compactHiddenMeta');grid.appendChild(x)}});
+
+  [pumpSystem,requiredPumps,setRuntime,plannedNote].forEach(x=>{
+    if(x){x.classList.add('compactHiddenMeta');grid.appendChild(x)}
+  });
 })();
 </script>
 <script src="app-core.js?v=build12"></script>
