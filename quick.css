@@ -97,3 +97,4 @@
 .finalShiftInline input{width:22px!important;height:22px!important;margin:0;flex:0 0 auto}
 @media(max-width:600px){.shiftSummary{align-items:center}.shiftSummaryActions{gap:10px}.shiftSummary .ha{font-size:17px}.finalShiftInline span{font-size:13px}}
 @media(max-width:390px){.shiftSummary{gap:6px;padding:9px}.shiftSummaryActions{gap:7px}.finalShiftInline span{font-size:12px}.finalShiftInline input{width:20px!important;height:20px!important}}
+.waterOnlyCard,.saveProgramCard{position:relative}.waterToggle{display:flex;align-items:center;gap:10px;font-size:18px;margin:10px 0 14px}.waterToggle input{width:24px;height:24px}.saveProgramInputs{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}.saveProgramInputs label{min-width:180px;flex:1}.saveProgramInputs input{width:100%;box-sizing:border-box;margin-top:5px}.saveProgramCard .primary{width:100%;font-size:18px;padding:15px}.waterOnlyCard .outlets{margin:12px 0}
