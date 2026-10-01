@@ -486,15 +486,19 @@ function addOrUpdateDraftShift(){
  jobs.forEach((j,i)=>j.programSequence=i+1);a.draftShifts=jobs;applyFinalVatRinseToDraftJobs();save();editingDraftShiftIndex=-1;prepareNextShiftForm();return true
 }
 function savePlan(){
- if(activeProgram()){addOrUpdateDraftShift();return}
- if(!editingPlanId){
-   const data=validatePlan();if(!data)return;const farm=data.farm,nightDate=data.nightDate||$("nightDate").value||today(),name=$("programName").value.trim()||defaultProgramName(farm,nightDate);
-   state.activeProgram={id:uid(),name,farm,nightDate,draftShifts:[],created:new Date().toISOString()};editingDraftShiftIndex=-1;save();renderProgramBanner();addOrUpdateDraftShift();return
+ // IMPORTANT: editing an already-saved Tonight's Program job must take
+ // priority over any active draft program. Previously the activeProgram()
+ // branch ran first, so Save Changes could append the edited saved job as a
+ // new draft job instead of replacing the original, creating duplicates.
+ if(editingPlanId){
+   const data=validatePlan();if(!data)return;const idx=state.plans.findIndex(x=>x.id===editingPlanId);if(idx<0){alert("That planned job could not be found.");resetNewForm();return}
+   data.phaseMode=currentPhaseMode();if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm);data.fertigationFinishBefore=0}else data.irrigationOnly=false;
+   data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;data.individualValveRuntimes=getIndividualValveRuntimes();data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
+   state.plans[idx]={...state.plans[idx],...data,updated:new Date().toISOString()};sortPlans();save();resetNewForm();renderPlan();showPage("tonight");alert("Job updated.");return
  }
- const data=validatePlan();if(!data)return;const idx=state.plans.findIndex(x=>x.id===editingPlanId);if(idx<0){alert("That planned job could not be found.");resetNewForm();return}
- data.phaseMode=currentPhaseMode();if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm);data.fertigationFinishBefore=0}else data.irrigationOnly=false;
- data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;data.individualValveRuntimes=getIndividualValveRuntimes();data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
- state.plans[idx]={...state.plans[idx],...data,updated:new Date().toISOString()};sortPlans();save();resetNewForm();renderPlan();showPage("tonight");alert("Job updated.")
+ if(activeProgram()){addOrUpdateDraftShift();return}
+ const data=validatePlan();if(!data)return;const farm=data.farm,nightDate=data.nightDate||$("nightDate").value||today(),name=$("programName").value.trim()||defaultProgramName(farm,nightDate);
+ state.activeProgram={id:uid(),name,farm,nightDate,draftShifts:[],created:new Date().toISOString()};editingDraftShiftIndex=-1;save();renderProgramBanner();addOrUpdateDraftShift();
 }
 function editDraftShift(i){const job=draftShifts()[i];if(!job)return;editingDraftShiftIndex=i;loadPlanToForm(job,false);renderProgramBanner();syncShiftMode();window.scrollTo({top:$("formTitle").getBoundingClientRect().top+window.scrollY-20,behavior:"smooth"})}
 function removeDraftShift(i){const a=activeProgram(),job=draftShifts()[i];if(!a||!job)return;if(!confirm(`Remove Job ${i+1} from this draft program?`))return;a.draftShifts.splice(i,1);a.draftShifts.forEach((j,n)=>j.programSequence=n+1);applyFinalVatRinseToDraftJobs();save();editingDraftShiftIndex=-1;prepareNextShiftForm()}
