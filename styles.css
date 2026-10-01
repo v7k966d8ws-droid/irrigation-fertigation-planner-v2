@@ -1191,3 +1191,134 @@
 .historyFilterBar{display:grid;grid-template-columns:1.1fr 1.15fr 1fr 1fr 1.15fr 1.1fr;gap:10px;align-items:end;margin:12px 0}.historyFilterBar label,.historyCustomDates label{display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:4px}.historyFilterBar select,.historyFilterBar details>summary,.historyCustomDates input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:11px;background:#fff;padding:10px 12px;font:inherit;color:#222;box-sizing:border-box}.historyFilterBar details{position:relative}.historyFilterBar details>summary{list-style:none;cursor:pointer}.historyFilterBar details>summary::-webkit-details-marker{display:none}.historyOutletChoices{position:absolute;z-index:30;top:48px;left:0;min-width:260px;max-height:330px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.14)}.historyOutletChoices label{display:flex;align-items:center;gap:9px;padding:8px;border-bottom:1px solid #edf0ed;font-size:15px;color:var(--g)}.historyOutletChoices input{width:22px;height:22px}.historyOutletTools{display:flex;gap:7px;margin-bottom:6px}.historyCustomDates{display:flex;gap:10px;margin:-2px 0 10px}.historyCustomDates>div{width:190px}.historyActionRow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0}.compactHistory table{min-width:820px}.compactHistory th,.compactHistory td{padding:10px 9px;vertical-align:middle}.historyMainRow:hover{background:#f7faf7}.historyDetailRow td{padding:0 8px 12px!important;border-bottom:1px solid var(--line)}.historyDetailCard{background:#f4f8f4;border:1px solid var(--line);border-radius:12px;padding:12px}.historyDetailGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}.historyDetailGrid div{display:flex;flex-direction:column;gap:3px}.historyDetailGrid b{font-size:12px;color:var(--g)}.historyDetailInjectors{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}.historyDetailInjectors>div{display:grid;grid-template-columns:1.3fr 1.5fr .8fr 1fr 1fr;gap:8px;padding:9px;border-bottom:1px solid var(--line);align-items:center}.historyDetailInjectors>div:last-child{border-bottom:0}.historyDetailInjectors strong{color:var(--g)}
 @media(max-width:1050px){.historyFilterBar{grid-template-columns:repeat(3,1fr)}.historyDetailGrid{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.historyFilterBar{grid-template-columns:1fr 1fr}.historyActionRow{align-items:flex-start;flex-direction:column}.historyDetailInjectors>div{grid-template-columns:1fr 1fr}.historyDetailGrid{grid-template-columns:1fr 1fr}}
+
+
+/* Rapid Planning — Build 1 */
+.rapidPlanningBox{border:2px solid #cbdccc;border-radius:14px;padding:12px;background:#f7faf7}
+.rapidPlanningHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}.rapidPlanningHead>div{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.rapidPlanningHead strong{font-size:20px;color:#214d32}.rapidPlanningHead span{color:#6c756e}.rapidBuildTag{font-size:11px!important;font-weight:800;letter-spacing:.08em;background:#f5e9b8;color:#765f13!important;padding:4px 8px;border-radius:999px}
+.rapidPlanningChoices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.rapidChoice{min-height:68px;text-align:left;border:1px solid #cbd8cd;background:#eaf1eb;border-radius:11px;padding:10px 13px;color:#244e34}.rapidChoice strong,.rapidChoice span{display:block}.rapidChoice strong{font-size:17px;margin-bottom:3px}.rapidChoice span{font-size:13px;font-weight:500;color:#68736b}.rapidChoice.active{background:#28553a;color:#fff;border-color:#28553a}.rapidChoice.active span{color:#e7efe9}.rapidPlanningStatus{margin-top:8px;font-size:13px;color:#667069}.rapidPlanningStatus.ok{color:#28553a;font-weight:700}.rapidPlanningStatus.warn{color:#8a6414;font-weight:700}
+@media(max-width:760px){.rapidPlanningChoices{grid-template-columns:1fr}.rapidChoice{min-height:56px}}
+
+
+/* Rapid Planning — Build 2
+   Keep Rapid Planning full-width and compact. The workbench below follows:
+   outlets -> timing/start -> fertigation. */
+@media (min-width:901px){
+  #new .rapidPlanningBuild2{
+    margin:0 0 8px!important;
+    padding:8px 10px!important;
+    border-width:1px!important;
+  }
+  #new .rapidPlanningBuild2 .rapidPlanningHead{
+    margin-bottom:6px!important;
+  }
+  #new .rapidPlanningBuild2 .rapidPlanningHead strong{
+    font-size:17px!important;
+  }
+  #new .rapidPlanningBuild2 .rapidPlanningHead span{
+    font-size:12px;
+  }
+  #new .rapidPlanningBuild2 .rapidPlanningChoices{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:7px;
+  }
+  #new .rapidPlanningBuild2 .rapidChoice{
+    min-height:48px;
+    padding:7px 10px;
+  }
+  #new .rapidPlanningBuild2 .rapidChoice strong{
+    font-size:14px;
+    margin-bottom:1px;
+  }
+  #new .rapidPlanningBuild2 .rapidChoice span{
+    font-size:11px;
+  }
+  #new .rapidPlanningBuild2 .rapidPlanningStatus{
+    margin-top:5px;
+    font-size:11px;
+  }
+
+  #new .compactWorkbench{
+    grid-template-columns:1.08fr .82fr 1.10fr;
+  }
+  #new .compactOutlets #areaSummary{
+    margin-top:8px!important;
+  }
+  #new .compactTiming .compactTimePicker{
+    display:grid!important;
+    grid-template-columns:.8fr .8fr 1.45fr .8fr .8fr!important;
+    gap:5px!important;
+  }
+  #new .compactTiming .compactTimePicker button{
+    display:flex!important;
+    min-width:0!important;
+    padding:5px!important;
+  }
+  #new .compactTiming .compactTimePicker #useSuggested{
+    display:flex!important;
+    grid-column:auto!important;
+    background:#28553a!important;
+    color:#fff!important;
+    border-color:#28553a!important;
+  }
+  #new .compactTiming .compactTimePicker .timeHint{
+    color:#e7efe9!important;
+  }
+}
+
+/* Rapid Planning Build 3 */
+#new .jobOutletSection label,
+#new .jobOutletSection label:has(input:checked),
+#new .jobOutletSection .selected,
+#new .jobOutletSection .is-selected{
+ box-sizing:border-box; min-height:0!important; height:auto;
+ padding-top:6px!important; padding-bottom:6px!important;
+ margin-top:0!important; margin-bottom:0!important; transform:none!important;
+}
+#new .rapidFinishSaveMoved{margin:0!important;align-self:stretch}
+#new .rapidActionPair{display:flex;gap:8px;align-items:stretch;justify-content:flex-end;flex-wrap:wrap}
+@media(max-width:900px){#new .rapidActionPair{width:100%}}
+
+/* Rapid Planning — Build 3.1
+   Lock current-job outlet geometry in every state. A warning may wrap inside
+   its tile, but it must never change the row height or stretch neighbours. */
+#new .compactOutlets .outlets,
+#new .jobOutletSection .outlets{
+  align-items:start!important;
+  grid-auto-rows:72px!important;
+}
+#new .compactOutlets label.outlet,
+#new .jobOutletSection label.outlet,
+#new .jobOutletSection label.outlet:has(input:checked),
+#new .jobOutletSection label.outlet.vatUnavailable,
+#new .jobOutletSection label.outlet.vatChosenNow,
+#new .jobOutletSection label.outlet.selected,
+#new .jobOutletSection label.outlet.is-selected{
+  box-sizing:border-box!important;
+  height:72px!important;
+  min-height:72px!important;
+  max-height:72px!important;
+  padding:6px 8px!important;
+  margin:0!important;
+  transform:none!important;
+  align-self:start!important;
+  overflow:hidden!important;
+}
+#new .jobOutletSection label.outlet > span{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+#new .jobOutletSection .vatChoiceReason{
+  display:block!important;
+  margin-top:2px!important;
+  font-size:10px!important;
+  line-height:1.05!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+}
+#new .rapidFinishSaveMoved{margin:0!important;align-self:stretch}
+#new .rapidActionPair{display:flex;gap:8px;align-items:stretch;justify-content:flex-start;flex-wrap:wrap}
+@media(max-width:560px){
+  #new .rapidActionPair{flex-direction:column}
+  #new .rapidActionPair button{width:100%}
+}

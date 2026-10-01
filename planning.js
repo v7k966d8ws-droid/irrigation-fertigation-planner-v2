@@ -234,6 +234,36 @@ function syncShiftMode(){
  if($("savePlan"))$("savePlan").textContent=activeProgram()?(editingDraftShiftIndex>=0?"Update Job":"Add Job to Program"):(editingPlanId?"Save Changes":"Start Program & Add Job");
  if($("fertTimingResult")&&water)$("fertTimingResult").textContent=""
 }
+
+// Rapid Planning Build 2: faster workflow shortcuts; existing calculation/save logic remains authoritative.
+function normalFertigationProducts(){return ["calcium nitrate","cal 40","optical ag"]}
+function isNormalFertigationSetup(items){
+ const names=(items||[]).filter(x=>x&&x.type==="product"&&x.name).map(x=>String(x.name).trim().toLowerCase());
+ return normalFertigationProducts().every(n=>names.includes(n));
+}
+function findNormalFertigationSetup(farm){
+ const candidates=[];
+ if(Array.isArray(state.fertigationMemory?.[farm]))candidates.push(state.fertigationMemory[farm]);
+ [...(state.records||[]),...(state.plans||[])].filter(p=>p&&p.farm===farm&&!p.irrigationOnly&&Array.isArray(p.injectors)).sort((a,b)=>memoryStamp(b)-memoryStamp(a)).forEach(p=>candidates.push(p.injectors));
+ const hit=candidates.find(isNormalFertigationSetup);
+ return hit?copyInjectionSetup(hit):null;
+}
+function setRapidStatus(text,kind=""){const el=$("rapidPlanningStatus");if(!el)return;el.textContent=text;el.className="rapidPlanningStatus"+(kind?` ${kind}`:"")}
+function setRapidChoiceActive(id){document.querySelectorAll(".rapidChoice").forEach(b=>b.classList.toggle("active",b.id===id))}
+function rapidWaterOnly(){
+ $("shiftMode").value="water";syncShiftMode();setRapidChoiceActive("rapidWater");setRapidStatus("Water Only selected — choose outlets, duration and start time.","ok");
+}
+function rapidNormalFertigation(){
+ const farm=$("farm").value,setup=findNormalFertigationSetup(farm);
+ $("shiftMode").value="fertigation";
+ irrigationOnly=false;draftInjectionBeforeIrrigationOnly=null;
+ if(setup){renderInjectors(setup);updateInjectionMode();recalc();syncVatRequirementUI();setTimeout(()=>applyPreparedVatToCurrentJob(true),0);setRapidChoiceActive("rapidNormalFert");setRapidStatus(`Normal Fertigation loaded for ${farm}: Calcium Nitrate + Cal 40 + Optical AG.`,"ok")}
+ else{syncShiftMode();setRapidChoiceActive("rapidNormalFert");setRapidStatus(`No saved normal three-product setup was found for ${farm}. Fertigation mode is open — set it once in Edit injection programming, then Rapid Planning can reuse it.`,"warn")}
+}
+function rapidCustom(){
+ $("shiftMode").value="fertigation";syncShiftMode();setRapidChoiceActive("rapidCustom");setRapidStatus("Custom fertigation selected — use Edit injection programming for products such as KS 32 or Valiant.");
+ const d=document.querySelector(".injectionEditDetails");if(d)d.open=true;
+}
 function useSavedPumpRule(){
  const pumps=requiredPumps();if(!pumps.length){alert("There is no exact saved pump rule for the currently selected outlet group.");return}
  $("shiftPumps").value=pumps.join(", ")
@@ -456,20 +486,15 @@ function addOrUpdateDraftShift(){
  jobs.forEach((j,i)=>j.programSequence=i+1);a.draftShifts=jobs;applyFinalVatRinseToDraftJobs();save();editingDraftShiftIndex=-1;prepareNextShiftForm();return true
 }
 function savePlan(){
- // If an existing job from Tonight's Program is being edited, always update
- // that saved job first. An active draft program must never intercept the edit
- // and turn it into a newly appended draft job.
- if(editingPlanId){
-   const data=validatePlan();if(!data)return;const idx=state.plans.findIndex(x=>x.id===editingPlanId);if(idx<0){alert("That planned job could not be found.");resetNewForm();return}
-   data.phaseMode=currentPhaseMode();if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm);data.fertigationFinishBefore=0}else data.irrigationOnly=false;
-   data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;data.individualValveRuntimes=getIndividualValveRuntimes();data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
-   state.plans[idx]={...state.plans[idx],...data,updated:new Date().toISOString()};sortPlans();save();resetNewForm();renderPlan();showPage("tonight");alert("Job updated.");return
- }
  if(activeProgram()){addOrUpdateDraftShift();return}
  if(!editingPlanId){
    const data=validatePlan();if(!data)return;const farm=data.farm,nightDate=data.nightDate||$("nightDate").value||today(),name=$("programName").value.trim()||defaultProgramName(farm,nightDate);
    state.activeProgram={id:uid(),name,farm,nightDate,draftShifts:[],created:new Date().toISOString()};editingDraftShiftIndex=-1;save();renderProgramBanner();addOrUpdateDraftShift();return
  }
+ const data=validatePlan();if(!data)return;const idx=state.plans.findIndex(x=>x.id===editingPlanId);if(idx<0){alert("That planned job could not be found.");resetNewForm();return}
+ data.phaseMode=currentPhaseMode();if(data.phaseMode==="water"){data.irrigationOnly=true;data.injectors=emptyInjectorsForFarm(data.farm);data.fertigationFinishBefore=0}else data.irrigationOnly=false;
+ data.shiftPumps=selectedShiftPumps();data.requiredPumps=data.shiftPumps.length?data.shiftPumps:data.requiredPumps;data.useIndividualValveRuntimes=$("useIndividualValveRuntimes").checked;data.individualValveRuntimes=getIndividualValveRuntimes();data.fertigationFinishBefore=data.phaseMode==="fertigation"?fertFinishMinutes():0;
+ state.plans[idx]={...state.plans[idx],...data,updated:new Date().toISOString()};sortPlans();save();resetNewForm();renderPlan();showPage("tonight");alert("Job updated.")
 }
 function editDraftShift(i){const job=draftShifts()[i];if(!job)return;editingDraftShiftIndex=i;loadPlanToForm(job,false);renderProgramBanner();syncShiftMode();window.scrollTo({top:$("formTitle").getBoundingClientRect().top+window.scrollY-20,behavior:"smooth"})}
 function removeDraftShift(i){const a=activeProgram(),job=draftShifts()[i];if(!a||!job)return;if(!confirm(`Remove Job ${i+1} from this draft program?`))return;a.draftShifts.splice(i,1);a.draftShifts.forEach((j,n)=>j.programSequence=n+1);applyFinalVatRinseToDraftJobs();save();editingDraftShiftIndex=-1;prepareNextShiftForm()}

@@ -6,7 +6,10 @@ if($("saveNightProgramBottom")) $("saveNightProgramBottom").onclick=()=>saveNigh
 if($("cancelProgramBottom")) $("cancelProgramBottom").onclick=()=>cancelIrrigationProgram();
 $("cancelProgram").addEventListener("click",cancelIrrigationProgram);
 $("programName").addEventListener("input",()=>{const a=activeProgram();if(a){a.name=$("programName").value.trim()||a.name;save();renderProgramBanner()}else $("programName").dataset.autoName="0"});
-$("shiftMode").addEventListener("change",syncShiftMode);$("vatRequired").addEventListener("change",()=>{syncVatRequirementUI();if(vatRequired())renderInlineVatMix()});
+$("shiftMode").addEventListener("change",()=>{syncShiftMode();setRapidChoiceActive("");setRapidStatus("Job type changed manually — existing planner controls are active.")});
+$("rapidWater")?.addEventListener("click",rapidWaterOnly);
+$("rapidNormalFert")?.addEventListener("click",rapidNormalFertigation);
+$("rapidCustom")?.addEventListener("click",rapidCustom);$("vatRequired").addEventListener("change",()=>{syncVatRequirementUI();if(vatRequired())renderInlineVatMix()});
 $("pumpSetupFarm").addEventListener("change",renderPumpSetup);
 $("addPump").addEventListener("click",addPump);
 $("mixProduct").addEventListener("change",()=>{$("mixBatchName").value=`${$("farm").value} ${$("mixProduct").value||"Fertilizer"} Vat`;$("mixBatchName").dataset.autoName="1";loadLastVatSettings();renderInlineVatSummary()});
