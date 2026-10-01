@@ -97,31 +97,3 @@
 .finalShiftInline input{width:22px!important;height:22px!important;margin:0;flex:0 0 auto}
 @media(max-width:600px){.shiftSummary{align-items:center}.shiftSummaryActions{gap:10px}.shiftSummary .ha{font-size:17px}.finalShiftInline span{font-size:13px}}
 @media(max-width:390px){.shiftSummary{gap:6px;padding:9px}.shiftSummaryActions{gap:7px}.finalShiftInline span{font-size:12px}.finalShiftInline input{width:20px!important;height:20px!important}}
-
-/* Experimental Card Injection Programming — 28 Sep 2026 */
-#injectors{display:grid;grid-template-columns:1fr;gap:10px}
-#injectors .inj{border:1px solid #d5dfd8;border-radius:12px;padding:10px;background:#fbfdfb;min-width:0}
-#injectors .inj:first-child{border-top:1px solid #d5dfd8}
-#injectors .injHead{align-items:flex-start;margin-bottom:2px}
-#injectors .injHead>div{min-width:0}
-#injectors .injHead strong{display:block;font-size:15px;line-height:1.2}
-#injectors .injHead small{display:block;color:#68786e;font-size:11px;margin-top:2px}
-#injectors .toggle{flex:0 0 auto;background:#fff;color:#1672df}
-#injectors .inj.active .toggle{background:#fff;color:#1672df}
-#injectors .inj.active .injBody{display:grid;grid-template-columns:1fr;gap:0;padding-top:8px}
-#injectors .injBody label{display:grid;grid-template-columns:108px minmax(0,1fr);gap:8px;align-items:center;margin:3px 0;font-size:12px;font-weight:800}
-#injectors .injBody select,#injectors .injBody input{min-height:36px;height:36px;padding:5px 8px;font-size:14px}
-#injectors .injBody .calc{margin-top:8px;padding:8px 9px;grid-column:1/-1}
-#injectors .flushOnly .injBody{display:none!important}
-#injectors .flushOnly.active .injBody{display:grid!important}
-.injectionOrderBox{margin-top:14px}
-@media(min-width:760px){
-  #injectors{grid-template-columns:repeat(3,minmax(0,1fr));align-items:start}
-  #injectors .inj.active .injBody{display:grid;grid-template-columns:1fr;gap:0}
-  #injectors .injBody>.two{display:contents}
-  #injectors .injBody>.vatPlan,#injectors .injBody>.solutionWrap,#injectors .injBody>.calc{grid-column:1/-1}
-  #injectors .flushOnly{grid-column:1}
-}
-@media(max-width:520px){
-  #injectors .injBody label{grid-template-columns:96px minmax(0,1fr)}
-}
